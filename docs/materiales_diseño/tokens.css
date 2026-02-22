@@ -1,0 +1,16 @@
+:root {
+  /* Colores oficiales SENA */
+  --sena-color-primary: #39A900;
+  --sena-color-dark: #1F5F00;
+  --sena-color-light: #E6F4DD;
+  --sena-color-black: #000000;
+  --sena-color-white: #FFFFFF;
+  --sena-color-gray: #4B5563;
+
+  /* Tipografía oficial */
+  --sena-font-base: 'Work Sans', system-ui, sans-serif;
+
+  /* UI */
+  --sena-radius: 8px;
+  --sena-focus-ring: 2px solid #39A900;
+}

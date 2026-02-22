@@ -1,0 +1,31 @@
+DESIGN SYSTEM SENA
+Alineación estricta al Manual de Identidad Visual SENA 2024
+
+USO OBLIGATORIO:
+- Color primario exclusivo: Verde SENA #39A900
+- Tipografía única: Work Sans
+- Prohibido alterar proporciones visuales institucionales
+
+ICONOGRAFÍA:
+- Estilo lineal
+- Grosor uniforme
+- Preferencia: Heroicons / Lucide (outline)
+
+COMPONENTES UI:
+- Botón primario: Verde SENA, texto blanco
+- Botón secundario: Gris institucional
+- Tarjetas: fondo blanco, radio 8px
+- Formularios: labels visibles, foco verde
+
+ACCESIBILIDAD:
+- Contraste WCAG AA mínimo
+- Navegación 100% teclado
+- Responsive obligatorio (mobile-first)
+
+RESPONSIVE:
+- Breakpoints Tailwind oficiales
+- No layouts fijos
+
+CUMPLIMIENTO:
+Este Design System es la única referencia válida
+para interfaces web institucionales del SENA.

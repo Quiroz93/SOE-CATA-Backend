@@ -1,0 +1,256 @@
+openapi: 3.1.0
+
+info:
+  title: Ofertas Educativas API
+  version: 1.0.0
+  description: API oficial versionada v1
+  license:
+    name: Proprietary
+    url: https://example.com/license
+
+servers:
+  - url: http://localhost/api/v1
+    description: Local development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Health
+    description: Endpoints de verificación del servicio
+  - name: Programas
+    description: Gestión de programas académicos
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Verificar estado del servicio
+      operationId: getHealthStatus
+      security: []
+      responses:
+        '200':
+          description: Servicio operativo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/programas:
+    get:
+      tags:
+        - Programas
+      summary: Listar programas
+      operationId: listProgramas
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Listado paginado de programas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Programa'
+                      meta:
+                        $ref: '#/components/schemas/PaginatedMeta'
+    post:
+      tags:
+        - Programas
+      summary: Crear un programa
+      operationId: createPrograma
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramaCreateRequest'
+      responses:
+        '201':
+          description: Programa creado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Programa'
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/programas/{id}:
+    get:
+      tags:
+        - Programas
+      summary: Obtener un programa por ID
+      operationId: getProgramaById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle de un programa
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Programa'
+        '404':
+          description: Programa no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+        - errors
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type:
+            - object
+            - "null"
+        errors:
+          type: array
+          items:
+            type: string
+          example: []
+        meta:
+          type:
+            - object
+            - "null"
+
+    Programa:
+      type: object
+      required:
+        - id
+        - nombre
+        - estado
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        descripcion:
+          oneOf:
+            - type: string
+            - type: "null"
+        estado:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    ProgramaCreateRequest:
+      type: object
+      required:
+        - nombre
+        - estado
+      properties:
+        nombre:
+          type: string
+          maxLength: 255
+        descripcion:
+          oneOf:
+            - type: string
+            - type: "null"
+        estado:
+          type: string
+          enum: [draft, published]
+
+    PaginatedMeta:
+      type: object
+      required:
+        - current_page
+        - per_page
+        - total
+        - last_page
+      properties:
+        current_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+        last_page:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - errors
+      properties:
+        success:
+          type: boolean
+          example: false
+        data:
+          type:
+            - object
+            - "null"
+        errors:
+          type: array
+          items:
+            type: string
+          example:
+            - "Internal server error"
+        meta:
+          type:
+            - object
+            - "null"

@@ -1,0 +1,121 @@
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+
+# =========================
+# Environment
+# =========================
+.env
+.env.*
+.auth.json
+
+# =========================
+# Archivos de Sustentación
+# =========================
+archivos de sustentacion/
+*.md
+
+# =========================
+# PHP / Composer
+# =========================
+/vendor/
+.phpunit.result.cache
+/.phpunit.cache
+.phpactor.json
+
+# =========================
+# Node / Vite / Mix
+# =========================
+/node_modules/
+/public/build/
+/public/hot/
+/public/mix-manifest.json
+/.vite/
+npm-debug.log
+yarn-error.log
+yarn-debug.log*
+
+# =========================
+# Public vendor assets
+# (AdminLTE, Bootstrap, etc.)
+# =========================
+/public/vendor/
+
+# =========================
+# Laravel
+# =========================
+/storage/*.key
+/storage/pail
+/bootstrap/cache/*
+/storage/framework/cache/
+/storage/framework/views/
+
+# =========================
+# Compiled public assets
+# =========================
+/public/css/
+/public/js/
+
+# =========================
+# IDEs / Editors
+# =========================
+/.idea/
+/.vscode/
+/.fleet/
+/.zed/
+/.nova/
+*.sublime-project
+*.sublime-workspace
+/nbproject/private/
+/.settings/
+/.project
+/.cproject
+*.swp
+*~~
+
+# =========================
+# Homestead / Sail
+# =========================
+Homestead.json
+Homestead.yaml
+/.vagrant/
+/vendor/bin/sail
+
+# =========================
+# Sensitive Data
+# =========================
+*.xlsx
+*.xls
+*.csv
+preinscritos*.json
+datos_*.json
+*.backup
+*.bak
+importar_*.json
+
+# =========================
+# Debug and Temporary Files
+# =========================
+*.debug
+*.test
+test-*.sh
+*-test.php
+*-test.js
+audit-*.txt
+fase*-*.txt
+*-reportes*.md
+debug/
+temp/
+tmp/
+
+# =========================
