@@ -18,12 +18,13 @@ Desktop.ini
 .env
 .env.*
 .auth.json
+!.env.example
 
 # =========================
 # Archivos de Sustentación
 # =========================
 archivos de sustentacion/
-*.md
+!README.md
 
 # =========================
 # PHP / Composer
