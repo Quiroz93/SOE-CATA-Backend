@@ -10,7 +10,6 @@ class Preinscrito extends Model
     use HasFactory;
 
     protected $fillable = [
-        'oferta_id',
         'oferta_programa_id',
         'nombre',
         'documento',
@@ -23,10 +22,7 @@ class Preinscrito extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function oferta()
-    {
-        return $this->belongsTo(Oferta::class);
-    }
+    // Relación solo con OfertaPrograma
 
     public function ofertaPrograma()
     {

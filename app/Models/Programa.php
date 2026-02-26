@@ -18,9 +18,9 @@ class Programa extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopePublished(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    public function scopePublished($query)
     {
-        return $query->where('estado', EstadoPrograma::PUBLICADO->value);
+        return $query->where('estado', 'publicado'); // Ajustar según Enum si aplica
     }
     use HasFactory, SoftDeletes;
 
@@ -38,11 +38,9 @@ class Programa extends Model
         'estado' => EstadoPrograma::class,
     ];
 
-    public function ofertas()
+    public function ofertaProgramas()
     {
-        return $this->belongsToMany(Oferta::class, 'oferta_programa')
-            ->withPivot(['cupos', 'estado', 'fecha_inicio', 'fecha_fin'])
-            ->withTimestamps();
+        return $this->hasMany(OfertaPrograma::class);
     }
         // Relaciones académicas
         public function detalle()

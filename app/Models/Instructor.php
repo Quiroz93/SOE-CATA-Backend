@@ -16,8 +16,8 @@ class Instructor extends Model
         'activo' => 'boolean',
     ];
 
-    public function programas()
+    public function ofertaProgramas()
     {
-        return $this->belongsToMany(Programa::class, 'instructor_programa');
+        return $this->hasMany(OfertaPrograma::class);
     }
 }

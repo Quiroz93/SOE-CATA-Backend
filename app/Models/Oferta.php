@@ -41,6 +41,12 @@ class Oferta extends Model
 		return $this->hasMany(OfertaPrograma::class);
 	}
 
+	// Scope para ofertas activas
+	public function scopeActivo($query)
+	{
+		return $query->where('estado', 'activo'); // Ajustar según Enum si aplica
+	}
+
 	public function preinscritos()
 	{
 		return $this->hasMany(Preinscrito::class);
