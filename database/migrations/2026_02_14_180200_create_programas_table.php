@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
 
             $table->string('nombre');
+            $table->string('slug')->unique();
             $table->string('ficha')->unique();
             $table->string('nivel');
             $table->text('descripcion')->nullable();
