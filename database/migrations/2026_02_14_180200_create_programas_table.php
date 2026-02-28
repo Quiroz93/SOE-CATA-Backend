@@ -9,12 +9,13 @@ return new class extends Migration {
     {
         Schema::create('programas', function (Blueprint $table) {
             $table->id();
-
             $table->string('nombre');
             $table->string('slug')->unique();
             $table->string('ficha')->unique();
             $table->string('nivel');
             $table->text('descripcion')->nullable();
+            $table->string('modalidad')->nullable();
+            $table->string('municipio')->nullable();
             $table->string('estado')->default('borrador');
             $table->timestamps();
             $table->softDeletes();

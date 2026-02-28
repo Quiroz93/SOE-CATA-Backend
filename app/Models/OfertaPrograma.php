@@ -18,6 +18,7 @@ class OfertaPrograma extends Model
         'programa_id',
         'instructor_id',
         'cupos',
+        'modalidad',
         'estado',
         'version',
     ];

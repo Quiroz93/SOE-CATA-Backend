@@ -49,6 +49,8 @@ class ProgramaFactory extends Factory
                 EstadoPrograma::PUBLICADO,
                 EstadoPrograma::ARCHIVADO,
             ]),
+            'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
+            'municipio' => $this->faker->city(),
         ];
     }
 }

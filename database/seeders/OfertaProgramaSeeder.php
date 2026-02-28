@@ -21,18 +21,20 @@ class OfertaProgramaSeeder extends Seeder
             \App\Models\Instructor::factory()->count(5)->create();
         }
 
-        $ofertas = \App\Models\Oferta::pluck('id');
+        $ofertas = \App\Models\Oferta::where('estado', true)->pluck('id');
         $programas = \App\Models\Programa::pluck('id');
         $instructores = \App\Models\Instructor::pluck('id');
 
-        // Crear 10 registros de oferta_programa con todos los campos requeridos
-        for ($i = 0; $i < 10; $i++) {
+        // Asegurar que cada oferta activa tenga al menos un programa relacionado
+        $faker = \Faker\Factory::create('es_ES');
+        foreach ($ofertas as $ofertaId) {
             \Illuminate\Support\Facades\DB::table('oferta_programa')->insert([
-                'oferta_id' => $ofertas->random(),
+                'oferta_id' => $ofertaId,
                 'programa_id' => $programas->random(),
                 'instructor_id' => $instructores->random(),
                 'cupos' => rand(10, 100),
-                'estado' => (rand(0,1) === 1), // 1=activo, 0=inactivo
+                'modalidad' => $faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
+                'estado' => true, // Relación activa
                 'version' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),

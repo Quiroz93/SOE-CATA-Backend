@@ -30,6 +30,8 @@ class Programa extends Model
         'ficha',
         'descripcion',
         'estado',
+        'modalidad',
+        'municipio',
     ];
 
     protected $casts = [

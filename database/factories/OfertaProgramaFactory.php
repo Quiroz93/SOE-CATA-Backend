@@ -39,6 +39,7 @@ class OfertaProgramaFactory extends Factory
             'estado' => $this->faker->randomElement(['activo', 'inactivo']),
             'fecha_inicio' => $this->faker->date(),
             'fecha_fin' => $this->faker->date(),
+            'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
         ];
     }
 }
