@@ -10,6 +10,7 @@ class ProgramaSeeder extends Seeder
 {
     public function run(): void
     {
+        $faker = \Faker\Factory::create('es_ES');
         $programas = [
             [
                 "nivel" => "OPERARIO",
@@ -92,6 +93,7 @@ class ProgramaSeeder extends Seeder
 
         $faker = \Faker\Factory::create('es_ES');
         foreach ($programas as $item) {
+            $item['descripcion'] = $faker->paragraph();
             Programa::updateOrCreate(
                 ['ficha' => $item['ficha']],
                 [
@@ -99,8 +101,7 @@ class ProgramaSeeder extends Seeder
                     'nombre' => $item['nombre'],
                     'slug' => $item['slug'],
                     'estado' => $item['estado'],
-                    'modalidad' => $faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
-                    'municipio' => $faker->city(),
+                    'descripcion' => $item['descripcion'],
                 ]
             );
         }
