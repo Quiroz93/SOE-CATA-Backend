@@ -44,13 +44,12 @@ class ProgramaFactory extends Factory
             'slug' => strtolower(str_replace(' ', '-', $nombre)),
             'ficha' => $this->faker->unique()->numerify('#######'), // mínimo 7 dígitos
             'descripcion' => $this->faker->paragraph(),
+            'nivel' => $this->faker->randomElement(['OPERARIO', 'TÉCNICO', 'TECNÓLOGO']),
             'estado' => $this->faker->randomElement([
                 EstadoPrograma::BORRADOR,
                 EstadoPrograma::PUBLICADO,
                 EstadoPrograma::ARCHIVADO,
             ]),
-            'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
-            'municipio' => $this->faker->city(),
         ];
     }
 }
