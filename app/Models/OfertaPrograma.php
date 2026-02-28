@@ -17,11 +17,17 @@ class OfertaPrograma extends Model
         'oferta_id',
         'programa_id',
         'instructor_id',
+        'centro_id',
+        'municipio',
         'cupos',
         'modalidad',
         'estado',
         'version',
     ];
+    public function centro()
+    {
+        return $this->belongsTo(Centro::class);
+    }
 
     protected $casts = [
         'estado' => 'boolean',

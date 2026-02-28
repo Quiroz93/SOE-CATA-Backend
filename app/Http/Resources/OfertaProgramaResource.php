@@ -11,6 +11,8 @@ class OfertaProgramaResource extends JsonResource
         return [
             'id' => $this->id,
             'cupos' => $this->cupos,
+            'modalidad' => $this->modalidad,
+            'municipio' => $this->municipio,
             'instructor' => new InstructorResource($this->instructor),
             'programa' => new ProgramaResource($this->programa),
         ];

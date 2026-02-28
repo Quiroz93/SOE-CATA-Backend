@@ -15,6 +15,6 @@ class Centro extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('estado', 'publicado');
+        return $query->where('estado', 'activo');
     }
 }
