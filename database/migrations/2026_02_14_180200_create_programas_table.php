@@ -14,8 +14,6 @@ return new class extends Migration {
             $table->string('ficha')->unique();
             $table->string('nivel');
             $table->text('descripcion')->nullable();
-            $table->string('modalidad')->nullable();
-            $table->string('municipio')->nullable();
             $table->string('estado')->default('borrador');
             $table->timestamps();
             $table->softDeletes();
