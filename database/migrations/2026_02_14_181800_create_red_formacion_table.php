@@ -19,6 +19,13 @@ return new class extends Migration {
 
     public function down(): void
     {
+        // Eliminar primero la relación en programas si existe
+        if (Schema::hasColumn('programas', 'red_formacion_id')) {
+            Schema::table('programas', function (Blueprint $table) {
+                $table->dropForeign(['red_formacion_id']);
+                $table->dropColumn('red_formacion_id');
+            });
+        }
         Schema::dropIfExists('red_formacion');
     }
 };

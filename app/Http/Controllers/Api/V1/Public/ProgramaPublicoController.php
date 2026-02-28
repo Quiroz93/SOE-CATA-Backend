@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Programa;
-use App\Http\Resources\ProgramaResource;
+use App\Http\Resources\Api\V1\Public\ProgramaResource;
 use App\Http\Resources\ProgramaDetalleResource;
 use Illuminate\Http\Request;
 
@@ -28,7 +28,7 @@ class ProgramaPublicoController extends Controller
                   ;
             });
         }
-        $programas = $query->orderByDesc('id')->paginate(10);
+        $programas = $query->select(['id','nombre','slug','descripcion','nivel','estado','created_at','updated_at'])->orderByDesc('id')->paginate(10);
         return ProgramaResource::collection($programas);
     }
 

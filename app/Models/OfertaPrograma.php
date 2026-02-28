@@ -20,11 +20,10 @@ class OfertaPrograma extends Model
         'cupos',
         'estado',
         'version',
-        'activo',
     ];
 
     protected $casts = [
-        'activo' => 'boolean',
+        'estado' => 'boolean',
         'cupos' => 'integer',
         'version' => 'integer',
         'created_at' => 'datetime',

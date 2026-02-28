@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
         $this->call(ProgramaSeeder::class);
         $this->call(OfertaSeeder::class);
+        $this->call(OfertaProgramaSeeder::class);
 
         // Crear usuario inicial Super Admin si no existe
         $admin = \App\Models\User::firstOrCreate(

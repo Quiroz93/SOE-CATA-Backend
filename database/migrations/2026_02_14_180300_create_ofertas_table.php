@@ -14,12 +14,13 @@ return new class extends Migration {
             $table->text('descripcion')->nullable();
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
-            $table->string('estado')->default('abierta');
+            $table->string('estado')->default('activo'); // Enum recomendado, pero string para flexibilidad 
             $table->timestamps();
         });
     }
     public function down(): void
     {
+        Schema::dropIfExists('oferta_programa');
         Schema::dropIfExists('ofertas');
     }
 };

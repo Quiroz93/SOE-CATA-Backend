@@ -36,7 +36,7 @@ class OfertaFactory extends Factory
             'centro_id' => \App\Models\Centro::factory(),
             'nombre' => $this->faker->sentence(3),
             'descripcion' => $this->faker->paragraph(),
-            'estado' => $this->faker->randomElement(['abierta', 'cerrada']),
+            'estado' => $this->faker->randomElement(['activo', 'inactivo']),
             'fecha_inicio' => $this->faker->date(),
             'fecha_fin' => $this->faker->date(),
         ];

@@ -13,18 +13,18 @@ return new class extends Migration {
             $table->foreignId('programa_id')->constrained('programas')->cascadeOnDelete();
             $table->foreignId('instructor_id')->constrained('instructores')->cascadeOnDelete();
             $table->integer('cupos');
-            $table->string('estado'); // Enum recomendado, pero string para flexibilidad
+            $table->boolean('estado')->default(true); // 1=activo, 0=inactivo
             $table->integer('version')->default(1);
-            $table->boolean('activo')->default(true);
             $table->timestamps();
             $table->softDeletes();
             $table->index(['oferta_id', 'programa_id', 'version']);
-            $table->index(['oferta_id', 'programa_id', 'activo']);
+            // $table->index(['oferta_id', 'programa_id', 'activo']); // Eliminado porque 'activo' ya no existe
         });
     }
 
     public function down(): void
     {
+        // Eliminar primero la tabla oferta_programa para evitar errores de clave foránea
         Schema::dropIfExists('oferta_programa');
     }
 };

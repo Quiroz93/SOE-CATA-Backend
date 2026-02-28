@@ -20,6 +20,7 @@ class ProgramaCompetenciaTestSeeder extends Seeder
 
         $programa = Programa::create([
             'nombre' => 'Programa de Prueba',
+            'slug' => 'programa-de-prueba',
             'codigo' => 'PRB001',
             'descripcion' => 'Descripción',
             'estado' => 'publicado',

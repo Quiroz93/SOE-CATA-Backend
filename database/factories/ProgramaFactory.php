@@ -38,9 +38,11 @@ class ProgramaFactory extends Factory
      */
     public function definition(): array
     {
+        $nombre = $this->faker->unique()->sentence(2);
         return [
-            'nombre' => $this->faker->unique()->sentence(2),
-            'codigo' => $this->faker->unique()->bothify('PRG###'),
+            'nombre' => $nombre,
+            'slug' => strtolower(str_replace(' ', '-', $nombre)),
+            'ficha' => $this->faker->unique()->numerify('#######'), // mínimo 7 dígitos
             'descripcion' => $this->faker->paragraph(),
             'estado' => $this->faker->randomElement([
                 EstadoPrograma::BORRADOR,
