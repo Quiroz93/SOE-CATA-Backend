@@ -24,12 +24,8 @@ class ProgramaResource extends JsonResource
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
-            'municipio' => $this->municipio ?? null,
             'nivel' => $this->nivel,
-            'modalidad' => $this->modalidad ?? null,
-            'cupos_disponibles' => $this->cupos ?? null,
-            'fecha_inicio' => $this->fecha_inicio ?? null,
-            'fecha_fin' => $this->fecha_fin ?? null,
+            'estado' => $this->estado,
         ];
     }
 }
