@@ -24,6 +24,7 @@ class OfertaProgramaSeeder extends Seeder
         $ofertas = \App\Models\Oferta::where('estado', true)->pluck('id');
         $programas = \App\Models\Programa::pluck('id');
         $instructores = \App\Models\Instructor::pluck('id');
+        $centros = \App\Models\Centro::pluck('id');
 
         // Asegurar que cada oferta activa tenga al menos un programa relacionado
         $faker = \Faker\Factory::create('es_ES');
@@ -32,6 +33,7 @@ class OfertaProgramaSeeder extends Seeder
                 'oferta_id' => $ofertaId,
                 'programa_id' => $programas->random(),
                 'instructor_id' => $instructores->random(),
+                'centro_id' => $centros->random(),
                 'cupos' => rand(10, 100),
                 'modalidad' => $faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
                 'estado' => true, // Relación activa

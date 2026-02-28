@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignId('oferta_id')->constrained('ofertas')->cascadeOnDelete();
             $table->foreignId('programa_id')->constrained('programas')->cascadeOnDelete();
             $table->foreignId('instructor_id')->constrained('instructores')->cascadeOnDelete();
+            $table->foreignId('centro_id')->nullable()->constrained('centros')->cascadeOnDelete();
             $table->integer('cupos');
             $table->string('modalidad')->nullable();
             $table->boolean('estado')->default(true); // 1=activo, 0=inactivo

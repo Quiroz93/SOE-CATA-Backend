@@ -35,11 +35,12 @@ class OfertaProgramaFactory extends Factory
         return [
             'oferta_id' => \App\Models\Oferta::factory(),
             'programa_id' => \App\Models\Programa::factory(),
+            'instructor_id' => \App\Models\Instructor::factory(),
+            'centro_id' => \App\Models\Centro::factory(),
             'cupos' => $this->faker->numberBetween(10, 100),
-            'estado' => $this->faker->randomElement(['activo', 'inactivo']),
-            'fecha_inicio' => $this->faker->date(),
-            'fecha_fin' => $this->faker->date(),
+            'estado' => true,
             'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
+            'version' => 1,
         ];
     }
 }
