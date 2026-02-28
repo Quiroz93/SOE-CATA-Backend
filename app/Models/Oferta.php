@@ -24,7 +24,7 @@ class Oferta extends Model
 		'descripcion',
 		'estado',
 		'fecha_inicio',
-		'fecha_fin',
+		'fecha_fin'
 		// Agregar otros campos según migración
 	];
 
