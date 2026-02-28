@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->integer('version')->default(1);
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['oferta_id', 'programa_id', 'centro_id']);
             $table->index(['oferta_id', 'programa_id', 'version']);
         });
     }

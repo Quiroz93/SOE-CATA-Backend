@@ -37,8 +37,10 @@ class OfertaProgramaFactory extends Factory
             'programa_id' => \App\Models\Programa::factory(),
             'instructor_id' => \App\Models\Instructor::factory(),
             'centro_id' => \App\Models\Centro::factory(),
-            'cupos' => $this->faker->numberBetween(10, 100),
-            'estado' => true,
+            'cupos' => $this->faker->numberBetween(1, 50),
+            'estado' => $this->faker->randomElement(['activo', 'inactivo']),
+            'fecha_inicio' => $this->faker->date(),
+            'fecha_fin' => $this->faker->date(),
             'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
             'version' => 1,
         ];
