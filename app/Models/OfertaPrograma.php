@@ -54,6 +54,6 @@ class OfertaPrograma extends Model
     // Scope para registros activos
     public function scopeActivo($query)
     {
-        return $query->where('activo', true);
+        return $query->where('estado', true);
     }
 }

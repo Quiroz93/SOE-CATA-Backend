@@ -44,7 +44,7 @@ class Oferta extends Model
 	// Scope para ofertas activas
 	public function scopeActivo($query)
 	{
-		return $query->where('estado', 'activo'); // Ajustar según Enum si aplica
+		return $query->where('estado', true);
 	}
 
 	public function preinscritos()

@@ -10,7 +10,7 @@ class OfertaSeeder extends Seeder
     public function run(): void
     {
         Oferta::factory()->count(5)->create([
-            'estado' => 'activo',
+            'estado' => true,
         ]);
     }
 }
