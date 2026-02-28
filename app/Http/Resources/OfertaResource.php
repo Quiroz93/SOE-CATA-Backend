@@ -14,7 +14,7 @@ class OfertaResource extends JsonResource
             'descripcion' => $this->descripcion,
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
-            'estado' => $this->estado,
+            'estado' => (int) $this->estado,
             'programas' => OfertaProgramaResource::collection($this->ofertaProgramas()->activo()->get()),
         ];
     }
