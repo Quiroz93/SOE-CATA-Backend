@@ -33,6 +33,10 @@
         data-ofertas-activas="{{ $ofertasActivas }}"
         data-ofertas-vencidas="{{ $ofertasVencidas }}"
         data-inactivas="{{ $ofertasPorEstado['inactiva'] }}"
+        data-preinscritos-por-mes='@json($preinscritosPorMes)'
+        data-preinscritos-pendientes="{{ $preinscritosPendientes }}"
+        data-preinscritos-aceptados="{{ $preinscritosAceptados }}"
+        data-preinscritos-rechazados="{{ $preinscritosRechazados }}"
         style="display: none;"
     ></div>
 
@@ -83,6 +87,53 @@
             </div>
             <div class="kpi-value">{{ $totalUsuarios }}</div>
         </div>
+
+        <!-- Preinscritos KPIs -->
+        <div class="kpi-card kpi-info">
+            <div class="kpi-header">
+                <span class="kpi-label">Total Preinscritos</span>
+                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+            </div>
+            <div class="kpi-value">{{ $totalPreinscritos }}</div>
+        </div>
+
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-header">
+                <span class="kpi-label">Pendientes</span>
+                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="kpi-value kpi-warning">{{ $preinscritosPendientes }}</div>
+        </div>
+
+        <div class="kpi-card kpi-success">
+            <div class="kpi-header">
+                <span class="kpi-label">Aceptados</span>
+                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="kpi-value kpi-success">{{ $preinscritosAceptados }}</div>
+        </div>
+
+        <div class="kpi-card kpi-danger">
+            <div class="kpi-header">
+                <span class="kpi-label">Rechazados</span>
+                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            </div>
+            <div class="kpi-value kpi-danger">{{ $preinscritosRechazados }}</div>
+        </div>
     </div>
 
     <!-- Charts Section -->
@@ -99,6 +150,20 @@
                 <h3>Distribución por Estado</h3>
             </div>
             <canvas id="estadoOfertasChart" height="80"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Preinscritos por Mes</h3>
+            </div>
+            <canvas id="preinscritosMesChart" height="80"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Preinscritos por Estado</h3>
+            </div>
+            <canvas id="preinscritosEstadoChart" height="80"></canvas>
         </div>
     </div>
 
@@ -144,6 +209,32 @@
                             <td><span class="badge badge-success">{{ $programa->ofertas_count }}</span></td>
                         </tr>
                     @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Programas con Más Preinscritos</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Programa</th>
+                        <th>Preinscritos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($programasMasPreinscritos as $programa)
+                        <tr>
+                            <td>{{ $programa->nombre }}</td>
+                            <td><span class="badge badge-info">{{ $programa->preinscritos_count }}</span></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center text-gray-500 py-4">No hay datos disponibles</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

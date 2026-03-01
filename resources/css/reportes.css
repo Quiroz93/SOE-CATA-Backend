@@ -130,6 +130,22 @@
     border-left-color: #00304D;
 }
 
+.kpi-info {
+    border-left-color: #007BFF;
+}
+
+.kpi-success {
+    border-left-color: #39A900;
+}
+
+.kpi-warning {
+    border-left-color: #FFC107;
+}
+
+.kpi-danger {
+    border-left-color: #DC3545;
+}
+
 .kpi-header {
     display: flex;
     justify-content: space-between;
@@ -165,6 +181,10 @@
 
 .kpi-value.kpi-warning {
     color: #FF9800;
+}
+
+.kpi-value.kpi-danger {
+    color: #DC3545;
 }
 
 /* Charts Section */
@@ -266,6 +286,11 @@
 .badge-success {
     background-color: rgba(76, 175, 80, 0.15);
     color: #4CAF50;
+}
+
+.badge-info {
+    background-color: rgba(0, 123, 255, 0.15);
+    color: #007BFF;
 }
 
 /* Status Badge */

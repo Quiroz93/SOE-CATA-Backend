@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Oferta;
+use App\Models\Preinscrito;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -39,11 +40,24 @@ class ReporteController extends Controller
         $ofertasVencidas = Oferta::where('estado', 'vencida')->count();
         $totalUsuarios = User::count();
 
+        // Preinscritos KPIs
+        $totalPreinscritos = Preinscrito::count();
+        $preinscritosPendientes = Preinscrito::where('estado', 'pendiente')->count();
+        $preinscritosAceptados = Preinscrito::where('estado', 'aceptado')->count();
+        $preinscritosRechazados = Preinscrito::where('estado', 'rechazado')->count();
+
         // Ofertas por estado
         $ofertasPorEstado = [
             'activa' => Oferta::where('estado', 'activa')->count(),
             'vencida' => Oferta::where('estado', 'vencida')->count(),
             'inactiva' => Oferta::where('estado', 'inactiva')->count(),
+        ];
+
+        // Preinscritos por estado
+        $preinscritosPorEstado = [
+            'pendiente' => $preinscritosPendientes,
+            'aceptado' => $preinscritosAceptados,
+            'rechazado' => $preinscritosRechazados,
         ];
 
         // Usuarios por rol (Spatie Permission)
@@ -97,6 +111,27 @@ class ReporteController extends Controller
             $dataMes[] = $ofertasPorMes[$i] ?? 0;
         }
 
+        // Chart data: Preinscritos por mes
+        $preinscritosPorMes = Preinscrito::selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
+            ->groupBy('mes')
+            ->pluck('total', 'mes')
+            ->toArray();
+
+        $dataPreinscritosMes = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $dataPreinscritosMes[] = $preinscritosPorMes[$i] ?? 0;
+        }
+
+        // Programas con más preinscritos
+        $programasMasPreinscritos = DB::table('programas as p')
+            ->join('oferta_programa as op', 'op.programa_id', '=', 'p.id')
+            ->join('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
+            ->selectRaw('p.nombre, COUNT(pr.id) as preinscritos_count')
+            ->groupBy('p.id', 'p.nombre')
+            ->orderByDesc('preinscritos_count')
+            ->limit(5)
+            ->get();
+
         return view('admin.reportes.index', [
             'totalOfertas' => $totalOfertas,
             'ofertasActivas' => $ofertasActivas,
@@ -111,6 +146,14 @@ class ReporteController extends Controller
             'ofertasPorMes' => $dataMes,
             'startDate' => $startDate->format('Y-m-d'),
             'endDate' => $endDate->format('Y-m-d'),
+            // Preinscritos data
+            'totalPreinscritos' => $totalPreinscritos,
+            'preinscritosPendientes' => $preinscritosPendientes,
+            'preinscritosAceptados' => $preinscritosAceptados,
+            'preinscritosRechazados' => $preinscritosRechazados,
+            'preinscritosPorEstado' => $preinscritosPorEstado,
+            'preinscritosPorMes' => $dataPreinscritosMes,
+            'programasMasPreinscritos' => $programasMasPreinscritos,
         ]);
     }
 }
