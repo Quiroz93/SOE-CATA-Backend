@@ -5,34 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Portal Público')</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicons/favicon.ico') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/public-layout.css') }}">
+    @vite(['resources/js/app.js'])
 </head>
-<body class="bg-white min-h-screen flex flex-col">
-    <div id="app">
+<body class="public-body">
+    <div id="app" class="public-app">
         <!-- Header público -->
-        <header class="bg-gray-900 text-white py-4 shadow">
-            <div class="container mx-auto flex justify-between items-center px-4">
-                <span class="font-bold text-xl">Ofertas Educativas SENA</span>
+        <header class="public-header">
+            <div class="public-header__container">
+                <span class="public-header__title">Ofertas Educativas SENA</span>
                 <!-- Navegación básica -->
-                <nav>
-                    <ul class="flex space-x-6">
-                        <li><a href="/" class="hover:underline">Inicio</a></li>
-                        <li><a href="{{ route('public.ofertas.index') }}" class="hover:underline">Ofertas</a></li>
-                        <li><a href="{{ route('public.programas.index') }}" class="hover:underline">Programas</a></li>
-                        <li><a href="#" class="hover:underline">Contacto</a></li>
-                        
+                <nav class="public-nav">
+                    <ul class="public-nav__list">
+                        <li class="public-nav__item">
+                            <a href="/" class="public-nav__link {{ request()->is('/') ? 'public-nav__link--active' : '' }}">
+                                Inicio
+                            </a>
+                        </li>
+                        <li class="public-nav__item">
+                            <a href="{{ route('public.ofertas.index') }}" class="public-nav__link {{ request()->routeIs('public.ofertas.*') ? 'public-nav__link--active' : '' }}">
+                                Ofertas
+                            </a>
+                        </li>
+                        <li class="public-nav__item">
+                            <a href="{{ route('public.programas.index') }}" class="public-nav__link {{ request()->routeIs('public.programas.*') ? 'public-nav__link--active' : '' }}">
+                                Programas
+                            </a>
+                        </li>
+                        <li class="public-nav__item">
+                            <a href="#" class="public-nav__link">
+                                Contacto
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
         </header>
         <!-- Contenedor principal -->
-        <main class="flex-1 container mx-auto px-4 py-8">
+        <main class="public-main">
             @yield('content')
         </main>
         <!-- Footer público -->
-        <footer class="bg-gray-900 text-white py-4 mt-8">
-            <div class="container mx-auto text-center text-sm">
-                &copy; {{ now()->year }} SENA. Todos los derechos reservados.
+        <footer class="public-footer">
+            <div class="public-footer__container">
+                <p class="public-footer__text">
+                    &copy; {{ now()->year }} SENA. Todos los derechos reservados.
+                </p>
             </div>
         </footer>
     </div>
