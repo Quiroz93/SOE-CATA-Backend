@@ -13,7 +13,7 @@ Route::get('/dashboard', function () {
 	/** @var User $user */
 	$user = Auth::user();
 	
-	if ($user && ($user->hasRole('SuperAdmin') || $user->hasRole('Administrador'))) {
+	if ($user && $user->hasAnyRole(['Super Admin', 'Administración del Sistema', 'SuperAdmin', 'Administrador'])) {
 		return redirect()->route('admin.dashboard');
 	}
 	return view('dashboard');
