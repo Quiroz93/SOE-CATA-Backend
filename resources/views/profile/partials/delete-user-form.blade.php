@@ -1,24 +1,24 @@
 <section class="profile-section delete-section">
     <header class="profile-section__header">
         <h2 class="profile-section__title">
-            {{ __('Delete Account') }}
+            Eliminar Cuenta
         </h2>
 
         <p class="profile-section__description">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de eliminar tu cuenta, por favor descarga cualquier dato o información que desees conservar.
         </p>
     </header>
 
     <div class="delete-alert">
-        <h3 class="delete-alert__title">⚠ {{ __('Warning') }}</h3>
+        <h3 class="delete-alert__title">⚠ Advertencia</h3>
         <p class="delete-alert__text">
-            {{ __('This action cannot be undone. Please proceed with caution.') }}
+            Esta acción no puede ser deshecha. Por favor procede con cuidado.
         </p>
     </div>
 
     <div>
         <button type="button" id="delete-account-btn" class="btn btn--danger">
-            {{ __('Delete Account') }}
+            Eliminar Cuenta
         </button>
     </div>
 
@@ -27,7 +27,7 @@
         <div class="modal">
             <div class="modal__header">
                 <h2 class="modal__title">
-                    {{ __('Are you sure you want to delete your account?') }}
+                    ¿Estás seguro de que deseas eliminar tu cuenta?
                 </h2>
             </div>
 
@@ -36,12 +36,12 @@
                 @method('delete')
 
                 <p class="modal__description">
-                    {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                    Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Por favor ingresa tu contraseña para confirmar que deseas eliminar permanentemente tu cuenta.
                 </p>
 
                 <div class="modal__form-group">
-                    <label for="password" class="form-label sr-only">{{ __('Password') }}</label>
-                    <input id="password" name="password" type="password" class="form-password" placeholder="{{ __('Password') }}" />
+                    <label for="password" class="form-label sr-only">Contraseña</label>
+                    <input id="password" name="password" type="password" class="form-password" placeholder="Contraseña" />
                     
                     @if ($errors->userDeletion->has('password'))
                         <div class="form-error">
@@ -56,11 +56,11 @@
 
                 <div class="modal__footer">
                     <button type="button" id="cancel-delete-btn" class="btn btn--secondary">
-                        {{ __('Cancel') }}
+                        Cancelar
                     </button>
 
                     <button type="submit" class="btn btn--danger">
-                        {{ __('Delete Account') }}
+                        Eliminar Cuenta
                     </button>
                 </div>
             </form>

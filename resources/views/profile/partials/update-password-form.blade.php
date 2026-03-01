@@ -1,11 +1,11 @@
 <section class="profile-section">
     <header class="profile-section__header">
         <h2 class="profile-section__title">
-            {{ __('Update Password') }}
+            Actualizar Contraseña
         </h2>
 
         <p class="profile-section__description">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+            Asegúrate de usar una contraseña larga y aleatoria para mantener tu cuenta segura.
         </p>
     </header>
 
@@ -14,7 +14,7 @@
         @method('put')
 
         <div class="form-group">
-            <label for="update_password_current_password" class="form-label">{{ __('Current Password') }}</label>
+            <label for="update_password_current_password" class="form-label">Contraseña Actual</label>
             <input id="update_password_current_password" name="current_password" type="password" class="form-password" autocomplete="current-password" />
             @if ($errors->updatePassword->has('current_password'))
                 <div class="form-error">
@@ -28,7 +28,7 @@
         </div>
 
         <div class="form-group">
-            <label for="update_password_password" class="form-label">{{ __('New Password') }}</label>
+            <label for="update_password_password" class="form-label">Nueva Contraseña</label>
             <input id="update_password_password" name="password" type="password" class="form-password" autocomplete="new-password" />
             @if ($errors->updatePassword->has('password'))
                 <div class="form-error">
@@ -42,7 +42,7 @@
         </div>
 
         <div class="form-group">
-            <label for="update_password_password_confirmation" class="form-label">{{ __('Confirm Password') }}</label>
+            <label for="update_password_password_confirmation" class="form-label">Confirmar Contraseña</label>
             <input id="update_password_password_confirmation" name="password_confirmation" type="password" class="form-password" autocomplete="new-password" />
             @if ($errors->updatePassword->has('password_confirmation'))
                 <div class="form-error">
@@ -56,10 +56,10 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn">{{ __('Save') }}</button>
+            <button type="submit" class="btn">Guardar</button>
 
             @if (session('status') === 'password-updated')
-                <p class="form-status">{{ __('Saved.') }}</p>
+                <p class="form-status">Guardado.</p>
             @endif
         </div>
     </form>

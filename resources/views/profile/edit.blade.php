@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Profile')
+@section('title', 'Perfil')
 
 @section('styles')
     @vite(['resources/css/profile.css'])
