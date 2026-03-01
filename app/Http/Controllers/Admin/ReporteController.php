@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Oferta;
 use App\Models\User;
-use App\Models\Centro;
-use App\Models\Programa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReporteController extends Controller
 {
@@ -47,23 +46,38 @@ class ReporteController extends Controller
             'inactiva' => Oferta::where('estado', 'inactiva')->count(),
         ];
 
-        // Usuarios por rol
-        $usuariosPorRol = User::selectRaw('role, COUNT(*) as total')
-            ->groupBy('role')
+        // Usuarios por rol (Spatie Permission)
+        $rolesTable = config('permission.table_names.roles', 'roles');
+        $modelHasRolesTable = config('permission.table_names.model_has_roles', 'model_has_roles');
+
+        $usuariosPorRol = DB::table('users as u')
+            ->leftJoin("{$modelHasRolesTable} as mhr", function ($join) {
+                $join->on('mhr.model_id', '=', 'u.id')
+                    ->where('mhr.model_type', '=', User::class);
+            })
+            ->leftJoin("{$rolesTable} as r", 'r.id', '=', 'mhr.role_id')
+            ->selectRaw("COALESCE(r.name, 'Sin rol') as role, COUNT(DISTINCT u.id) as total")
+            ->groupByRaw("COALESCE(r.name, 'Sin rol')")
             ->pluck('total', 'role')
             ->toArray();
 
         // Centro con más ofertas
-        $centrosMasOfertas = Centro::withCount('ofertas')
-            ->orderBy('ofertas_count', 'desc')
+        $centrosMasOfertas = DB::table('centros as c')
+            ->leftJoin('ofertas as o', 'o.centro_id', '=', 'c.id')
+            ->selectRaw('c.nombre, COUNT(o.id) as ofertas_count')
+            ->groupBy('c.id', 'c.nombre')
+            ->orderByDesc('ofertas_count')
             ->limit(5)
-            ->get(['nombre', 'ofertas_count']);
+            ->get();
 
         // Programas más demandados
-        $programasMasDemandados = Programa::withCount('ofertas')
-            ->orderBy('ofertas_count', 'desc')
+        $programasMasDemandados = DB::table('programas as p')
+            ->leftJoin('oferta_programa as op', 'op.programa_id', '=', 'p.id')
+            ->selectRaw('p.nombre, COUNT(op.id) as ofertas_count')
+            ->groupBy('p.id', 'p.nombre')
+            ->orderByDesc('ofertas_count')
             ->limit(5)
-            ->get(['nombre', 'ofertas_count']);
+            ->get();
 
         // Ofertas de últimos 30 días
         $ofertasRecientes = Oferta::whereBetween('created_at', [$startDate, $endDate])
