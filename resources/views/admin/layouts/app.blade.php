@@ -45,6 +45,10 @@
                            class="admin-nav__link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__link--active' : '' }}">
                             {{ __('Preinscritos') }}
                         </a>
+                        <a href="{{ route('admin.reportes.index') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.reportes.*') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Reportes') }}
+                        </a>
                     </div>
                 </div>
 
@@ -105,6 +109,10 @@
                 <a href="{{ route('admin.preinscritos.index') }}" 
                    class="admin-nav__mobile-link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__mobile-link--active' : '' }}">
                     {{ __('Preinscritos') }}
+                </a>
+                <a href="{{ route('admin.reportes.index') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.reportes.*') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Reportes') }}
                 </a>
             </div>
 
