@@ -1,21 +1,10 @@
 /* Importar CSS modular puro */
 /* @import './welcome.css'; */
 @import './Login.css';
-/* @import './ForgotPassword.css'; */
-/* @import './ResetPassword.css'; */
-/* @import './ConfirmPassword.css'; */
-/* @import './VerifyEmail.css'; */
-/* @import './Register.css'; */
+@import './ForgotPassword.css';
+@import './ResetPassword.css';
+@import './ConfirmPassword.css';
+@import './VerifyEmail.css';
+@import './Register.css';
 
 /* Reset de estilos */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html, body {
-    height: auto;
-    width: 100%;
-    display: block !important;
-}
