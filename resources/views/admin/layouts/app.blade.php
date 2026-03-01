@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,41 +9,124 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicons/favicon.ico') }}">
 
     <!-- Styles -->
-     @yield('styles')
-    @vite(['resources/css/app.css'])
-    
+    <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
+    @vite(['resources/js/app.js'])
+    @yield('styles')
+
 </head>
-<body class="font-sans antialiased bg-gray-100">
+
+<body class="admin-body">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-                        <div class="text-green-600 font-bold text-xl">SENA</div>
-                        <span class="text-gray-700 font-semibold">CATA</span>
-                    </a>
+    <nav x-data="{ open: false, dropdownOpen: false }" @click.away="dropdownOpen = false" class="admin-nav">
+        <div class="admin-nav__container">
+            <div class="admin-nav__content">
+                <!-- Left Side: Logo & Menu -->
+                <div class="admin-nav__left">
+                    <!-- Logo -->
+                    <div class="admin-nav__brand">
+                        <a href="{{ route('admin.dashboard') }}" class="admin-nav__logo">
+                            <img src="{{ asset('images/Logosimbolo-SENA.svg') }}" 
+                                 alt="SENA Logo" 
+                                 class="admin-nav__logo-img">
+                            <span class="admin-nav__logo-text--secondary">CATA</span>
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation Links -->
+                    <div class="admin-nav__menu">
+                        <a href="{{ route('admin.dashboard') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.dashboard') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Dashboard') }}
+                        </a>
+                        <a href="{{ route('admin.centros.index') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.centros.*') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Centros') }}
+                        </a>
+                        <a href="{{ route('admin.preinscritos.index') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Preinscritos') }}
+                        </a>
+                    </div>
                 </div>
 
-                <div class="hidden md:flex md:items-center md:space-x-8">
-                    <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-green-600 font-medium">
-                        {{ __('Dashboard') }}
-                    </a>
-                    <a href="{{ route('admin.centros.index') }}" class="text-gray-700 hover:text-green-600 font-medium">
-                        {{ __('Centros') }}
-                    </a>
-                    <a href="{{ route('admin.preinscritos.index') }}" class="text-gray-700 hover:text-green-600 font-medium">
-                        {{ __('Preinscritos') }}
-                    </a>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-700 text-sm">{{ Auth::user()?->name ?? 'Usuario' }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="text-gray-700 hover:text-red-600 font-medium text-sm">
-                            {{ __('Log Out') }}
+                <!-- Right Side: User Dropdown & Hamburger -->
+                <div class="admin-nav__user-section">
+                    <!-- User Dropdown (Desktop) -->
+                    <div class="admin-nav__dropdown" :class="{ 'is-open': dropdownOpen }">
+                        <button @click="dropdownOpen = !dropdownOpen" class="admin-nav__dropdown-trigger">
+                            <div>{{ Auth::user()?->name ?? 'Usuario' }}</div>
+                            <svg class="admin-nav__dropdown-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
                         </button>
+                        <div class="admin-nav__dropdown-content">
+                            <a href="{{ route('profile.edit') }}" class="admin-nav__dropdown-link">
+                                {{ __('Profile') }}
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a href="{{ route('logout') }}" 
+                                   class="admin-nav__dropdown-link"
+                                   onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hamburger Button (Mobile) -->
+                <div class="admin-nav__hamburger">
+                    <button @click="open = !open" class="admin-nav__hamburger-btn" :class="{ 'menu-open': open }">
+                        <svg class="admin-nav__hamburger-icon" viewBox="0 0 24 24">
+                            <path class="admin-nav__hamburger-icon-open" 
+                                  :class="{ 'hidden': open }"
+                                  d="M4 6h16M4 12h16M4 18h16" />
+                            <path class="admin-nav__hamburger-icon-close" 
+                                  :class="{ 'hidden': !open }"
+                                  d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="admin-nav__mobile" :class="{ 'is-open': open }">
+            <!-- Mobile Navigation Links -->
+            <div class="admin-nav__mobile-links">
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.dashboard') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Dashboard') }}
+                </a>
+                <a href="{{ route('admin.centros.index') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.centros.*') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Centros') }}
+                </a>
+                <a href="{{ route('admin.preinscritos.index') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Preinscritos') }}
+                </a>
+            </div>
+
+            <!-- Mobile User Options -->
+            <div class="admin-nav__mobile-user">
+                <div class="admin-nav__mobile-user-info">
+                    <div class="admin-nav__mobile-user-name">{{ Auth::user()?->name ?? 'Usuario' }}</div>
+                    <div class="admin-nav__mobile-user-email">{{ Auth::user()?->email ?? '' }}</div>
+                </div>
+
+                <div class="admin-nav__mobile-user-links">
+                    <a href="{{ route('profile.edit') }}" class="admin-nav__mobile-link">
+                        {{ __('Profile') }}
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <a href="{{ route('logout') }}" 
+                           class="admin-nav__mobile-link"
+                           onclick="event.preventDefault(); this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </a>
                     </form>
                 </div>
             </div>
@@ -50,12 +134,12 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="min-h-screen">
+    <div class="admin-main">
         @yield('content')
     </div>
 
     <!-- Scripts -->
-    @vite(['resources/js/admin/dashboard.js'])
     @yield('scripts')
 </body>
+
 </html>
