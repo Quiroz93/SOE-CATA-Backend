@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\WelcomeController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use PHPUnit\Metadata\Group;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\CentroController;
