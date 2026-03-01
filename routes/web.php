@@ -5,9 +5,15 @@ use Illuminate\Support\Facades\Route;
 use PHPUnit\Metadata\Group;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\CentroController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', [WelcomeController::class, 'index']);
+
 Route::get('/dashboard', function () {
+	// Redireccionar a admins al dashboard administrativo
+	if (auth()->check() && auth()->user()->hasRole('admin')) {
+		return redirect()->route('admin.dashboard');
+	}
 	return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
@@ -20,6 +26,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin-panel'])
     ->group(function () {
         Route::resource('centros', CentroController::class);
+        Route::resource('usuarios', UserController::class);
     });
 
 require __DIR__.'/api_v1_public.php';
