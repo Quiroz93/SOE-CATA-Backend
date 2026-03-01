@@ -1,55 +1,93 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
+<section class="profile-section delete-section">
+    <header class="profile-section__header">
+        <h2 class="profile-section__title">
             {{ __('Delete Account') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="profile-section__description">
             {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
         </p>
     </header>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+    <div class="delete-alert">
+        <h3 class="delete-alert__title">⚠ {{ __('Warning') }}</h3>
+        <p class="delete-alert__text">
+            {{ __('This action cannot be undone. Please proceed with caution.') }}
+        </p>
+    </div>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
-            @csrf
-            @method('delete')
+    <div>
+        <button type="button" id="delete-account-btn" class="btn btn--danger">
+            {{ __('Delete Account') }}
+        </button>
+    </div>
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
-
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
-
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+    <!-- Delete Confirmation Modal -->
+    <div id="confirm-user-deletion-modal" class="modal-overlay modal-overlay--hidden">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title">
+                    {{ __('Are you sure you want to delete your account?') }}
+                </h2>
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
+            <form method="post" action="{{ route('profile.destroy') }}" class="modal__body">
+                @csrf
+                @method('delete')
 
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
+                <p class="modal__description">
+                    {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                </p>
+
+                <div class="modal__form-group">
+                    <label for="password" class="form-label sr-only">{{ __('Password') }}</label>
+                    <input id="password" name="password" type="password" class="form-password" placeholder="{{ __('Password') }}" />
+                    
+                    @if ($errors->userDeletion->has('password'))
+                        <div class="form-error">
+                            <ul class="form-error-list">
+                                @foreach ($errors->userDeletion->get('password') as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="modal__footer">
+                    <button type="button" id="cancel-delete-btn" class="btn btn--secondary">
+                        {{ __('Cancel') }}
+                    </button>
+
+                    <button type="submit" class="btn btn--danger">
+                        {{ __('Delete Account') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('delete-account-btn');
+            const modal = document.getElementById('confirm-user-deletion-modal');
+            const cancelBtn = document.getElementById('cancel-delete-btn');
+
+            if (deleteBtn && modal && cancelBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    modal.classList.remove('modal-overlay--hidden');
+                });
+
+                cancelBtn.addEventListener('click', function() {
+                    modal.classList.add('modal-overlay--hidden');
+                });
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('modal-overlay--hidden');
+                    }
+                });
+            }
+        });
+    </script>
 </section>
