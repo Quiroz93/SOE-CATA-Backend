@@ -3,6 +3,12 @@
  * Initializes Chart.js visualizations for reporting dashboard
  */
 
+import Chart from 'chart.js/auto';
+
+// Store chart instances globally to destroy them on reload
+window.reportesCharts = window.reportesCharts || {};
+window.Chart = Chart;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get data from DOM
     const dashboardData = document.getElementById('dashboardData');
@@ -19,10 +25,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calculate inactivas (assuming we have a data attribute for it)
         const inactivas = parseInt(dashboardData.dataset.inactivas || '0');
 
+        // Destroy existing charts before creating new ones
+        if (window.reportesCharts.ofertasMes) {
+            window.reportesCharts.ofertasMes.destroy();
+        }
+        if (window.reportesCharts.estadoOfertas) {
+            window.reportesCharts.estadoOfertas.destroy();
+        }
+
         // Ofertas por Mes Chart
         const ctxMes = document.getElementById('ofertasMesChart');
         if (ctxMes) {
-            new Chart(ctxMes.getContext('2d'), {
+            window.reportesCharts.ofertasMes = new Chart(ctxMes.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: meses,
@@ -67,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Estado Ofertas Chart
         const ctxEstado = document.getElementById('estadoOfertasChart');
         if (ctxEstado) {
-            new Chart(ctxEstado.getContext('2d'), {
+            window.reportesCharts.estadoOfertas = new Chart(ctxEstado.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Activas', 'Vencidas', 'Inactivas'],

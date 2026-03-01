@@ -1,3 +1,5 @@
+import Chart from 'chart.js/auto';
+
 const logoutLink = document.getElementById('logout-link');
 const logoutForm = document.getElementById('logout-form');
 
@@ -5,6 +7,10 @@ logoutLink?.addEventListener('click', function (event) {
     event.preventDefault();
     logoutForm?.submit();
 });
+
+// Store chart instances globally to destroy them on reload
+window.dashboardCharts = window.dashboardCharts || {};
+window.Chart = Chart;
 
 const dashboardData = document.getElementById('dashboardData');
 const meses = JSON.parse(dashboardData?.dataset.meses ?? '[]');
@@ -15,7 +21,16 @@ const ofertasVencidas = Number(dashboardData?.dataset.ofertasVencidas ?? 0);
 const chartConstructor = window.Chart;
 
 if (chartConstructor) {
-    new chartConstructor(document.getElementById('ofertasMes'), {
+    // Destroy existing charts before creating new ones
+    if (window.dashboardCharts.ofertasMes) {
+        window.dashboardCharts.ofertasMes.destroy();
+    }
+    if (window.dashboardCharts.estadoOfertas) {
+        window.dashboardCharts.estadoOfertas.destroy();
+    }
+
+    // Create and store new chart instances
+    window.dashboardCharts.ofertasMes = new chartConstructor(document.getElementById('ofertasMes'), {
         type: 'line',
         data: {
             labels: meses,
@@ -30,7 +45,7 @@ if (chartConstructor) {
         }
     });
 
-    new chartConstructor(document.getElementById('estadoOfertas'), {
+    window.dashboardCharts.estadoOfertas = new chartConstructor(document.getElementById('estadoOfertas'), {
         type: 'doughnut',
         data: {
             labels: ['Activas', 'Vencidas'],

@@ -10,6 +10,7 @@ class Preinscrito extends Model
     use HasFactory;
 
     protected $fillable = [
+        'oferta_id',
         'oferta_programa_id',
         'nombre',
         'documento',

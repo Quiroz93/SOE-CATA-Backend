@@ -1,69 +1,72 @@
 @extends('admin.layouts.app')
 
+@section('title', 'Dashboard')
+
+@section('styles')
+    
+@endsection
+
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-@vite('resources/js/admin/dashboard.js')
-
-<div class="main-content">
-
-        <div class="dashboard-header">
-            <h1>Dashboard General</h1>
+        <!-- Hidden data container for JavaScript -->
+        <div id="dashboardData" 
+             data-meses='{{ json_encode($meses) }}'
+             data-ofertas-por-mes='{{ json_encode($ofertasPorMes) }}'
+             data-ofertas-activas='{{ $ofertasActivas }}'
+             data-ofertas-vencidas='{{ $ofertasVencidas }}'
+             style="display: none;">
         </div>
 
-        <!-- KPI -->
-        <div class="cards">
-            <div class="card">
-                <h3>Total Usuarios</h3>
-                <div class="number">{{ $totalUsuarios }}</div>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard General</h1>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Total Usuarios</h3>
+                <div class="mt-2 text-3xl font-bold text-gray-900">{{ $totalUsuarios }}</div>
             </div>
-            <div class="card">
-                <h3>Total Ofertas</h3>
-                <div class="number">{{ $totalOfertas }}</div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Total Ofertas</h3>
+                <div class="mt-2 text-3xl font-bold text-gray-900">{{ $totalOfertas }}</div>
             </div>
-            <div class="card">
-                <h3>Ofertas Activas</h3>
-                <div class="number">{{ $ofertasActivas }}</div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Ofertas Activas</h3>
+                <div class="mt-2 text-3xl font-bold text-green-600">{{ $ofertasActivas }}</div>
             </div>
-            <div class="card">
-                <h3>Ofertas Vencidas</h3>
-                <div class="number">{{ $ofertasVencidas }}</div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Ofertas Vencidas</h3>
+                <div class="mt-2 text-3xl font-bold text-red-600">{{ $ofertasVencidas }}</div>
             </div>
         </div>
 
         <!-- Charts -->
-        <div class="charts">
-            <div
-                id="dashboardData"
-                data-meses='@json($meses)'
-                data-ofertas-por-mes='@json($ofertasPorMes)'
-                data-ofertas-activas="{{ $ofertasActivas }}"
-                data-ofertas-vencidas="{{ $ofertasVencidas }}"
-            ></div>
-
-            <div class="chart-card">
-                <h3>Ofertas por Mes</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Ofertas por Mes</h3>
                 <canvas id="ofertasMes"></canvas>
             </div>
 
-            <div class="chart-card">
-                <h3>Estado de Ofertas</h3>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Ofertas</h3>
                 <canvas id="estadoOfertas"></canvas>
             </div>
         </div>
 
-        <!-- Actividad -->
-        <div class="activity">
-            <h3>Actividad Reciente</h3>
-            <ul>
+        <!-- Actividad Reciente -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h3>
+            <ul class="space-y-2">
                 @foreach($actividades as $actividad)
-                    <li>{{ $actividad }}</li>
+                    <li class="text-gray-700 py-2 border-b border-gray-200">{{ $actividad }}</li>
                 @endforeach
             </ul>
         </div>
 
-</div>
+    </div>
 @endsection
 
+@section('scripts')
+@endsection

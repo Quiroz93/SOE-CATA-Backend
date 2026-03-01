@@ -3,31 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin | SENA</title>
-    @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>SENA | CATA - @yield('title', 'Admin')</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicons/favicon.ico') }}">
+
+    <!-- Styles -->
+     @yield('styles')
+    @vite(['resources/css/app.css'])
+    
 </head>
-<body>
-    <div class="admin-shell">
-    <aside class="sidebar flex flex-col p-4">
-        <div class="sidebar-brand">
-            <img src="{{ asset('images/Logosimbolo-SENA.svg') }}" alt="SENA Logo" class="sidebar-logo">
-            <span class="sidebar-title">SENA Admin</span>
+<body class="font-sans antialiased bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
+                        <div class="text-green-600 font-bold text-xl">SENA</div>
+                        <span class="text-gray-700 font-semibold">CATA</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex md:items-center md:space-x-8">
+                    <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-green-600 font-medium">
+                        {{ __('Dashboard') }}
+                    </a>
+                    <a href="{{ route('admin.centros.index') }}" class="text-gray-700 hover:text-green-600 font-medium">
+                        {{ __('Centros') }}
+                    </a>
+                    <a href="{{ route('admin.preinscritos.index') }}" class="text-gray-700 hover:text-green-600 font-medium">
+                        {{ __('Preinscritos') }}
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700 text-sm">{{ Auth::user()?->name ?? 'Usuario' }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-gray-700 hover:text-red-600 font-medium text-sm">
+                            {{ __('Log Out') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <nav class="flex-1">
-            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('admin.centros.index') }}" class="{{ request()->routeIs('admin.centros.*') ? 'active' : '' }}">Centros</a>
-            <a href="{{ route('admin.ofertas.index') }}" class="{{ request()->routeIs('admin.ofertas.*') ? 'active' : '' }}">Ofertas</a>
-            <a href="{{ route('admin.usuarios.index') }}" class="{{ request()->routeIs('admin.usuarios.*') ? 'active' : '' }}">Usuarios</a>
-            <a href="{{ route('admin.reportes.index') }}" class="{{ request()->routeIs('admin.reportes.*') ? 'active' : '' }}">Reportes</a>
-            <a href="{{ route('admin.welcome') }}" class="{{ request()->routeIs('admin.welcome') ? 'active' : '' }}">Configuración</a>
-        </nav>
-    </aside>
-    <div class="flex-1 flex flex-col">
-        @include('admin.layouts.topbar')
-        <main class="content">
-            @yield('content')
-        </main>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen">
+        @yield('content')
     </div>
-</div>
+
+    <!-- Scripts -->
+    @vite(['resources/js/admin/dashboard.js'])
+    @yield('scripts')
 </body>
 </html>

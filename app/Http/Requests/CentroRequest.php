@@ -13,9 +13,11 @@ class CentroRequest extends FormRequest
 
     public function rules(): array
     {
+        $centroId = $this->route('centro') ? $this->route('centro')->id : null;
+        
         return [
             'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:50|unique:centros,codigo,' . $this->centro,
+            'codigo' => 'required|string|max:50|unique:centros,codigo,' . $centroId,
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:100',

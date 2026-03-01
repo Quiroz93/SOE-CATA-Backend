@@ -10,7 +10,7 @@ class Centro extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'nombre', 'codigo', 'estado'
+        'nombre', 'codigo', 'direccion', 'telefono', 'email', 'estado'
     ];
 
     public function scopePublished($query)

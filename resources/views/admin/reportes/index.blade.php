@@ -1,7 +1,6 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/reportes.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="reportes-container">
@@ -186,5 +185,5 @@
     </div>
 </div>
 
-@vite('resources/js/admin/reportes.js')
+@vite(['resources/css/reportes.css', 'resources/js/admin/reportes.js'])
 @endsection

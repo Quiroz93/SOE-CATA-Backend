@@ -1,5 +1,7 @@
 @extends('admin.layouts.app')
 
+@section('title', 'Gestión de Centros')
+
 @section('content')
 <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-green-700">Gestión de Centros</h1>
