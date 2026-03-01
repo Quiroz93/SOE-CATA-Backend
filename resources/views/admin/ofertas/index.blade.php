@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 @section('title', 'Ofertas - Administración')
 @section('content')
 <!-- Listado de ofertas -->

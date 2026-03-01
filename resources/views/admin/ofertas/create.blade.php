@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 @section('title', 'Crear Oferta')
 @section('content')
 <!-- Formulario de creación de oferta -->

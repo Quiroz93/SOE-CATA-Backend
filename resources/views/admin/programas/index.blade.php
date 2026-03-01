@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 @section('title', 'Programas - Administración')
 @section('content')
 <!-- Listado de programas -->

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 @section('title', 'Editar Programa')
 @section('content')
 <!-- Formulario de edición de programa -->
