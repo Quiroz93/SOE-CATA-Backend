@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('styles')
-    
+    @vite(['resources/css/app.css'])
 @endsection
 
 @section('content')
@@ -69,4 +69,5 @@
 @endsection
 
 @section('scripts')
+    @vite(['resources/js/admin/dashboard.js'])
 @endsection
