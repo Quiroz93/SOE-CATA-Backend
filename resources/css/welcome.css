@@ -1,0 +1,87 @@
+/* ================================
+   SENA - Welcome Administrativos
+   ================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f6f9, #e6edf3);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #00304D;
+}
+
+.centered-container {
+    text-align: center;
+    background: #ffffff;
+    padding: 50px 40px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    max-width: 600px;
+    width: 90%;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.logo img {
+    height: 110px;
+    margin-bottom: 20px;
+}
+
+.center-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.system-desc {
+    font-size: 1rem;
+    color: #5c6b7a;
+    margin-bottom: 30px;
+}
+
+.actions .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: #39A900;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.actions .btn:hover {
+    background-color: #2e8700;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(57, 169, 0, 0.3);
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .center-name {
+        font-size: 1.3rem;
+    }
+
+    .centered-container {
+        padding: 30px 20px;
+    }
+}

@@ -1,0 +1,262 @@
+/* =========================================
+   SENA - Verify Email Institucional
+   Diseño alineado con estándares SENA
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Fondo institucional */
+.background {
+    position: absolute;
+    inset: 0;
+    background: url('/images/SENAMALAGA.jpg') no-repeat center center/cover;
+    filter: blur(6px);
+    transform: scale(1.05);
+    z-index: -2;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 48, 77, 0.65);
+    z-index: -1;
+}
+
+/* Layout */
+.verify-email-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Columna izquierda */
+.left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    color: white;
+}
+
+.left-panel img {
+    height: 120px;
+    margin-bottom: 25px;
+    filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1172%) hue-rotate(66deg) brightness(97%) contrast(101%);
+}
+
+.left-panel h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.left-panel p {
+    font-size: 1rem;
+    opacity: 0.9;
+    max-width: 400px;
+}
+
+/* Columna derecha */
+.right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.verify-email-card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    padding: 45px 40px;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.5s ease;
+}
+
+.verify-email-card h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #00304D;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Email icon */
+.email-icon {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.email-icon svg,
+.email-icon i {
+    width: 70px;
+    height: 70px;
+    color: #39A900;
+    opacity: 0.8;
+}
+
+/* Mensaje descriptivo */
+.info-message {
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #F3F4F6;
+    border-radius: 8px;
+    border-left: 4px solid #39A900;
+    text-align: center;
+}
+
+/* Success message */
+.success-message {
+    font-size: 0.88rem;
+    color: #007832;
+    background: #E8F5E9;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #39A900;
+    font-weight: 500;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.primary-button {
+    flex: 1;
+    padding: 12px;
+    background-color: #39A900;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.primary-button:hover {
+    background-color: #2e8700;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(57, 169, 0, 0.3);
+}
+
+.secondary-button {
+    flex: 1;
+    padding: 12px;
+    background-color: transparent;
+    color: #007832;
+    font-weight: 600;
+    border: 2px solid #007832;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.secondary-button:hover {
+    background-color: #007832;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 120, 50, 0.2);
+}
+
+/* Instruction list */
+.instruction-list {
+    background: #F9FAFB;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.instruction-list h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #00304D;
+    margin-bottom: 10px;
+}
+
+.instruction-list ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.instruction-list li {
+    font-size: 0.82rem;
+    color: #4B5563;
+    margin-bottom: 6px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.instruction-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #39A900;
+    font-weight: bold;
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 20px 0;
+}
+
+/* Animación */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .verify-email-container {
+        flex-direction: column;
+    }
+
+    .left-panel {
+        text-align: center;
+        padding: 40px 20px;
+        align-items: center;
+    }
+
+    .right-panel {
+        padding: 20px;
+    }
+
+    .verify-email-card {
+        max-width: 100%;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+}

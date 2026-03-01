@@ -1,4 +1,10 @@
-@import './custom-welcome.css';
+@import './welcome.css';
+@import './Login.css';
+@import './ForgotPassword.css';
+@import './ResetPassword.css';
+@import './ConfirmPassword.css';
+@import './VerifyEmail.css';
+@import './Register.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
