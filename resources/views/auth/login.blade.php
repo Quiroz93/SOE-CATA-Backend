@@ -1,47 +1,75 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+<div class="background"></div>
+<div class="overlay"></div>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+<div class="login-container">
+
+    <!-- Columna izquierda -->
+    <div class="left-panel">
+        <img src="/images/Logosimbolo-SENA.svg" alt="SENA">
+        <h1>Centro Agroempresarial y Turístico de los Andes</h1>
+        <p>Sistema institucional para la gestión y publicación de ofertas educativas.</p>
+    </div>
+
+    <!-- Columna derecha -->
+    <div class="right-panel">
+        <div class="login-card">
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+
+                <div class="form-group">
+                    <label>Correo institucional</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group password-wrapper">
+                    <label>Contraseña</label>
+                    <input type="password" name="password" id="password" required>
+                    <span class="toggle-password" onclick="togglePassword()">Mostrar</span>
+
+                    @error('password')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="remember-group">
+                    <input type="checkbox" name="remember">
+                    Recordarme
+                </div>
+
+                @if (Route::has('password.request'))
+                    <div class="forgot-password-group">
+                        <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
+                    </div>
+                @endif
+
+                <button type="submit" class="login-button">
+                    Iniciar sesión
+                </button>
+
+            </form>
+
         </div>
+    </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+</div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+<script>
+function togglePassword() {
+    const password = document.getElementById('password');
+    const toggle = document.querySelector('.toggle-password');
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    if (password.type === "password") {
+        password.type = "text";
+        toggle.textContent = "Ocultar";
+    } else {
+        password.type = "password";
+        toggle.textContent = "Mostrar";
+    }
+}
+</script>
