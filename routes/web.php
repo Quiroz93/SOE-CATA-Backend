@@ -12,7 +12,7 @@ Route::get('/', [WelcomeController::class, 'index']);
 
 Route::get('/dashboard', function () {
 	// Redireccionar a admins al dashboard administrativo
-	if (auth()->check() && (auth()->user()->hasRole('SuperAdmin') || auth()->user()->hasRole('Administrador'))) {
+	if (Auth::check() && (Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('Administrador'))) {
 		return redirect()->route('admin.dashboard');
 	}
 	return view('dashboard');
