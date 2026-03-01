@@ -10,6 +10,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     @vite(['resources/js/app.js'])
     @yield('styles')
 
