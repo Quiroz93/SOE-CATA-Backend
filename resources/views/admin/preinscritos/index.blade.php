@@ -3,61 +3,59 @@
 @section('title', 'Gestión de Preinscritos')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-green-700">Gestión de Preinscritos</h1>
-        <a href="{{ route('admin.preinscritos.create') }}"
-           class="bg-[#39A900] text-white px-5 py-2 rounded-lg shadow hover:bg-[#007832] transition">
+<div class="admin-page">
+    <div class="admin-header">
+        <h1 class="admin-header__title">Gestión de Preinscritos</h1>
+        <a href="{{ route('admin.preinscritos.create') }}" class="btn btn--primary">
             + Nuevo Preinscrito
         </a>
     </div>
 
     @if(session('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+        <div class="alert alert--success">
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-3 text-left">Nombre</th>
-                    <th class="p-3 text-left">Documento</th>
-                    <th class="p-3 text-left">Correo</th>
-                    <th class="p-3 text-left">Programa</th>
-                    <th class="p-3 text-left">Estado</th>
-                    <th class="p-3 text-right">Acciones</th>
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead class="admin-table__head">
+                <tr class="admin-table__head-row">
+                    <th class="admin-table__th">Nombre</th>
+                    <th class="admin-table__th">Documento</th>
+                    <th class="admin-table__th">Correo</th>
+                    <th class="admin-table__th">Programa</th>
+                    <th class="admin-table__th">Estado</th>
+                    <th class="admin-table__th admin-table__th--right">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($preinscritos as $preinscrito)
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">{{ $preinscrito->nombre }}</td>
-                    <td class="p-3">{{ $preinscrito->documento }}</td>
-                    <td class="p-3">{{ $preinscrito->correo }}</td>
-                    <td class="p-3">{{ $preinscrito->ofertaPrograma->programa->nombre ?? 'N/A' }}</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded text-sm font-medium
-                            {{ $preinscrito->estado === 'aceptado' ? 'bg-green-100 text-green-700' : '' }}
-                            {{ $preinscrito->estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' : '' }}
-                            {{ $preinscrito->estado === 'rechazado' ? 'bg-red-100 text-red-700' : '' }}">
+                <tr class="admin-table__body-row">
+                    <td class="admin-table__td">{{ $preinscrito->nombre }}</td>
+                    <td class="admin-table__td">{{ $preinscrito->documento }}</td>
+                    <td class="admin-table__td">{{ $preinscrito->correo }}</td>
+                    <td class="admin-table__td">{{ $preinscrito->ofertaPrograma->programa->nombre ?? 'N/A' }}</td>
+                    <td class="admin-table__td">
+                        <span class="badge {{ $preinscrito->estado === 'aceptado' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
                             {{ ucfirst($preinscrito->estado) }}
                         </span>
                     </td>
-                    <td class="p-3 text-right space-x-2">
-                        <a href="{{ route('admin.preinscritos.show', $preinscrito) }}" class="text-blue-700 hover:underline">Ver</a>
-                        <a href="{{ route('admin.preinscritos.edit', $preinscrito) }}" class="text-yellow-700 hover:underline">Editar</a>
-                        <form action="{{ route('admin.preinscritos.destroy', $preinscrito) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button onclick="return confirm('¿Eliminar este preinscrito?')" class="text-red-600 hover:underline">Eliminar</button>
-                        </form>
+                    <td class="admin-table__td admin-table__td--right">
+                        <div class="admin-table__actions">
+                            <a href="{{ route('admin.preinscritos.show', $preinscrito) }}" class="admin-table__action-link">Ver</a>
+                            <a href="{{ route('admin.preinscritos.edit', $preinscrito) }}" class="admin-table__action-link admin-table__action-link--edit">Editar</a>
+                            <form action="{{ route('admin.preinscritos.destroy', $preinscrito) }}" method="POST" class="admin-table__action-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('¿Eliminar este preinscrito?')" class="admin-table__action-btn">Eliminar</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="p-4 text-center text-gray-500">
+                    <td colspan="6" class="admin-table__empty">
                         No hay preinscritos registrados.
                     </td>
                 </tr>
