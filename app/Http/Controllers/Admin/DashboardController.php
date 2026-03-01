@@ -17,16 +17,37 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Obtener estadísticas
-        $data = [
-            'totalUsuarios' => $this->getTotalUsuarios(),
-            'totalOfertas' => $this->getTotalOfertas(),
-            'ofertasActivas' => $this->getOfertasActivas(),
-            'ofertasVencidas' => $this->getOfertasVencidas(),
-            'actividadReciente' => $this->getActividadReciente(),
-        ];
+        return $this->dashboard();
+    }
 
-        return view('admin.dashboard', $data);
+    public function dashboard()
+    {
+        $meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+        $ofertasPorMes = \App\Models\Oferta::selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
+            ->groupBy('mes')
+            ->pluck('total','mes')
+            ->toArray();
+
+        $dataMes = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $dataMes[] = $ofertasPorMes[$i] ?? 0;
+        }
+
+        return view('admin.dashboard', [
+            'totalUsuarios' => \App\Models\User::count(),
+            'totalOfertas' => \App\Models\Oferta::count(),
+            'ofertasActivas' => \App\Models\Oferta::where('estado','activa')->count(),
+            'ofertasVencidas' => \App\Models\Oferta::where('estado','vencida')->count(),
+            'meses' => $meses,
+            'ofertasPorMes' => $dataMes,
+            'actividades' => [
+                'Nueva oferta publicada',
+                'Usuario administrador actualizado',
+                'Centro actualizado'
+            ]
+        ]);
     }
 
     /**

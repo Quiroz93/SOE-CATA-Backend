@@ -19,7 +19,7 @@ body {
 .background {
     position: absolute;
     inset: 0;
-    background: url('/images/SENAMALAGA.jpg') no-repeat center center/cover;
+    background: url('../images/SENAMALAGA.jpg') no-repeat center center/cover;
     filter: blur(6px);
     transform: scale(1.05);
     z-index: -2;

@@ -11,7 +11,7 @@
 <body>
     <div class="centered-container">
         <div class="logo">
-            <img src="/images/Logosimbolo-SENA.svg" alt="Logosimbolo SENA">
+            <img src="{{ asset('images/Logosimbolo-SENA.svg') }}" alt="Logosimbolo SENA">
             <div class="center-name">Centro Agroempresarial y Turístico de los Andes</div>
         </div>
         <div class="system-desc">Sistema de gestión y publicación de ofertas educativas</div>

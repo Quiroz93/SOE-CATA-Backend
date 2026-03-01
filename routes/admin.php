@@ -26,7 +26,7 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::resource('instructores', InstructorController::class);
         Route::resource('competencias', CompetenciaController::class);
         Route::resource('centros', CentroController::class);
-        Route::resource('users', UserController::class);
+        Route::resource('usuarios', UserController::class);
         Route::resource('preinscritos', PreinscritoController::class);
         Route::resource('inscritos', InscritoController::class);
         Route::resource('novedades', NovedadController::class);

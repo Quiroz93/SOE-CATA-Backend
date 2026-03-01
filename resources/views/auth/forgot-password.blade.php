@@ -5,7 +5,7 @@
     <div class="forgot-password-container">
         <!-- Panel izquierdo institucional -->
         <div class="left-panel">
-            <img src="/images/Logosimbolo-SENA.svg" alt="SENA Logo">
+            <img src="{{ asset('images/Logosimbolo-SENA.svg') }}" alt="SENA Logo">
             <h1>Centro Agroempresarial y Turístico de los Andes</h1>
             <p>Sistema de gestión y publicación de ofertas educativas. Recupera tu contraseña de forma segura.</p>
         </div>
