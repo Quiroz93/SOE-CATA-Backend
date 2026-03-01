@@ -1,5 +1,5 @@
 /* Importar CSS modular puro */
-/* @import './welcome.css'; */
+@import './welcome.css';
 @import './Login.css';
 @import './ForgotPassword.css';
 @import './ResetPassword.css';
