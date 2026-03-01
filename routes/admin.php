@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\WelcomeController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\NoticiaController;
 use App\Http\Controllers\Admin\InstructorController;
@@ -18,6 +19,7 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
     ->prefix('admin')
     ->group(function () {
         Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);
         Route::resource('noticias', NoticiaController::class);

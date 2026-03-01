@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Detalle del Centro</h1>
-    <div class="bg-white p-6 rounded-lg shadow space-y-4">
+    <h1 class="text-3xl font-bold text-green-700 mb-8">Detalle del Centro</h1>
+    <div class="bg-white p-8 rounded-lg shadow max-w-xl mx-auto space-y-6">
         <div>
             <strong>Nombre:</strong> {{ $centro->nombre }}
         </div>
@@ -20,7 +20,9 @@
         </div>
         <div>
             <strong>Estado:</strong>
-            {{ $centro->estado ? 'Activo' : 'Inactivo' }}
+            <span class="{{ $centro->estado ? 'text-green-600' : 'text-red-600' }}">
+                {{ $centro->estado ? 'Activo' : 'Inactivo' }}
+            </span>
         </div>
     </div>
 @endsection
