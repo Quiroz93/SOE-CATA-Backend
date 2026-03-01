@@ -1,24 +1,13 @@
+@extends('admin.layouts.app')
+
+@section('content')
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @vite('resources/js/admin/dashboard.js')
 
-<div class="dashboard-wrapper">
-
-    <div class="sidebar">
-        <h2>Panel Admin</h2>
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <a href="{{ route('admin.usuarios.index') }}">Usuarios</a>
-        <a href="{{ route('admin.ofertas.index') }}">Ofertas</a>
-        <a href="{{ route('admin.centros.index') }}">Centros</a>
-        <a href="{{ route('logout') }}" id="logout-link">Cerrar sesión</a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" hidden>
-            @csrf
-        </form>
-    </div>
-
-    <div class="main-content">
+<div class="main-content">
 
         <div class="dashboard-header">
             <h1>Dashboard General</h1>
@@ -75,6 +64,6 @@
             </ul>
         </div>
 
-    </div>
 </div>
+@endsection
 
