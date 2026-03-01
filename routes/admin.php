@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PreinscritoController;
 use App\Http\Controllers\Admin\InscritoController;
 use App\Http\Controllers\Admin\NovedadController;
+use App\Http\Controllers\Admin\ReporteController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
@@ -20,6 +21,7 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
     ->group(function () {
         Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);
         Route::resource('noticias', NoticiaController::class);

@@ -69,7 +69,7 @@
             <a href="{{ route('admin.centros.index') }}" class="{{ request()->routeIs('admin.centros.*') ? 'active' : '' }}">Centros</a>
             <a href="{{ route('admin.ofertas.index') }}" class="{{ request()->routeIs('admin.ofertas.*') ? 'active' : '' }}">Ofertas</a>
             <a href="{{ route('admin.usuarios.index') }}" class="{{ request()->routeIs('admin.usuarios.*') ? 'active' : '' }}">Usuarios</a>
-            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Reportes</a>
+            <a href="{{ route('admin.reportes.index') }}" class="{{ request()->routeIs('admin.reportes.*') ? 'active' : '' }}">Reportes</a>
             <a href="{{ route('admin.welcome') }}" class="{{ request()->routeIs('admin.welcome') ? 'active' : '' }}">Configuración</a>
         </nav>
     </aside>
