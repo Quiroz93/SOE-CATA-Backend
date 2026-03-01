@@ -8,11 +8,8 @@
     <title>SENA | CATA - @yield('title', 'Admin')</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicons/favicon.ico') }}">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/admin-layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin-crud.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    @vite(['resources/js/app.js'])
+    <!-- Styles importados via Vite -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
 
 </head>

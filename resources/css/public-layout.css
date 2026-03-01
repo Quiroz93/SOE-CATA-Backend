@@ -1,0 +1,216 @@
+/**
+ * SENA CATA - Public Layout Styles
+ * CSS modular para vistas públicas
+ * Metodología BEM sin Tailwind
+ */
+
+/* ===========================
+   BASE STYLES
+   =========================== */
+
+.public-body {
+    background-color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.public-app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ===========================
+   HEADER / NAVIGATION
+   =========================== */
+
+.public-header {
+    background-color: #111827;
+    color: #ffffff;
+    padding: 1rem 0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.public-header__container {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .public-header__container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+.public-header__title {
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* ===========================
+   NAVIGATION MENU
+   =========================== */
+
+.public-nav {
+    display: flex;
+    align-items: center;
+}
+
+.public-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.public-nav__item {
+    display: flex;
+}
+
+.public-nav__link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: opacity 0.2s ease;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.public-nav__link:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.public-nav__link--active {
+    border-bottom-color: #16a34a;
+    color: #86efac;
+}
+
+/* ===========================
+   MAIN CONTENT
+   =========================== */
+
+.public-main {
+    flex: 1;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .public-main {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* ===========================
+   FOOTER
+   =========================== */
+
+.public-footer {
+    background-color: #111827;
+    color: #ffffff;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid #1f2937;
+}
+
+.public-footer__container {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .public-footer__container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+.public-footer__text {
+    color: #d1d5db;
+}
+
+/* ===========================
+   RESPONSIVE UTILITIES
+   =========================== */
+
+@media (max-width: 767px) {
+    .public-nav__list {
+        gap: 1rem;
+        font-size: 0.75rem;
+    }
+    
+    .public-header__container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .public-nav {
+        width: 100%;
+    }
+}
+
+/* ===========================
+   UTILITY CLASSES
+   =========================== */
+
+.public-container {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+    .public-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+.public-flex {
+    display: flex;
+}
+
+.public-flex--between {
+    justify-content: space-between;
+}
+
+.public-flex--center {
+    align-items: center;
+    justify-content: center;
+}
+
+.public-col {
+    display: flex;
+    flex-direction: column;
+}
