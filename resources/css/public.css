@@ -1,0 +1,7 @@
+/**
+ * SENA CATA - Public Area Stylesheet
+ * Punto de entrada para estilos del portal público
+ * Incluye: header, navigation, footer, responsive layout
+ */
+
+@import './public-layout.css';

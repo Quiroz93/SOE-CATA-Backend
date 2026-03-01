@@ -1,4 +1,4 @@
-@vite(['resources/css/app.css', 'resources/js/app.js'])
+@vite(['resources/css/auth.css', 'resources/js/app.js'])
 
 <div class="background"></div>
 <div class="overlay"></div>

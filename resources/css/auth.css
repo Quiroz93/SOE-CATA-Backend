@@ -1,0 +1,12 @@
+/**
+ * SENA CATA - Authentication Stylesheet
+ * Punto de entrada para estilos de autenticación
+ * Incluye: login, register, password reset, email verification
+ */
+
+@import './Login.css';
+@import './Register.css';
+@import './ForgotPassword.css';
+@import './ResetPassword.css';
+@import './ConfirmPassword.css';
+@import './VerifyEmail.css';

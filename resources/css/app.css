@@ -1,14 +1,14 @@
-/* Importar CSS modular puro */
-@import './welcome.css';
-@import './admin-layout.css';
-@import './admin-crud.css';
-@import './dashboard.css';
-@import './public-layout.css';
-@import './Login.css';
-@import './ForgotPassword.css';
-@import './ResetPassword.css';
-@import './ConfirmPassword.css';
-@import './VerifyEmail.css';
-@import './Register.css';
-
-/* Reset de estilos */
+/**
+ * SENA CATA - App Base Stylesheet
+ * Punto de entrada heredado - no está en uso actualmente
+ * 
+ * Entry Points Activos:
+ * - admin.css:    Para módulo administrativo (layout, CRUD, dashboard)
+ * - auth.css:     Para vistas de autenticación (login, register, password resets, verify)
+ * - public.css:   Para portal público (rutas no autenticadas)
+ * - welcome.css:  Para página de bienvenida (/ no autenticado)
+ * - reportes.css: Para reportes especializados
+ * 
+ * Esta arquitectura reduce la carga CSS del navegador cargando solo
+ * los estilos necesarios según el módulo visitado.
+ */

@@ -1,0 +1,9 @@
+/**
+ * SENA CATA - Admin Area Stylesheet
+ * Punto de entrada para estilos del módulo administrativo
+ * Incluye: layout, CRUD tables, dashboard, forms, etc.
+ */
+
+@import './admin-layout.css';
+@import './admin-crud.css';
+@import './dashboard.css';
