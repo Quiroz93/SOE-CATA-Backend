@@ -5,7 +5,7 @@
         </h2>
 
         <p class="profile-section__description">
-            Actualiza la información de tu perfil y dirección de correo. }}
+            Actualiza la información de tu perfil y dirección de correo.
         </p>
     </header>
 
