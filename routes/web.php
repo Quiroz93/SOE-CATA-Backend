@@ -7,12 +7,16 @@ use PHPUnit\Metadata\Group;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\CentroController;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\User;
 
 Route::get('/', [WelcomeController::class, 'index']);
 
 Route::get('/dashboard', function () {
 	// Redireccionar a admins al dashboard administrativo
-	if (Auth::check() && (Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('Administrador'))) {
+	/** @var User $user */
+	$user = Auth::user();
+	
+	if ($user && ($user->hasRole('SuperAdmin') || $user->hasRole('Administrador'))) {
 		return redirect()->route('admin.dashboard');
 	}
 	return view('dashboard');
