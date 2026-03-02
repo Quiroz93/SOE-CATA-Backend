@@ -256,11 +256,11 @@
             <canvas id="programasComparativaChart" height="80"></canvas>
         </div>
 
-        <div class="chart-card">
+        <div class="chart-card chart-card-trimestre">
             <div class="chart-header">
                 <h3>Evolución de Preinscritos por Trimestre</h3>
             </div>
-            <canvas id="preinscritosTrimestreChart" height="80"></canvas>
+            <canvas id="preinscritosTrimestreChart" height="100"></canvas>
         </div>
     </div>
 

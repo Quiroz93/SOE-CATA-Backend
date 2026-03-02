@@ -374,6 +374,11 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* Padding adicional para el gráfico de trimestres (evitar superposición de etiquetas rotadas) */
+.chart-card-trimestre {
+    padding-bottom: 40px;
+}
+
 .chart-header,
 .table-header {
     margin-bottom: 20px;

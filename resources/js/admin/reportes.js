@@ -364,12 +364,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    layout: {
+                        padding: {
+                            bottom: 10
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
                             labels: {
                                 font: { size: 12 },
-                                color: '#333'
+                                color: '#333',
+                                padding: 15
                             }
                         },
                         tooltip: {
@@ -389,7 +395,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             beginAtZero: true,
                             ticks: { 
                                 color: '#666',
-                                stepSize: 1
+                                stepSize: 1,
+                                padding: 8
                             },
                             title: {
                                 display: true,
@@ -398,14 +405,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 font: {
                                     size: 12,
                                     weight: 'bold'
-                                }
+                                },
+                                padding: { top: 0, bottom: 10 }
                             }
                         },
                         x: {
                             ticks: { 
                                 color: '#666',
                                 maxRotation: 45,
-                                minRotation: 45
+                                minRotation: 0,
+                                autoSkip: false,
+                                padding: 10
                             },
                             title: {
                                 display: true,
@@ -414,7 +424,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 font: {
                                     size: 12,
                                     weight: 'bold'
-                                }
+                                },
+                                padding: { top: 10, bottom: 0 }
                             }
                         }
                     }
