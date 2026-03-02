@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const años = JSON.parse(dashboardData.dataset.años || '[]');
         const preinscritosAño = JSON.parse(dashboardData.dataset.preinscritosAño || '[]');
 
+        // Comparativa por programa
+        const programasNombres = JSON.parse(dashboardData.dataset.programasNombres || '[]');
+        const programasPreinscritos = JSON.parse(dashboardData.dataset.programasPreinscritos || '[]');
+
         // Destroy existing charts before creating new ones
         if (window.reportesCharts.ofertasMes) {
             window.reportesCharts.ofertasMes.destroy();
@@ -50,6 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (window.reportesCharts.preinscritosAño) {
             window.reportesCharts.preinscritosAño.destroy();
+        }
+        if (window.reportesCharts.programasComparativa) {
+            window.reportesCharts.programasComparativa.destroy();
         }
 
         // Ofertas por Mes Chart
@@ -245,6 +252,80 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         x: {
                             ticks: { color: '#666' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Comparativa de Preinscritos por Programa Chart
+        const ctxProgramasComparativa = document.getElementById('programasComparativaChart');
+        if (ctxProgramasComparativa) {
+            window.reportesCharts.programasComparativa = new Chart(ctxProgramasComparativa.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: programasNombres,
+                    datasets: [{
+                        label: 'Preinscritos por Programa',
+                        data: programasPreinscritos,
+                        backgroundColor: [
+                            'rgba(57, 169, 0, 0.8)',
+                            'rgba(0, 123, 255, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)',
+                            'rgba(108, 117, 125, 0.8)'
+                        ],
+                        borderColor: [
+                            '#39A900',
+                            '#007BFF',
+                            '#FFC107',
+                            '#DC3545',
+                            '#6C757D'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Preinscritos: ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#666',
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Número de Preinscritos',
+                                color: '#333',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: { 
+                                color: '#666',
+                                font: {
+                                    size: 11
+                                }
+                            }
                         }
                     }
                 }

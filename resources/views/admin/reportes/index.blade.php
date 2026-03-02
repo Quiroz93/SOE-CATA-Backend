@@ -39,6 +39,8 @@
         data-preinscritos-rechazados="{{ $preinscritosRechazados }}"
         data-años='@json($años)'
         data-preinscritos-año='@json($preinscritosAño)'
+        data-programas-nombres='@json($programasNombres)'
+        data-programas-preinscritos='@json($programasPreinscritos)'
         style="display: none;"
     ></div>
 
@@ -173,6 +175,13 @@
                 <h3>Preinscritos por Año (Últimos 5 Años)</h3>
             </div>
             <canvas id="preinscritosAñoChart" height="80"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Comparativa de Preinscritos por Programa</h3>
+            </div>
+            <canvas id="programasComparativaChart" height="80"></canvas>
         </div>
     </div>
 

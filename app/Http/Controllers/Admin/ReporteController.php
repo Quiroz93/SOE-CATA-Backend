@@ -132,6 +132,10 @@ class ReporteController extends Controller
             ->limit(5)
             ->get();
 
+        // Preparar datos para gráfica de barras
+        $programasNombres = $programasMasPreinscritos->pluck('nombre')->toArray();
+        $programasPreinscritos = $programasMasPreinscritos->pluck('preinscritos_count')->toArray();
+
         // Preinscritos por año (últimos 5 años)
         $años = [];
         $dataPreinscritosAño = [];
@@ -144,7 +148,7 @@ class ReporteController extends Controller
 
         // Ofertas con más preinscritos
         $ofertasMasPreinscritos = DB::table('ofertas as o')
-            ->join('oferta_programa as op', 'op.id', '=', 'o.oferta_programa_id')
+            ->join('oferta_programa as op', 'op.oferta_id', '=', 'o.id')
             ->join('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
             ->selectRaw('o.nombre, COUNT(pr.id) as preinscritos_count')
             ->groupBy('o.id', 'o.nombre')
@@ -185,6 +189,9 @@ class ReporteController extends Controller
             'preinscritosAño' => $dataPreinscritosAño,
             'ofertasMasPreinscritos' => $ofertasMasPreinscritos,
             'preinscritosDetalle' => $preinscritosDetalle,
+            // Comparativa por programa
+            'programasNombres' => $programasNombres,
+            'programasPreinscritos' => $programasPreinscritos,
         ]);
     }
 }
