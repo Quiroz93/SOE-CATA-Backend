@@ -283,10 +283,21 @@
 
     // Mostrar el formulario si hay filtros activos
     document.addEventListener('DOMContentLoaded', function() {
-        const hasActiveFilters = {{ request()->filled(['nombre', 'documento', 'correo', 'programa_id', 'estado']) ? 'true' : 'false' }};
+        // Verificar si hay filtros activos usando los valores de los inputs
+        const nombre = document.getElementById('nombre').value.trim();
+        const documento = document.getElementById('documento').value.trim();
+        const correo = document.getElementById('correo').value.trim();
+        const programaId = document.getElementById('programa_id').value.trim();
+        const estado = document.getElementById('estado').value.trim();
+        
+        const hasActiveFilters = nombre || documento || correo || programaId || estado;
+        
+        const filterForm = document.getElementById('filterForm');
+        const filterToggle = document.querySelector('.filter-toggle__text');
+        
         if (!hasActiveFilters) {
-            document.getElementById('filterForm').classList.add('hidden');
-            document.querySelector('.filter-toggle__text').textContent = '+';
+            filterForm.classList.add('hidden');
+            filterToggle.textContent = '+';
         }
     });
 </script>
