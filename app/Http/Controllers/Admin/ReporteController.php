@@ -282,8 +282,7 @@ class ReporteController extends Controller
         }
         
         $preinscritosDetalle = $preinscritosDetalleQuery->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
+            ->paginate(10);
 
         return view('admin.reportes.index', [
             'totalOfertas' => $totalOfertas,

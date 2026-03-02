@@ -367,7 +367,7 @@
     <div class="recent-section">
         <div class="table-card">
             <div class="table-header">
-                <h3>Estado de Preinscritos (Últimos 10)</h3>
+                <h3>Estado de Preinscritos</h3>
             </div>
             <table class="data-table">
                 <thead>
@@ -401,6 +401,13 @@
                     @endforelse
                 </tbody>
             </table>
+            
+            <!-- Paginacion -->
+            @if($preinscritosDetalle->hasPages())
+                <div class="pagination-wrapper">
+                    {{ $preinscritosDetalle->appends(request()->query())->links('admin.pagination.custom') }}
+                </div>
+            @endif
         </div>
     </div>
 
