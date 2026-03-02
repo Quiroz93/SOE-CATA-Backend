@@ -67,7 +67,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1.25rem;
+    padding: 0.625rem 1.25rem;
     font-weight: 600;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -75,6 +75,9 @@
     text-decoration: none;
     border: none;
     font-size: 0.875rem;
+    line-height: 1.25rem;
+    min-height: 2.5rem;
+    white-space: nowrap;
 }
 
 .btn--primary {
@@ -698,13 +701,16 @@
 .filter-form__group {
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }
 
 .filter-form__label {
+    display: block;
     font-size: 0.875rem;
     font-weight: 600;
     color: #555;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.625rem;
+    line-height: 1.25rem;
 }
 
 .filter-form__input,
@@ -719,7 +725,8 @@
     border: 1px solid #d1d5db;
     border-radius: 4px;
     font-family: inherit;
-    min-height: 2.5rem;
+    height: 2.5rem;
+    box-sizing: border-box;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -731,6 +738,7 @@
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 12px;
+    background-color: #ffffff;
     padding-right: 2.5rem;
 }
 
@@ -749,10 +757,7 @@
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
-}
-
-.filter-form__actions .btn {
-    white-space: nowrap;
+    align-items: center;
 }
 
 /* Estilos para cuando los filtros están ocultos */
