@@ -117,7 +117,11 @@
             </button>
         </div>
 
-        <div id="programasContainer">
+        <div id="programasContainer" 
+             data-programa-index="{{ ($mode === 'edit' && $oferta) ? $oferta->ofertaProgramas->count() : 0 }}"
+             data-centros='@json($centros)'
+             data-programas='@json($programas)'
+             data-instructores='@json($instructores)'>
             @if($mode === 'edit' && $oferta && $oferta->ofertaProgramas->count() > 0)
                 @foreach($oferta->ofertaProgramas as $index => $ofertaPrograma)
                     <div class="programa-row" data-index="{{ $index }}">
@@ -226,14 +230,14 @@
 </style>
 
 <script>
-let programaIndex = {{ $mode === 'edit' && $oferta ? $oferta->ofertaProgramas->count() : 0 }};
-
-const centrosData = @json($centros);
-const programasData = @json($programas);
-const instructoresData = @json($instructores);
+// Leer datos desde los atributos data-* del contenedor
+const container = document.getElementById('programasContainer');
+let programaIndex = parseInt(container.dataset.programaIndex);
+const centrosData = JSON.parse(container.dataset.centros);
+const programasData = JSON.parse(container.dataset.programas);
+const instructoresData = JSON.parse(container.dataset.instructores);
 
 function addPrograma() {
-    const container = document.getElementById('programasContainer');
     const message = document.getElementById('noProgramasMessage');
     if (message) message.remove();
 
