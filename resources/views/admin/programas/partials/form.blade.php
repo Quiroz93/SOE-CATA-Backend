@@ -1,40 +1,108 @@
-{{-- Formulario reutilizable para crear/editar programa --}}
-<form method="POST" action="{{ isset($mode) && $mode === 'edit' ? route('admin.programas.update', $programa ?? null) : route('admin.programas.store') }}" class="space-y-6">
+<form method="POST" action="{{ isset($mode) && $mode === 'edit' ? route('admin.programas.update', $programa ?? null) : route('admin.programas.store') }}" class="admin-form">
     @csrf
     @if(isset($mode) && $mode === 'edit')
         @method('PUT')
     @endif
-    {{-- Campo: Nombre del programa --}}
-    <div>
-        <label for="nombre" class="block text-sm font-medium">Nombre</label>
-        <input type="text" name="nombre" id="nombre" class="form-input mt-1 block w-full" required>
+
+    <div class="form-group">
+        <label for="nombre" class="form-label">
+            Nombre del Programa <span class="required">*</span>
+        </label>
+        <input type="text" 
+               name="nombre" 
+               id="nombre" 
+               class="form-input @error('nombre') form-input--error @enderror" 
+               value="{{ old('nombre', $programa->nombre ?? '') }}"
+               required>
+        @error('nombre')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
     </div>
-    {{-- Campo: Descripción --}}
-    <div>
-        <label for="descripcion" class="block text-sm font-medium">Descripción</label>
-        <textarea name="descripcion" id="descripcion" class="form-textarea mt-1 block w-full"></textarea>
+
+    <div class="form-group">
+        <label for="ficha" class="form-label">
+            Ficha
+        </label>
+        <input type="text" 
+               name="ficha" 
+               id="ficha" 
+               class="form-input @error('ficha') form-input--error @enderror" 
+               value="{{ old('ficha', $programa->ficha ?? '') }}">
+        @error('ficha')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
     </div>
-    {{-- Campo: Nivel de formación --}}
-    <div>
-        <label for="nivel" class="block text-sm font-medium">Nivel de Formación</label>
-        <select name="nivel" id="nivel" class="form-select mt-1 block w-full">
-            {{-- Opciones dinámicas --}}
+
+    <div class="form-group">
+        <label for="descripcion" class="form-label">
+            Descripción
+        </label>
+        <textarea name="descripcion" 
+                  id="descripcion" 
+                  class="form-textarea @error('descripcion') form-textarea--error @enderror" 
+                  rows="4" 
+                  placeholder="Descripción del programa...">{{ old('descripcion', $programa->descripcion ?? '') }}</textarea>
+        @error('descripcion')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
+    </div>
+
+    <div class="form-group">
+        <label for="estado" class="form-label">
+            Estado <span class="required">*</span>
+        </label>
+        <select name="estado" 
+                id="estado" 
+                class="form-select @error('estado') form-select--error @enderror" 
+                required>
+            <option value="">-- Selecciona un estado --</option>
+            <option value="borrador" {{ old('estado', $programa->estado->value ?? '') === 'borrador' ? 'selected' : '' }}>Borrador</option>
+            <option value="publicado" {{ old('estado', $programa->estado->value ?? '') === 'publicado' ? 'selected' : '' }}>Publicado</option>
+            <option value="archivado" {{ old('estado', $programa->estado->value ?? '') === 'archivado' ? 'selected' : '' }}>Archivado</option>
         </select>
+        @error('estado')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
     </div>
-    {{-- Campo: Redes de Formación --}}
-    <div>
-        <label for="redes_ids" class="block text-sm font-medium">Redes de Formación</label>
-        <select name="redes_ids[]" id="redes_ids" class="form-select mt-1 block w-full" multiple required>
-            @foreach($redesFormacion as $red)
-                <option value="{{ $red->id }}" {{ (isset($programa) && $programa->redesFormacion->contains($red->id)) ? 'selected' : '' }}>{{ $red->nombre }}</option>
-            @endforeach
+
+    <div class="form-group">
+        <label for="modalidad" class="form-label">
+            Modalidad
+        </label>
+        <select name="modalidad" 
+                id="modalidad" 
+                class="form-select @error('modalidad') form-select--error @enderror">
+            <option value="">-- Selecciona una modalidad --</option>
+            <option value="Presencial" {{ old('modalidad', $programa->modalidad ?? '') === 'Presencial' ? 'selected' : '' }}>Presencial</option>
+            <option value="Virtual" {{ old('modalidad', $programa->modalidad ?? '') === 'Virtual' ? 'selected' : '' }}>Virtual</option>
+            <option value="Mixta" {{ old('modalidad', $programa->modalidad ?? '') === 'Mixta' ? 'selected' : '' }}>Mixta</option>
         </select>
-        <small class="text-gray-500">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar varias opciones.</small>
+        @error('modalidad')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
     </div>
-    {{-- Botón de envío --}}
-    <div>
-        <button type="submit" class="btn btn-primary">{{ $mode === 'edit' ? 'Actualizar' : 'Crear' }}</button>
+
+    <div class="form-group">
+        <label for="municipio" class="form-label">
+            Municipio
+        </label>
+        <input type="text" 
+               name="municipio" 
+               id="municipio" 
+               class="form-input @error('municipio') form-input--error @enderror" 
+               value="{{ old('municipio', $programa->municipio ?? '') }}"
+               placeholder="Ej: Málaga">
+        @error('municipio')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
     </div>
-    {{-- Punto de montaje Vue para validaciones dinámicas --}}
-    <div id="vue-programas-form"></div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn--primary">
+            {{ $mode === 'edit' ? '✅ Actualizar Programa' : '✅ Guardar Programa' }}
+        </button>
+        <a href="{{ route('admin.programas.index') }}" class="btn btn--secondary">
+            ❌ Cancelar
+        </a>
+    </div>
 </form>
