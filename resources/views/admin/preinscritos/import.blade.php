@@ -57,45 +57,80 @@
             <h3 class="import-instructions__title">📌 Instrucciones de Importación</h3>
             
             <div class="instruction-item">
-                <h4>1. Descargar la Plantilla</h4>
-                <p>Haz clic en "Descargar Plantilla" para obtener un archivo Excel con el formato correcto.</p>
-            </div>
-            
-            <div class="instruction-item">
-                <h4>2. Completar los Datos</h4>
-                <p>Rellena la plantilla con los datos de los preinscritos. Asegúrate de seguir el formato especificado.</p>
-            </div>
-            
-            <div class="instruction-item">
-                <h4>3. Validar los Campos</h4>
+                <h4>1. Descargar la Plantilla Actualizada</h4>
+                <p>Haz clic en <strong>"📋 Descargar Plantilla"</strong> para obtener un archivo Excel con:</p>
                 <ul>
-                    <li><strong>Nombre Completo:</strong> Ingresa el nombre y apellido completo</li>
-                    <li><strong>Cédula:</strong> Documento de identidad del preinscrito</li>
-                    <li><strong>Correo Electrónico:</strong> Email válido y único</li>
-                    <li><strong>Programa:</strong> Selecciona un programa disponible</li>
-                    <li><strong>Estado:</strong> pendiente, aceptado o rechazado</li>
+                    <li>Logo SENA institucional en el encabezado</li>
+                    <li>Fecha y hora de actualización de la plantilla</li>
+                    <li>Formato estandarizado según normas SENA</li>
+                    <li>Listas desplegables con datos reales de la base de datos</li>
                 </ul>
             </div>
             
             <div class="instruction-item">
-                <h4>4. Cargar el Archivo</h4>
-                <p>Selecciona el archivo completado y haz clic en "Importar Preinscritos".</p>
+                <h4>2. Completar los Datos Obligatorios</h4>
+                <p>La plantilla incluye 3 ejemplos de referencia. Puedes eliminarlos y agregar tus datos:</p>
+                <ul>
+                    <li><strong>Nombre Completo:</strong> Ingresa nombre y apellido completo (texto libre)</li>
+                    <li><strong>Cédula:</strong> Documento de identidad sin puntos ni espacios (solo números)</li>
+                    <li><strong>Correo Electrónico:</strong> Email válido y activo (formato: ejemplo@dominio.com)</li>
+                </ul>
             </div>
             
             <div class="instruction-item">
-                <h4>5. Revisar Resultados</h4>
-                <p>Se mostrará un resumen de los registros importados y cualquier error encontrado.</p>
+                <h4>3. Usar las Listas Desplegables Dinámicas</h4>
+                <p><strong>¡IMPORTANTE!</strong> Las columnas <strong>Programa</strong> y <strong>Estado</strong> tienen listas desplegables:</p>
+                <ul>
+                    <li><strong>Programa:</strong> Click en la celda → flecha desplegable → seleccionar programa vigente de la lista actualizada desde la base de datos</li>
+                    <li><strong>Estado:</strong> Click en la celda → flecha desplegable → seleccionar entre: <em>pendiente</em>, <em>aceptado</em> o <em>rechazado</em></li>
+                    <li>⚠️ <strong>No escribir manualmente</strong>, usar solo las listas desplegables para evitar errores</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-item">
+                <h4>4. Validar y Guardar</h4>
+                <ul>
+                    <li>Revisa que todos los campos obligatorios estén completos</li>
+                    <li>Verifica que los correos sean válidos (Excel no validará el formato)</li>
+                    <li>Guarda el archivo Excel (.xlsx recomendado)</li>
+                    <li>No modifiques el encabezado ni el formato de las columnas</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-item">
+                <h4>5. Cargar y Procesar</h4>
+                <p>En esta página:</p>
+                <ul>
+                    <li>Haz clic en el botón de selección de archivo</li>
+                    <li>Selecciona tu archivo Excel completado</li>
+                    <li>Haz clic en <strong>"📤 Importar Preinscritos"</strong></li>
+                    <li>Espera el procesamiento (puede tardar según la cantidad de registros)</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-item">
+                <h4>6. Revisar Resultados</h4>
+                <p>Al finalizar verás:</p>
+                <ul>
+                    <li>✅ Número de registros importados exitosamente</li>
+                    <li>⚠️ Listado de errores por fila (si los hay)</li>
+                    <li>Razones de rechazo: duplicados, correos inválidos, programas no encontrados, etc.</li>
+                </ul>
             </div>
         </div>
 
         <div class="import-notes">
             <h3 class="import-notes__title">⚠️ Notas Importantes</h3>
             <ul>
-                <li>Los campos <strong>Nombre, Cédula y Correo</strong> son obligatorios</li>
-                <li>Los correos deben ser válidos y únicos</li>
-                <li>Los preinscritos duplicados (mismo documento y correo) serán ignorados</li>
-                <li>El estado por defecto es "pendiente" si no se especifica</li>
-                <li>Máximo 5 MB por archivo</li>
+                <li><strong>Campos obligatorios:</strong> Nombre, Cédula y Correo (sin estos no se importará el registro)</li>
+                <li><strong>Correos únicos:</strong> Los correos deben ser válidos y no duplicados en el sistema</li>
+                <li><strong>Programas actualizados:</strong> La lista de programas en la plantilla refleja solo los programas publicados y vigentes</li>
+                <li><strong>Listas desplegables:</strong> Usa SIEMPRE las listas desplegables en las columnas Programa y Estado</li>
+                <li><strong>Duplicados:</strong> Los preinscritos con mismo documento Y correo serán ignorados</li>
+                <li><strong>Estado por defecto:</strong> Si no se especifica, se asignará "pendiente" automáticamente</li>
+                <li><strong>Límite de archivo:</strong> Máximo 5 MB por archivo Excel</li>
+                <li><strong>Capacidad:</strong> La plantilla soporta hasta 100 registros con validación automática</li>
+                <li><strong>Fecha de plantilla:</strong> Verifica la fecha en el encabezado para asegurar que uses la versión más reciente</li>
             </ul>
         </div>
     </div>
