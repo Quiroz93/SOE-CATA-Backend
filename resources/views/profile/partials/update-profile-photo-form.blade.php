@@ -34,7 +34,7 @@
                 <input id="profile_photo" 
                        name="profile_photo" 
                        type="file" 
-                       class="form-input" 
+                       class="form-input-file" 
                        accept="image/png,image/jpeg,image/jpg,image/gif"
                        onchange="previewPhoto(event)" />
                 <small class="form-helper-text">JPG, PNG o GIF (máximo 2MB)</small>
