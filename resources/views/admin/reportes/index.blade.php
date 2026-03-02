@@ -140,6 +140,33 @@
             </div>
             <div class="kpi-value kpi-danger">{{ $preinscritosRechazados }}</div>
         </div>
+
+        <div class="kpi-card kpi-trend kpi-{{ $tendencia }}">
+            <div class="kpi-header">
+                <span class="kpi-label">Variación Trimestral</span>
+                @if($tendencia === 'up')
+                    <svg class="kpi-icon trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                        <polyline points="17 6 23 6 23 12"></polyline>
+                    </svg>
+                @elseif($tendencia === 'down')
+                    <svg class="kpi-icon trend-down" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                        <polyline points="17 18 23 18 23 12"></polyline>
+                    </svg>
+                @else
+                    <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                @endif
+            </div>
+            <div class="kpi-value">
+                {{ $variacionPorcentual > 0 ? '+' : '' }}{{ number_format($variacionPorcentual, 1) }}%
+            </div>
+            <div class="kpi-subtitle">
+                {{ $preinscritosTrimestreAnterior }} → {{ $preinscritosTrimestreActual }}
+            </div>
+        </div>
     </div>
 
     <!-- Charts Section -->

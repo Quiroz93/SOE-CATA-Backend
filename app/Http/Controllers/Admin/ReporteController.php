@@ -154,6 +154,29 @@ class ReporteController extends Controller
             $dataPreinscritosTrimestre[] = $count;
         }
 
+        // Variación porcentual entre trimestre actual y anterior
+        $trimestreActual = now();
+        $trimestreAnterior = now()->subQuarter();
+        
+        $preinscritosTrimestreActual = Preinscrito::whereYear('created_at', $trimestreActual->year)
+            ->whereRaw('QUARTER(created_at) = ?', [$trimestreActual->quarter])
+            ->count();
+        
+        $preinscritosTrimestreAnterior = Preinscrito::whereYear('created_at', $trimestreAnterior->year)
+            ->whereRaw('QUARTER(created_at) = ?', [$trimestreAnterior->quarter])
+            ->count();
+        
+        $variacionPorcentual = 0;
+        $tendencia = 'neutral';
+        
+        if ($preinscritosTrimestreAnterior > 0) {
+            $variacionPorcentual = (($preinscritosTrimestreActual - $preinscritosTrimestreAnterior) / $preinscritosTrimestreAnterior) * 100;
+            $tendencia = $variacionPorcentual > 0 ? 'up' : ($variacionPorcentual < 0 ? 'down' : 'neutral');
+        } elseif ($preinscritosTrimestreActual > 0) {
+            $variacionPorcentual = 100;
+            $tendencia = 'up';
+        }
+
         // Preinscritos por año (últimos 5 años)
         $años = [];
         $dataPreinscritosAño = [];
@@ -213,6 +236,11 @@ class ReporteController extends Controller
             // Evolución por trimestre
             'trimestres' => $trimestres,
             'preinscritosTrimestre' => $dataPreinscritosTrimestre,
+            // Variación porcentual
+            'variacionPorcentual' => $variacionPorcentual,
+            'tendencia' => $tendencia,
+            'preinscritosTrimestreActual' => $preinscritosTrimestreActual,
+            'preinscritosTrimestreAnterior' => $preinscritosTrimestreAnterior,
         ]);
     }
 }
