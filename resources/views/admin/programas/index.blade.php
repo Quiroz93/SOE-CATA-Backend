@@ -32,13 +32,13 @@
             <div class="filter-form__grid">
                 <div class="filter-form__group">
                     <label for="nombre" class="filter-form__label">Nombre</label>
-                    <input type="text" name="nombre" id="nombre" class="form-input" 
+                    <input type="text" name="nombre" id="nombre" class="filter-form__input" 
                            value="{{ request('nombre') }}" placeholder="Buscar por nombre...">
                 </div>
 
                 <div class="filter-form__group">
                     <label for="ficha" class="filter-form__label">Ficha</label>
-                    <input type="text" name="ficha" id="ficha" class="form-input" 
+                    <input type="text" name="ficha" id="ficha" class="filter-form__input" 
                            value="{{ request('ficha') }}" placeholder="Buscar por ficha...">
                 </div>
 
@@ -64,7 +64,7 @@
 
                 <div class="filter-form__group">
                     <label for="municipio" class="filter-form__label">Municipio</label>
-                    <input type="text" name="municipio" id="municipio" class="form-input" 
+                    <input type="text" name="municipio" id="municipio" class="filter-form__input" 
                            value="{{ request('municipio') }}" placeholder="Buscar por municipio...">
                 </div>
             </div>
