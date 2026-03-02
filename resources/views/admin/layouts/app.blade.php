@@ -45,6 +45,10 @@
                            class="admin-nav__link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__link--active' : '' }}">
                             {{ __('Preinscritos') }}
                         </a>
+                        <a href="{{ route('admin.novedades.index') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.novedades.*') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Novedades') }}
+                        </a>
                         <a href="{{ route('admin.reportes.index') }}" 
                            class="admin-nav__link {{ request()->routeIs('admin.reportes.*') ? 'admin-nav__link--active' : '' }}">
                             {{ __('Reportes') }}
@@ -109,6 +113,10 @@
                 <a href="{{ route('admin.preinscritos.index') }}" 
                    class="admin-nav__mobile-link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__mobile-link--active' : '' }}">
                     {{ __('Preinscritos') }}
+                </a>
+                <a href="{{ route('admin.novedades.index') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.novedades.*') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Novedades') }}
                 </a>
                 <a href="{{ route('admin.reportes.index') }}" 
                    class="admin-nav__mobile-link {{ request()->routeIs('admin.reportes.*') ? 'admin-nav__mobile-link--active' : '' }}">
