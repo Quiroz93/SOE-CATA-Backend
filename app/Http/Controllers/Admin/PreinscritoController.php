@@ -78,7 +78,7 @@ class PreinscritoController extends Controller
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,rechazado',
+            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,cancelado,convocado_matricula,matriculado,no_admitido,rechazado',
         ]);
 
         Preinscrito::create($validated);
@@ -103,7 +103,7 @@ class PreinscritoController extends Controller
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,rechazado',
+            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,cancelado,convocado_matricula,matriculado,no_admitido,rechazado',
         ]);
 
         $preinscrito->update($validated);

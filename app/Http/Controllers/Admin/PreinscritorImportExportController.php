@@ -34,7 +34,7 @@ class PreinscritorImportExportController extends Controller
         $tiposDocumento = ['CC', 'TI', 'CE', 'PAS', 'PPT'];
         
         // Estados válidos
-        $estados = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'rechazado'];
+        $estados = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'cancelado', 'convocado_matricula', 'matriculado', 'no_admitido', 'rechazado'];
         
         // Crear nuevo spreadsheet
         $spreadsheet = new Spreadsheet();
@@ -303,7 +303,7 @@ class PreinscritorImportExportController extends Controller
             $validation->setShowErrorMessage(true);
             $validation->setShowDropDown(true);
             $validation->setErrorTitle('Entrada inválida');
-            $validation->setError('Por favor seleccione: pendiente, novedad, preinscrito, inscrito o rechazado.');
+            $validation->setError('Por favor seleccione: pendiente, novedad, preinscrito, inscrito, cancelado, convocado_matricula, matriculado, no_admitido o rechazado.');
             $validation->setPromptTitle('Estado');
             $validation->setPrompt('Seleccione el estado del preinscrito.');
             $validation->setFormula1('Datos_Validacion!$D$1:$D$' . $estadosCount);
@@ -333,7 +333,7 @@ class PreinscritorImportExportController extends Controller
             '• Correo Electronico: Ingrese correo valido y activo',
             '• Programa: SELECCIONE de la lista. Disponibles: ' . $programasDisponibles,
             '• Numero Ficha: AUTOMATICAMENTE al seleccionar programa (NO editar)',
-            '• Estado: SELECCIONE de lista (pendiente, novedad, preinscrito, inscrito o rechazado)',
+            '• Estado: SELECCIONE de lista (pendiente, novedad, preinscrito, inscrito, cancelado, convocado_matricula, matriculado, no_admitido, rechazado)',
             '',
             'IMPORTANTE: Nombres, Apellidos, Tipo Documento, Documento y Correo son OBLIGATORIOS',
             'No modifique los encabezados de las columnas',
@@ -446,7 +446,7 @@ class PreinscritorImportExportController extends Controller
                 }
                 
                 // Validar estado
-                $estadoValido = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'rechazado'];
+                $estadoValido = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'cancelado', 'convocado_matricula', 'matriculado', 'no_admitido', 'rechazado'];
                 if (!in_array($estado, $estadoValido)) {
                     $estado = 'pendiente';
                 }
