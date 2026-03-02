@@ -11,6 +11,12 @@
         <div class="profile-container">
             <div class="profile-card">
                 <div class="max-w-xl">
+                    @include('profile.partials.update-profile-photo-form')
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="max-w-xl">
                     @include('profile.partials.update-profile-information-form')
                 </div>
             </div>
