@@ -177,6 +177,11 @@ class ReporteController extends Controller
         $programasNombres = $programasMasPreinscritos->pluck('nombre')->toArray();
         $programasPreinscritos = $programasMasPreinscritos->pluck('preinscritos_count')->toArray();
 
+        // Programa líder (más preinscritos)
+        $programaLider = $programasMasPreinscritos->first();
+        $programaLiderNombre = $programaLider ? $programaLider->nombre : 'N/A';
+        $programaLiderCount = $programaLider ? $programaLider->preinscritos_count : 0;
+
         // Preinscritos por trimestre (últimos 8 trimestres)
         $trimestres = [];
         $dataPreinscritosTrimestre = [];
@@ -322,6 +327,9 @@ class ReporteController extends Controller
             'programas' => $programas,
             'programaFilter' => $programaFilter,
             'estadoFilter' => $estadoFilter,
+            // Programa líder
+            'programaLiderNombre' => $programaLiderNombre,
+            'programaLiderCount' => $programaLiderCount,
         ]);
     }
 }

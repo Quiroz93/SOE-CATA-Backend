@@ -190,6 +190,28 @@
         </div>
     </div>
 
+    <!-- Programa Líder KPI -->
+    <div class="programa-lider-section">
+        <div class="programa-lider-card">
+            <div class="programa-lider-header">
+                <svg class="programa-lider-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                </svg>
+                <div>
+                    <h3 class="programa-lider-title">Programa Líder</h3>
+                    <p class="programa-lider-subtitle">Programa con más preinscritos</p>
+                </div>
+            </div>
+            <div class="programa-lider-content">
+                <div class="programa-lider-nombre">{{ $programaLiderNombre }}</div>
+                <div class="programa-lider-stats">
+                    <span class="programa-lider-count">{{ $programaLiderCount }}</span>
+                    <span class="programa-lider-label">Preinscritos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts Section -->
     <div class="charts-section">
         <div class="chart-card">
