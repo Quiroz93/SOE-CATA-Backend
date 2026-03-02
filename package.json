@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:local": "vite --host localhost --port 5173 --strictPort",
+    "serve:local": "php artisan serve --host=127.0.0.1 --port=8000",
     "build": "vite build"
   },
   "devDependencies": {
