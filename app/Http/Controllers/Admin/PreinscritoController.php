@@ -5,14 +5,50 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
+use App\Models\Programa;
 use Illuminate\Http\Request;
 
 class PreinscritoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $preinscritos = Preinscrito::with(['ofertaPrograma'])->paginate(15);
-        return view('admin.preinscritos.index', compact('preinscritos'));
+        $query = Preinscrito::with(['ofertaPrograma.programa']);
+
+        // Filtro por nombre
+        if ($request->filled('nombre')) {
+            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+        }
+
+        // Filtro por documento
+        if ($request->filled('documento')) {
+            $query->where('documento', 'like', '%' . $request->documento . '%');
+        }
+
+        // Filtro por programa
+        if ($request->filled('programa_id')) {
+            $query->whereHas('ofertaPrograma', function ($q) use ($request) {
+                $q->where('programa_id', $request->programa_id);
+            });
+        }
+
+        // Filtro por estado
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        // Filtro por correo
+        if ($request->filled('correo')) {
+            $query->where('correo', 'like', '%' . $request->correo . '%');
+        }
+
+        $preinscritos = $query->paginate(15);
+
+        // Obtener programas para el select de filtro
+        $programas = Programa::where('estado', 'publicado')
+            ->orderBy('nombre')
+            ->get();
+
+        return view('admin.preinscritos.index', compact('preinscritos', 'programas'));
     }
 
     public function show(Preinscrito $preinscrito)
