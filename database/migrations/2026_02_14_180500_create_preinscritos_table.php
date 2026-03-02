@@ -13,6 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('oferta_id');
             $table->unsignedBigInteger('oferta_programa_id');
             $table->string('nombre');
+            $table->string('tipo_documento', 10);
             $table->string('documento');
             $table->string('correo');
             $table->string('estado')->default('pendiente');
