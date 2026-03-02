@@ -40,6 +40,10 @@
                     <option value="novedad" {{ $estadoFilter == 'novedad' ? 'selected' : '' }}>Novedad</option>
                     <option value="preinscrito" {{ $estadoFilter == 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
                     <option value="inscrito" {{ $estadoFilter == 'inscrito' ? 'selected' : '' }}>Inscrito</option>
+                    <option value="cancelado" {{ $estadoFilter == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                    <option value="convocado_matricula" {{ $estadoFilter == 'convocado_matricula' ? 'selected' : '' }}>Convocado Matrícula</option>
+                    <option value="matriculado" {{ $estadoFilter == 'matriculado' ? 'selected' : '' }}>Matriculado</option>
+                    <option value="no_admitido" {{ $estadoFilter == 'no_admitido' ? 'selected' : '' }}>No Admitido</option>
                     <option value="rechazado" {{ $estadoFilter == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
                 </select>
             </div>
