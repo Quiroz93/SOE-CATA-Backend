@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Programa;
 use App\Http\Requests\StoreProgramaRequest;
 use App\Http\Requests\UpdateProgramaRequest;
+use Illuminate\Http\Request;
 
 class ProgramaController extends Controller
 {
@@ -14,9 +15,36 @@ class ProgramaController extends Controller
         $this->authorizeResource(Programa::class, 'programa');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $programas = Programa::latest()->paginate(15);
+        $query = Programa::query();
+
+        // Filtro por nombre
+        if ($request->filled('nombre')) {
+            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+        }
+
+        // Filtro por ficha
+        if ($request->filled('ficha')) {
+            $query->where('ficha', 'like', '%' . $request->ficha . '%');
+        }
+
+        // Filtro por estado
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        // Filtro por modalidad
+        if ($request->filled('modalidad')) {
+            $query->where('modalidad', $request->modalidad);
+        }
+
+        // Filtro por municipio
+        if ($request->filled('municipio')) {
+            $query->where('municipio', 'like', '%' . $request->municipio . '%');
+        }
+
+        $programas = $query->latest()->paginate(15);
         return view('admin.programas.index', compact('programas'));
     }
     public function show(Programa $programa)
