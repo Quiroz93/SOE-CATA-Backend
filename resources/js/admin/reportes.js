@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const programasNombres = JSON.parse(dashboardData.dataset.programasNombres || '[]');
         const programasPreinscritos = JSON.parse(dashboardData.dataset.programasPreinscritos || '[]');
 
+        // Preinscritos por trimestre
+        const trimestres = JSON.parse(dashboardData.dataset.trimestres || '[]');
+        const preinscritosTrimestre = JSON.parse(dashboardData.dataset.preinscritosTrimestre || '[]');
+
         // Destroy existing charts before creating new ones
         if (window.reportesCharts.ofertasMes) {
             window.reportesCharts.ofertasMes.destroy();
@@ -57,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (window.reportesCharts.programasComparativa) {
             window.reportesCharts.programasComparativa.destroy();
+        }
+        if (window.reportesCharts.preinscritosTrimestre) {
+            window.reportesCharts.preinscritosTrimestre.destroy();
         }
 
         // Ofertas por Mes Chart
@@ -324,6 +331,89 @@ document.addEventListener('DOMContentLoaded', function() {
                                 color: '#666',
                                 font: {
                                     size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Evolución de Preinscritos por Trimestre Chart
+        const ctxPreinscritosTrimestre = document.getElementById('preinscritosTrimestreChart');
+        if (ctxPreinscritosTrimestre) {
+            window.reportesCharts.preinscritosTrimestre = new Chart(ctxPreinscritosTrimestre.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: trimestres,
+                    datasets: [{
+                        label: 'Preinscritos por Trimestre',
+                        data: preinscritosTrimestre,
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#16a34a',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 },
+                                color: '#333'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13 },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Preinscritos: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#666',
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Número de Preinscritos',
+                                color: '#333',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            title: {
+                                display: true,
+                                text: 'Trimestre',
+                                color: '#333',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
                                 }
                             }
                         }

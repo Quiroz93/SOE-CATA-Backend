@@ -136,6 +136,24 @@ class ReporteController extends Controller
         $programasNombres = $programasMasPreinscritos->pluck('nombre')->toArray();
         $programasPreinscritos = $programasMasPreinscritos->pluck('preinscritos_count')->toArray();
 
+        // Preinscritos por trimestre (últimos 8 trimestres)
+        $trimestres = [];
+        $dataPreinscritosTrimestre = [];
+        
+        for ($i = 7; $i >= 0; $i--) {
+            $fecha = now()->subQuarters($i);
+            $year = $fecha->year;
+            $quarter = $fecha->quarter;
+            
+            $trimestres[] = "Q{$quarter} {$year}";
+            
+            $count = Preinscrito::whereYear('created_at', $year)
+                ->whereRaw('QUARTER(created_at) = ?', [$quarter])
+                ->count();
+            
+            $dataPreinscritosTrimestre[] = $count;
+        }
+
         // Preinscritos por año (últimos 5 años)
         $años = [];
         $dataPreinscritosAño = [];
@@ -192,6 +210,9 @@ class ReporteController extends Controller
             // Comparativa por programa
             'programasNombres' => $programasNombres,
             'programasPreinscritos' => $programasPreinscritos,
+            // Evolución por trimestre
+            'trimestres' => $trimestres,
+            'preinscritosTrimestre' => $dataPreinscritosTrimestre,
         ]);
     }
 }

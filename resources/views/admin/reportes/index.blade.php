@@ -41,6 +41,8 @@
         data-preinscritos-año='@json($preinscritosAño)'
         data-programas-nombres='@json($programasNombres)'
         data-programas-preinscritos='@json($programasPreinscritos)'
+        data-trimestres='@json($trimestres)'
+        data-preinscritos-trimestre='@json($preinscritosTrimestre)'
         style="display: none;"
     ></div>
 
@@ -182,6 +184,13 @@
                 <h3>Comparativa de Preinscritos por Programa</h3>
             </div>
             <canvas id="programasComparativaChart" height="80"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Evolución de Preinscritos por Trimestre</h3>
+            </div>
+            <canvas id="preinscritosTrimestreChart" height="80"></canvas>
         </div>
     </div>
 
