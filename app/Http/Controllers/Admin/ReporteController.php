@@ -95,12 +95,13 @@ class ReporteController extends Controller
             ->pluck('total', 'role')
             ->toArray();
 
-        // Centro con más ofertas
-        $centrosMasOfertas = DB::table('centros as c')
-            ->leftJoin('ofertas as o', 'o.centro_id', '=', 'c.id')
-            ->selectRaw('c.nombre, COUNT(o.id) as ofertas_count')
+        // Centro con más preinscritos
+        $centrosMasPreinscritos = DB::table('centros as c')
+            ->leftJoin('oferta_programa as op', 'op.centro_id', '=', 'c.id')
+            ->leftJoin('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
+            ->selectRaw('c.nombre, COUNT(pr.id) as preinscritos_count')
             ->groupBy('c.id', 'c.nombre')
-            ->orderByDesc('ofertas_count')
+            ->orderByDesc('preinscritos_count')
             ->limit(5)
             ->get();
 
@@ -291,7 +292,7 @@ class ReporteController extends Controller
             'totalUsuarios' => $totalUsuarios,
             'ofertasPorEstado' => $ofertasPorEstado,
             'usuariosPorRol' => $usuariosPorRol,
-            'centrosMasOfertas' => $centrosMasOfertas,
+            'centrosMasPreinscritos' => $centrosMasPreinscritos,
             'programasMasDemandados' => $programasMasDemandados,
             'ofertasRecientes' => $ofertasRecientes,
             'meses' => $meses,

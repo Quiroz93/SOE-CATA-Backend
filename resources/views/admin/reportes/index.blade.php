@@ -268,20 +268,20 @@
     <div class="tables-section">
         <div class="table-card">
             <div class="table-header">
-                <h3>Centros con Más Ofertas</h3>
+                <h3>Centros con Más Preinscritos</h3>
             </div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Centro</th>
-                        <th>Ofertas</th>
+                        <th>Preinscritos</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($centrosMasOfertas as $centro)
+                    @foreach($centrosMasPreinscritos as $centro)
                         <tr>
                             <td>{{ $centro->nombre }}</td>
-                            <td><span class="badge badge-primary">{{ $centro->ofertas_count }}</span></td>
+                            <td><span class="badge badge-primary">{{ $centro->preinscritos_count }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>
