@@ -13,6 +13,7 @@ class Preinscrito extends Model
         'oferta_id',
         'oferta_programa_id',
         'nombre',
+        'tipo_documento',
         'documento',
         'correo',
         'estado',

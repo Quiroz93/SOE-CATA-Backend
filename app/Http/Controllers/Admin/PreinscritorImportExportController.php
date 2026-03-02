@@ -30,6 +30,9 @@ class PreinscritorImportExportController extends Controller
             ->pluck('nombre')
             ->toArray();
         
+        // Tipos de documento válidos
+        $tiposDocumento = ['CC', 'TI', 'CE', 'PAS', 'PPT'];
+        
         // Estados válidos
         $estados = ['pendiente', 'aceptado', 'rechazado'];
         
@@ -39,10 +42,11 @@ class PreinscritorImportExportController extends Controller
         
         // Configurar ancho de columnas
         $sheet->getColumnDimension('A')->setWidth(20);
-        $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(30);
-        $sheet->getColumnDimension('D')->setWidth(35);
-        $sheet->getColumnDimension('E')->setWidth(18);
+        $sheet->getColumnDimension('B')->setWidth(12);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(30);
+        $sheet->getColumnDimension('E')->setWidth(35);
+        $sheet->getColumnDimension('F')->setWidth(18);
         
         // ============================================
         // LOGO SENA (Alineado a la izquierda)
@@ -64,8 +68,8 @@ class PreinscritorImportExportController extends Controller
         // ============================================
         // ENCABEZADO INSTITUCIONAL
         // ============================================
-        // Fusionar celdas para encabezado (B1:E1)
-        $sheet->mergeCells('B1:E1');
+        // Fusionar celdas para encabezado (B1:F1)
+        $sheet->mergeCells('B1:F1');
         $headerCell = $sheet->getCell('B1');
         $headerCell->setValue('CENTRO AGROEMPRESARIAL Y TURÍSTICO DE LOS ANDES - SENA');
         
@@ -91,7 +95,7 @@ class PreinscritorImportExportController extends Controller
         // ============================================
         // SUBTÍTULO CON FECHA DE ACTUALIZACIÓN
         // ============================================
-        $sheet->mergeCells('A2:E2');
+        $sheet->mergeCells('A2:F2');
         $subtitleCell = $sheet->getCell('A2');
         $fechaActualizacion = now()->format('d/m/Y H:i');
         $subtitleCell->setValue('PLANTILLA ESTÁNDAR DE RECOPILACIÓN DE PREINSCRITOS - Actualizada: ' . $fechaActualizacion);
@@ -121,7 +125,7 @@ class PreinscritorImportExportController extends Controller
         // ============================================
         // ENCABEZADOS DE TABLA
         // ============================================
-        $headers = ['Nombre Completo', 'Cédula', 'Correo Electrónico', 'Programa', 'Estado'];
+        $headers = ['Nombre Completo', 'Tipo Documento', 'Cédula', 'Correo Electrónico', 'Programa', 'Estado'];
         
         for ($i = 0; $i < count($headers); $i++) {
             $column = chr(65 + $i);
@@ -161,9 +165,9 @@ class PreinscritorImportExportController extends Controller
         $programaEjemplo = $programas[0] ?? 'Técnico en Agronomía';
         
         $exampleData = [
-            ['Juan Carlos Pérez López', '1234567890', 'juan.perez@example.com', $programaEjemplo, 'pendiente'],
-            ['María García Rodriguez', '0987654321', 'maria.garcia@example.com', $programaEjemplo, 'pendiente'],
-            ['Pedro López Martinez', '5555555555', 'pedro.lopez@example.com', $programaEjemplo, 'pendiente'],
+            ['Juan Carlos Pérez López', 'CC', '1234567890', 'juan.perez@example.com', $programaEjemplo, 'pendiente'],
+            ['María García Rodriguez', 'CC', '0987654321', 'maria.garcia@example.com', $programaEjemplo, 'pendiente'],
+            ['Pedro López Martinez', 'TI', '5555555555', 'pedro.lopez@example.com', $programaEjemplo, 'pendiente'],
         ];
         
         $row = 5;
@@ -209,10 +213,17 @@ class PreinscritorImportExportController extends Controller
             $row++;
         }
         
-        // Escribir estados en la hoja de validación (columna B)
+        // Escribir tipos de documento en la hoja de validación (columna B)
+        $row = 1;
+        foreach ($tiposDocumento as $tipo) {
+            $validationSheet->setCellValue('B' . $row, $tipo);
+            $row++;
+        }
+        
+        // Escribir estados en la hoja de validación (columna C)
         $row = 1;
         foreach ($estados as $estado) {
-            $validationSheet->setCellValue('B' . $row, $estado);
+            $validationSheet->setCellValue('C' . $row, $estado);
             $row++;
         }
         
@@ -228,12 +239,29 @@ class PreinscritorImportExportController extends Controller
         
         // Calcular rangos dinámicos basados en la cantidad de elementos
         $programasCount = count($programas);
+        $tiposDocumentoCount = count($tiposDocumento);
         $estadosCount = count($estados);
         
         // Aplicar validación a las primeras 100 filas (desde fila 5 hasta 104)
-        // Columna D: Programas
+        // Columna B: Tipo de Documento
         for ($i = 5; $i <= 104; $i++) {
-            $validation = $sheet->getCell('D' . $i)->getDataValidation();
+            $validation = $sheet->getCell('B' . $i)->getDataValidation();
+            $validation->setType(DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(false);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setShowDropDown(true);
+            $validation->setErrorTitle('Entrada inválida');
+            $validation->setError('Por favor seleccione un tipo de documento de la lista.');
+            $validation->setPromptTitle('Tipo de Documento');
+            $validation->setPrompt('Seleccione: CC, TI, CE, PAS o PPT.');
+            $validation->setFormula1('Datos_Validacion!$B$1:$B$' . $tiposDocumentoCount);
+        }
+        
+        // Columna E: Programas
+        for ($i = 5; $i <= 104; $i++) {
+            $validation = $sheet->getCell('E' . $i)->getDataValidation();
             $validation->setType(DataValidation::TYPE_LIST);
             $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
             $validation->setAllowBlank(false);
@@ -247,9 +275,9 @@ class PreinscritorImportExportController extends Controller
             $validation->setFormula1('Datos_Validacion!$A$1:$A$' . $programasCount);
         }
         
-        // Columna E: Estado
+        // Columna F: Estado
         for ($i = 5; $i <= 104; $i++) {
-            $validation = $sheet->getCell('E' . $i)->getDataValidation();
+            $validation = $sheet->getCell('F' . $i)->getDataValidation();
             $validation->setType(DataValidation::TYPE_LIST);
             $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
             $validation->setAllowBlank(false);
@@ -260,13 +288,13 @@ class PreinscritorImportExportController extends Controller
             $validation->setError('Por favor seleccione: pendiente, aceptado o rechazado.');
             $validation->setPromptTitle('Estado');
             $validation->setPrompt('Seleccione el estado del preinscrito.');
-            $validation->setFormula1('Datos_Validacion!$B$1:$B$' . $estadosCount);
+            $validation->setFormula1('Datos_Validacion!$C$1:$C$' . $estadosCount);
         }
         
         // ============================================
         // INSTRUCCIONES
         // ============================================
-        $sheet->mergeCells('A9:E9');
+        $sheet->mergeCells('A9:F9');
         $instructionsTitle = $sheet->getCell('A9');
         $instructionsTitle->setValue('📋 INSTRUCCIONES DE USO');
         
@@ -282,19 +310,20 @@ class PreinscritorImportExportController extends Controller
         
         $instructions = [
             '• Nombre Completo: Ingrese el nombre y apellido completo del preinscrito',
+            '• Tipo Documento: SELECCIONE de la lista desplegable (CC=Cédula, TI=Tarjeta Identidad, CE=Cédula Extranjería, PAS=Pasaporte, PPT=Permiso Protección Temporal)',
             '• Cédula: Ingrese el número de cédula o documento de identidad (sin puntos ni espacios)',
             '• Correo Electrónico: Ingrese un correo electrónico válido y activo',
             '• Programa: SELECCIONE de la lista desplegable. Programas disponibles: ' . $programasDisponibles,
             '• Estado: SELECCIONE de la lista desplegable (pendiente, aceptado o rechazado)',
             '',
-            '⚠️ IMPORTANTE: Los campos Nombre, Cédula y Correo son OBLIGATORIOS',
+            '⚠️ IMPORTANTE: Los campos Nombre, Tipo Documento, Cédula y Correo son OBLIGATORIOS',
             '⚠️ No modifique los encabezados de las columnas',
-            '⚠️ Use las listas desplegables en las columnas Programa y Estado',
+            '⚠️ Use las listas desplegables en las columnas Tipo Documento, Programa y Estado',
         ];
         
         $instructionRow = 10;
         foreach ($instructions as $instruction) {
-            $sheet->mergeCells('A' . $instructionRow . ':E' . $instructionRow);
+            $sheet->mergeCells('A' . $instructionRow . ':F' . $instructionRow);
             $cell = $sheet->getCell('A' . $instructionRow);
             $cell->setValue($instruction);
             
@@ -361,14 +390,22 @@ class PreinscritorImportExportController extends Controller
                 }
                 
                 $nombre = trim($row[0] ?? '');
-                $documento = trim($row[1] ?? '');
-                $correo = trim($row[2] ?? '');
-                $programaNombre = trim($row[3] ?? '');
-                $estado = trim($row[4] ?? 'pendiente');
+                $tipoDocumento = trim($row[1] ?? '');
+                $documento = trim($row[2] ?? '');
+                $correo = trim($row[3] ?? '');
+                $programaNombre = trim($row[4] ?? '');
+                $estado = trim($row[5] ?? 'pendiente');
                 
                 // Validaciones básicas
-                if (!$nombre || !$documento || !$correo) {
-                    $errors[] = "Fila " . ($i + 1) . ": Datos incompletos (Nombre, Cédula y Correo son obligatorios)";
+                if (!$nombre || !$tipoDocumento || !$documento || !$correo) {
+                    $errors[] = "Fila " . ($i + 1) . ": Datos incompletos (Nombre, Tipo Documento, Cédula y Correo son obligatorios)";
+                    continue;
+                }
+                
+                // Validar tipo de documento
+                $tiposValidos = ['CC', 'TI', 'CE', 'PAS', 'PPT'];
+                if (!in_array($tipoDocumento, $tiposValidos)) {
+                    $errors[] = "Fila " . ($i + 1) . ": Tipo de documento inválido ($tipoDocumento). Use: CC, TI, CE, PAS o PPT";
                     continue;
                 }
                 
@@ -407,6 +444,7 @@ class PreinscritorImportExportController extends Controller
                 try {
                     Preinscrito::create([
                         'nombre' => $nombre,
+                        'tipo_documento' => $tipoDocumento,
                         'documento' => $documento,
                         'correo' => $correo,
                         'oferta_programa_id' => $ofertaProgrma->id,
