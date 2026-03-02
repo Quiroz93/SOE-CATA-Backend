@@ -11,15 +11,47 @@ use Illuminate\Http\Request;
 class NovedadController extends Controller
 {
     /**
-     * Mostrar lista de novedades paginada
+     * Mostrar lista de novedades paginada con filtros
      */
-    public function index()
+    public function index(Request $request)
     {
-        $novedades = Novedad::with(['preinscrito', 'tipoNovedad'])
-            ->latest()
-            ->paginate(10);
+        $query = Novedad::with(['preinscrito', 'tipoNovedad']);
 
-        return view('admin.novedades.index', compact('novedades'));
+        // Filtro por tipo de novedad
+        if ($request->filled('tipo_novedad_id')) {
+            $query->where('tipo_novedad_id', $request->tipo_novedad_id);
+        }
+
+        // Filtro por nombre del preinscrito
+        if ($request->filled('nombre')) {
+            $query->whereHas('preinscrito', function ($q) use ($request) {
+                $q->where('nombre', 'like', '%' . $request->nombre . '%');
+            });
+        }
+
+        // Filtro por documento del preinscrito
+        if ($request->filled('documento')) {
+            $query->whereHas('preinscrito', function ($q) use ($request) {
+                $q->where('documento', 'like', '%' . $request->documento . '%');
+            });
+        }
+
+        // Filtro por fecha desde
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+
+        // Filtro por fecha hasta
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $novedades = $query->latest()->paginate(10);
+
+        // Obtener tipos de novedad para el select de filtro
+        $tiposNovedad = TipoNovedad::orderBy('nombre')->get();
+
+        return view('admin.novedades.index', compact('novedades', 'tiposNovedad'));
     }
 
     /**
