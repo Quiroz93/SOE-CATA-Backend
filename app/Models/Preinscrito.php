@@ -23,11 +23,20 @@ class Preinscrito extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Relación solo con OfertaPrograma
-
+    /**
+     * Relación: Un preinscrito pertenece a una oferta de programa
+     */
     public function ofertaPrograma()
     {
         return $this->belongsTo(OfertaPrograma::class);
+    }
+
+    /**
+     * Relación: Un preinscrito tiene muchas novedades
+     */
+    public function novedades()
+    {
+        return $this->hasMany(NovedadPreinscrito::class);
     }
 }
 

@@ -88,13 +88,6 @@ class PreinscritorImportExportController extends Controller
         
         $sheet->getRowDimension('1')->setRowHeight(30);
         
-        // Fondo verde para columna del logo también
-        $sheet->getCell('A1')->getStyle()
-            ->getFill()
-            ->setFillType(Fill::FILL_SOLID)
-            ->getStartColor()
-            ->setRGB('39A900');
-        
         // ============================================
         // SUBTÍTULO CON FECHA DE ACTUALIZACIÓN
         // ============================================
@@ -202,15 +195,40 @@ class PreinscritorImportExportController extends Controller
         }
         
         // ============================================
+        // CREAR HOJA OCULTA PARA LISTAS DE VALIDACIÓN
+        // ============================================
+        
+        // Crear hoja adicional para almacenar las listas
+        $validationSheet = $spreadsheet->createSheet();
+        $validationSheet->setTitle('Datos_Validacion');
+        
+        // Escribir programas en la hoja de validación (columna A)
+        $row = 1;
+        foreach ($programas as $programa) {
+            $validationSheet->setCellValue('A' . $row, $programa);
+            $row++;
+        }
+        
+        // Escribir estados en la hoja de validación (columna B)
+        $row = 1;
+        foreach ($estados as $estado) {
+            $validationSheet->setCellValue('B' . $row, $estado);
+            $row++;
+        }
+        
+        // Ocultar la hoja de validación
+        $validationSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+        
+        // Volver a la hoja principal
+        $spreadsheet->setActiveSheetIndex(0);
+        
+        // ============================================
         // LISTAS DESPLEGABLES (DATA VALIDATION)
         // ============================================
         
-        // Preparar strings para validación
-        $programasString = '"' . implode(',', array_map(function($p) {
-            return str_replace('"', '""', $p); // Escapar comillas dobles
-        }, $programas)) . '"';
-        
-        $estadosString = '"' . implode(',', $estados) . '"';
+        // Calcular rangos dinámicos basados en la cantidad de elementos
+        $programasCount = count($programas);
+        $estadosCount = count($estados);
         
         // Aplicar validación a las primeras 100 filas (desde fila 5 hasta 104)
         // Columna D: Programas
@@ -226,7 +244,7 @@ class PreinscritorImportExportController extends Controller
             $validation->setError('Por favor seleccione un programa de la lista.');
             $validation->setPromptTitle('Programa');
             $validation->setPrompt('Seleccione el programa de formación.');
-            $validation->setFormula1($programasString);
+            $validation->setFormula1('Datos_Validacion!$A$1:$A$' . $programasCount);
         }
         
         // Columna E: Estado
@@ -242,7 +260,7 @@ class PreinscritorImportExportController extends Controller
             $validation->setError('Por favor seleccione: pendiente, aceptado o rechazado.');
             $validation->setPromptTitle('Estado');
             $validation->setPrompt('Seleccione el estado del preinscrito.');
-            $validation->setFormula1($estadosString);
+            $validation->setFormula1('Datos_Validacion!$B$1:$B$' . $estadosCount);
         }
         
         // ============================================
