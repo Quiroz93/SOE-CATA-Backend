@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domain\Programa\Enums\EstadoPrograma;
@@ -12,22 +13,29 @@ use App\Domain\Programa\Enums\EstadoPrograma;
  */
 class Programa extends Model
 {
+    use HasFactory, SoftDeletes;
+
     /**
      * Scope para filtrar programas publicados.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopePublished($query)
+    public function scopePublished(Builder $query): Builder
     {
-        return $query->where('estado', 'publicado'); // Ajustar según Enum si aplica
+        return $query->where('estado', EstadoPrograma::PUBLICADO->value);
     }
-    use HasFactory, SoftDeletes;
+
+    public function scopePublicado(Builder $query): Builder
+    {
+        return $this->scopePublished($query);
+    }
 
     protected $fillable = [
         'nombre',
         'slug',
         'ficha',
+        'nivel',
         'descripcion',
         'estado',
         'modalidad',
@@ -70,9 +78,26 @@ class Programa extends Model
         return $this->hasMany(ProgramaRedFormacion::class);
     }
 
+    public function redesFormacion()
+    {
+        return $this->belongsToMany(RedFormacion::class, 'programa_red_formacion', 'programa_id', 'red_formacion_id')
+            ->wherePivotNull('deleted_at')
+            ->withPivot([
+                'id',
+                'estado',
+                'fecha_asignacion',
+                'fecha_desasignacion',
+                'usuario_asigno_id',
+                'usuario_modifico_id',
+                'observaciones',
+                'deleted_at',
+            ])
+            ->withTimestamps();
+    }
+
     public function redesFormacionActivas()
     {
         return $this->hasMany(ProgramaRedFormacion::class)
-            ->where('estado', 'activo'); // Si existe Enum para RedFormacion, refactorizar aquí también
+            ->where('estado', 'activo');
     }
 }

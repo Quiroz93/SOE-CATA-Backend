@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Public;
 
 use App\Http\Controllers\Controller;
+use App\Domain\Programa\Enums\EstadoPrograma;
 use App\Models\Programa;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class ProgramaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Programa::query()->where('estado', 'publicado');
+        $query = Programa::query()->where('estado', EstadoPrograma::PUBLICADO->value);
 
         if ($municipio = $request->input('municipio')) {
             $query->where('municipio', $municipio);
@@ -56,7 +57,7 @@ class ProgramaController extends Controller
      */
     public function show(int $id)
     {
-        $programa = Programa::where('estado', 'publicado')->find($id);
+        $programa = Programa::where('estado', EstadoPrograma::PUBLICADO->value)->find($id);
 
         if (!$programa) {
             return $this->errorResponse('Programa no encontrado', 404);

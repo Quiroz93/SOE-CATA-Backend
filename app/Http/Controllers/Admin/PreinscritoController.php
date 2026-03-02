@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Domain\Programa\Enums\EstadoPrograma;
 use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
 use App\Models\Programa;
@@ -44,7 +45,7 @@ class PreinscritoController extends Controller
         $preinscritos = $query->paginate(15);
 
         // Obtener programas para el select de filtro
-        $programas = Programa::where('estado', 'publicado')
+        $programas = Programa::where('estado', EstadoPrograma::PUBLICADO->value)
             ->orderBy('nombre')
             ->get();
 
