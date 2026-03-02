@@ -32,12 +32,12 @@ class ReporteController extends Controller
     private function getReports(Request $request)
     {
         // Date range filters
-        $startDate = $request->get('start_date') ? Carbon::createFromFormat('Y-m-d', $request->get('start_date')) : Carbon::now()->subMonths(3);
-        $endDate = $request->get('end_date') ? Carbon::createFromFormat('Y-m-d', $request->get('end_date')) : Carbon::now();
+        $startDate = $request->input('start_date') ? Carbon::createFromFormat('Y-m-d', $request->input('start_date')) : Carbon::now()->subMonths(3);
+        $endDate = $request->input('end_date') ? Carbon::createFromFormat('Y-m-d', $request->input('end_date')) : Carbon::now();
 
         // Additional filters
-        $programaFilter = $request->get('programa_id');
-        $estadoFilter = $request->get('estado');
+        $programaFilter = $request->input('programa_id');
+        $estadoFilter = $request->input('estado');
 
         // Get all programs for filter dropdown
         $programas = Programa::orderBy('nombre')->get(['id', 'nombre']);

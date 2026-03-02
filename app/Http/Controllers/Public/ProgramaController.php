@@ -18,7 +18,7 @@ class ProgramaController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $page = $request->get('page', 1);
+        $page = $request->input('page', 1);
         $perPage = 12;
         $cacheKey = 'programas_publico_index_page_' . $page;
         // Si hay filtros, incluir en la clave

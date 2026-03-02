@@ -66,27 +66,3 @@
     </div>
 </div>
 @endsection
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Última Actualización</p>
-                <p class="text-lg font-medium text-gray-900">{{ $preinscrito->updated_at->format('d/m/Y H:i') }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex gap-2">
-        <a href="{{ route('admin.preinscritos.edit', $preinscrito) }}"
-           class="bg-yellow-600 text-white px-5 py-2 rounded-lg shadow hover:bg-yellow-700 transition">
-            Editar
-        </a>
-        <form action="{{ route('admin.preinscritos.destroy', $preinscrito) }}" method="POST" class="inline">
-            @csrf
-            @method('DELETE')
-            <button onclick="return confirm('¿Eliminar este preinscrito?')"
-                    class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700 transition">
-                Eliminar
-            </button>
-        </form>
-    </div>
-</div>
-@endsection
