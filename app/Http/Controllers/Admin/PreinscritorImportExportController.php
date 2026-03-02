@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
+use App\Models\Programa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -14,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 
 class PreinscritorImportExportController extends Controller
 {
@@ -22,21 +24,49 @@ class PreinscritorImportExportController extends Controller
      */
     public function downloadTemplate()
     {
+        // Obtener programas activos/publicados de la DB
+        $programas = Programa::where('estado', 'publicado')
+            ->orderBy('nombre')
+            ->pluck('nombre')
+            ->toArray();
+        
+        // Estados válidos
+        $estados = ['pendiente', 'aceptado', 'rechazado'];
+        
         // Crear nuevo spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         
         // Configurar ancho de columnas
-        $sheet->getColumnDimension('A')->setWidth(18);
+        $sheet->getColumnDimension('A')->setWidth(20);
         $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(25);
-        $sheet->getColumnDimension('D')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(30);
+        $sheet->getColumnDimension('D')->setWidth(35);
         $sheet->getColumnDimension('E')->setWidth(18);
         
+        // ============================================
+        // LOGO SENA (Alineado a la izquierda)
+        // ============================================
+        $logoPath = public_path('logo-sena.png');
+        
+        if (file_exists($logoPath)) {
+            $drawing = new Drawing();
+            $drawing->setName('Logo SENA');
+            $drawing->setDescription('Logo del SENA');
+            $drawing->setPath($logoPath);
+            $drawing->setCoordinates('A1');
+            $drawing->setHeight(50);
+            $drawing->setOffsetX(5);
+            $drawing->setOffsetY(5);
+            $drawing->setWorksheet($sheet);
+        }
+        
+        // ============================================
         // ENCABEZADO INSTITUCIONAL
-        // Fusionar celdas para encabezado (A1:E1)
-        $sheet->mergeCells('A1:E1');
-        $headerCell = $sheet->getCell('A1');
+        // ============================================
+        // Fusionar celdas para encabezado (B1:E1)
+        $sheet->mergeCells('B1:E1');
+        $headerCell = $sheet->getCell('B1');
         $headerCell->setValue('CENTRO AGROEMPRESARIAL Y TURÍSTICO DE LOS ANDES - SENA');
         
         $headerCell->getStyle()
@@ -56,16 +86,26 @@ class PreinscritorImportExportController extends Controller
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)
             ->setVertical(Alignment::VERTICAL_CENTER);
         
-        $sheet->getRowDimension('1')->setRowHeight(25);
+        $sheet->getRowDimension('1')->setRowHeight(30);
         
-        // Subtítulo
+        // Fondo verde para columna del logo también
+        $sheet->getCell('A1')->getStyle()
+            ->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()
+            ->setRGB('39A900');
+        
+        // ============================================
+        // SUBTÍTULO CON FECHA DE ACTUALIZACIÓN
+        // ============================================
         $sheet->mergeCells('A2:E2');
         $subtitleCell = $sheet->getCell('A2');
-        $subtitleCell->setValue('PLANTILLA ESTÁNDAR DE RECOPILACIÓN DE PREINSCRITOS');
+        $fechaActualizacion = now()->format('d/m/Y H:i');
+        $subtitleCell->setValue('PLANTILLA ESTÁNDAR DE RECOPILACIÓN DE PREINSCRITOS - Actualizada: ' . $fechaActualizacion);
         
         $subtitleCell->getStyle()
             ->getFont()
-            ->setSize(11)
+            ->setSize(10)
             ->setBold(true)
             ->setColor(new Color('00304D')); // Azul SENA
         
@@ -78,14 +118,16 @@ class PreinscritorImportExportController extends Controller
             ->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()
-            ->setRGB('F0F0F0'); // Gris claro
+            ->setRGB('E8F5E9'); // Verde muy claro
         
-        $sheet->getRowDimension('2')->setRowHeight(20);
+        $sheet->getRowDimension('2')->setRowHeight(22);
         
         // Espacio en blanco
         $sheet->getRowDimension('3')->setRowHeight(8);
         
+        // ============================================
         // ENCABEZADOS DE TABLA
+        // ============================================
         $headers = ['Nombre Completo', 'Cédula', 'Correo Electrónico', 'Programa', 'Estado'];
         
         for ($i = 0; $i < count($headers); $i++) {
@@ -118,13 +160,17 @@ class PreinscritorImportExportController extends Controller
                 ->setColor(new Color('E0E0E0'));
         }
         
-        $sheet->getRowDimension('4')->setRowHeight(22);
+        $sheet->getRowDimension('4')->setRowHeight(24);
         
-        // DATOS DE EJEMPLO
+        // ============================================
+        // DATOS DE EJEMPLO CON LISTAS DESPLEGABLES
+        // ============================================
+        $programaEjemplo = $programas[0] ?? 'Técnico en Agronomía';
+        
         $exampleData = [
-            ['Juan Carlos Pérez López', '1234567890', 'juan.perez@example.com', 'Técnico en Agronomía', 'pendiente'],
-            ['María García Rodriguez', '0987654321', 'maria.garcia@example.com', 'Técnico en Turismo', 'pendiente'],
-            ['Pedro López Martinez', '5555555555', 'pedro.lopez@example.com', 'Técnico Agrícola', 'pendiente'],
+            ['Juan Carlos Pérez López', '1234567890', 'juan.perez@example.com', $programaEjemplo, 'pendiente'],
+            ['María García Rodriguez', '0987654321', 'maria.garcia@example.com', $programaEjemplo, 'pendiente'],
+            ['Pedro López Martinez', '5555555555', 'pedro.lopez@example.com', $programaEjemplo, 'pendiente'],
         ];
         
         $row = 5;
@@ -137,7 +183,7 @@ class PreinscritorImportExportController extends Controller
                 $cell->getStyle()
                     ->getFont()
                     ->setSize(10)
-                    ->setColor(new Color('666666'));
+                    ->setColor(new Color('333333'));
                 
                 $cell->getStyle()
                     ->getAlignment()
@@ -151,29 +197,81 @@ class PreinscritorImportExportController extends Controller
                     ->setColor(new Color('E0E0E0'));
             }
             
-            $sheet->getRowDimension($row)->setRowHeight(18);
+            $sheet->getRowDimension($row)->setRowHeight(20);
             $row++;
         }
         
+        // ============================================
+        // LISTAS DESPLEGABLES (DATA VALIDATION)
+        // ============================================
+        
+        // Preparar strings para validación
+        $programasString = '"' . implode(',', array_map(function($p) {
+            return str_replace('"', '""', $p); // Escapar comillas dobles
+        }, $programas)) . '"';
+        
+        $estadosString = '"' . implode(',', $estados) . '"';
+        
+        // Aplicar validación a las primeras 100 filas (desde fila 5 hasta 104)
+        // Columna D: Programas
+        for ($i = 5; $i <= 104; $i++) {
+            $validation = $sheet->getCell('D' . $i)->getDataValidation();
+            $validation->setType(DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(false);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setShowDropDown(true);
+            $validation->setErrorTitle('Entrada inválida');
+            $validation->setError('Por favor seleccione un programa de la lista.');
+            $validation->setPromptTitle('Programa');
+            $validation->setPrompt('Seleccione el programa de formación.');
+            $validation->setFormula1($programasString);
+        }
+        
+        // Columna E: Estado
+        for ($i = 5; $i <= 104; $i++) {
+            $validation = $sheet->getCell('E' . $i)->getDataValidation();
+            $validation->setType(DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(false);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage(true);
+            $validation->setShowDropDown(true);
+            $validation->setErrorTitle('Entrada inválida');
+            $validation->setError('Por favor seleccione: pendiente, aceptado o rechazado.');
+            $validation->setPromptTitle('Estado');
+            $validation->setPrompt('Seleccione el estado del preinscrito.');
+            $validation->setFormula1($estadosString);
+        }
+        
+        // ============================================
         // INSTRUCCIONES
+        // ============================================
         $sheet->mergeCells('A9:E9');
         $instructionsTitle = $sheet->getCell('A9');
-        $instructionsTitle->setValue('INSTRUCCIONES DE USO');
+        $instructionsTitle->setValue('📋 INSTRUCCIONES DE USO');
         
         $instructionsTitle->getStyle()
             ->getFont()
             ->setBold(true)
-            ->setSize(10)
+            ->setSize(11)
             ->setColor(new Color('39A900'));
         
-        $sheet->getRowDimension('9')->setRowHeight(16);
+        $sheet->getRowDimension('9')->setRowHeight(18);
+        
+        $programasDisponibles = !empty($programas) ? implode(', ', array_slice($programas, 0, 3)) . '...' : 'Consulte la lista desplegable';
         
         $instructions = [
-            '• Nombre Completo: Ingrese el nombre y apellido del preinscrito',
-            '• Cédula: Ingrese el número de cédula o documento de identidad',
-            '• Correo Electrónico: Ingrese un correo válido',
-            '• Programa: Seleccione de la lista disponible: Técnico en Agronomía, Técnico en Turismo, Técnico Agrícola',
-            '• Estado: Use "pendiente", "aceptado" o "rechazado"',
+            '• Nombre Completo: Ingrese el nombre y apellido completo del preinscrito',
+            '• Cédula: Ingrese el número de cédula o documento de identidad (sin puntos ni espacios)',
+            '• Correo Electrónico: Ingrese un correo electrónico válido y activo',
+            '• Programa: SELECCIONE de la lista desplegable. Programas disponibles: ' . $programasDisponibles,
+            '• Estado: SELECCIONE de la lista desplegable (pendiente, aceptado o rechazado)',
+            '',
+            '⚠️ IMPORTANTE: Los campos Nombre, Cédula y Correo son OBLIGATORIOS',
+            '⚠️ No modifique los encabezados de las columnas',
+            '⚠️ Use las listas desplegables en las columnas Programa y Estado',
         ];
         
         $instructionRow = 10;
