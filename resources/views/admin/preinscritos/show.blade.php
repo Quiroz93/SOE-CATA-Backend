@@ -14,8 +14,12 @@
     <div class="admin-detail-card">
         <div class="admin-detail-grid">
             <div class="admin-detail-item">
-                <span class="admin-detail__label">Nombre</span>
+                <span class="admin-detail__label">Nombres</span>
                 <span class="admin-detail__value">{{ $preinscrito->nombre }}</span>
+            </div>
+            <div class="admin-detail-item">
+                <span class="admin-detail__label">Apellidos</span>
+                <span class="admin-detail__value">{{ $preinscrito->apellido }}</span>
             </div>
             <div class="admin-detail-item">
                 <span class="admin-detail__label">Documento</span>

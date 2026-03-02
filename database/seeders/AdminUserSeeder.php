@@ -13,12 +13,17 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => 'jose.quirozquiroz93@gmail.com'],
             [
                 'name' => 'José Quiroz',
                 'password' => Hash::make('@JoseQuiroz1304'), // Cambia la contraseña después
             ]
         );
+        
+        // Asignar rol de Super Admin
+        if (!$user->hasRole('Super Admin')) {
+            $user->assignRole('Super Admin');
+        }
     }
 }

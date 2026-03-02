@@ -24,9 +24,17 @@
 </div>
 
 <div class="form-group">
-    <label class="form-label">Nombre</label>
-    <input type="text" name="nombre" value="{{ old('nombre', isset($preinscrito) ? $preinscrito->nombre : '') }}" required class="form-input">
+    <label class="form-label">Nombres</label>
+    <input type="text" name="nombre" value="{{ old('nombre', isset($preinscrito) ? $preinscrito->nombre : '') }}" required class="form-input" maxlength="100" placeholder="Ej: Juan Carlos, María Isabel">
     @error('nombre')
+        <span class="form-error">{{ $message }}</span>
+    @enderror
+</div>
+
+<div class="form-group">
+    <label class="form-label">Apellidos</label>
+    <input type="text" name="apellido" value="{{ old('apellido', isset($preinscrito) ? $preinscrito->apellido : '') }}" required class="form-input" maxlength="100" placeholder="Ej: García López, Martínez Silva">
+    @error('apellido')
         <span class="form-error">{{ $message }}</span>
     @enderror
 </div>
@@ -51,7 +59,9 @@
     <label class="form-label">Estado</label>
     <select name="estado" required class="form-select">
         <option value="pendiente" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : 'pendiente') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-        <option value="aceptado" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'aceptado' ? 'selected' : '' }}>Aceptado</option>
+        <option value="novedad" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'novedad' ? 'selected' : '' }}>Novedad</option>
+        <option value="preinscrito" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
+        <option value="inscrito" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'inscrito' ? 'selected' : '' }}>Inscrito</option>
         <option value="rechazado" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
     </select>
     @error('estado')

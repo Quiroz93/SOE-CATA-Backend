@@ -12,11 +12,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('oferta_id');
             $table->unsignedBigInteger('oferta_programa_id');
-            $table->string('nombre');
+            $table->string('nombres');
+            $table->string('apellidos');
             $table->string('tipo_documento', 10);
             $table->string('documento');
             $table->string('correo');
-            $table->string('estado')->default('pendiente');
+            $table->enum('estado', ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'rechazado'])->default('pendiente');
             $table->timestamps();
             $table->foreign('oferta_id')->references('id')->on('ofertas')->onDelete('cascade');
             $table->foreign('oferta_programa_id')->references('id')->on('oferta_programa')->onDelete('cascade');

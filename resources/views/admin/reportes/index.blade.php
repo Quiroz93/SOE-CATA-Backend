@@ -37,7 +37,9 @@
                 <select id="estado" name="estado" class="filtro-input">
                     <option value="">Todos los estados</option>
                     <option value="pendiente" {{ $estadoFilter == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="aceptado" {{ $estadoFilter == 'aceptado' ? 'selected' : '' }}>Aceptado</option>
+                    <option value="novedad" {{ $estadoFilter == 'novedad' ? 'selected' : '' }}>Novedad</option>
+                    <option value="preinscrito" {{ $estadoFilter == 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
+                    <option value="inscrito" {{ $estadoFilter == 'inscrito' ? 'selected' : '' }}>Inscrito</option>
                     <option value="rechazado" {{ $estadoFilter == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
                 </select>
             </div>

@@ -21,14 +21,5 @@ class DatabaseSeeder extends Seeder
         $this->call(ProgramaSeeder::class);
         $this->call(OfertaSeeder::class);
         $this->call(OfertaProgramaSeeder::class);
-
-        // Crear usuario inicial Super Admin si no existe
-        $admin = \App\Models\User::firstOrCreate(
-            [ 'email' => 'admin@sistema.local' ],
-            [ 'name' => 'Super Admin', 'password' => bcrypt('Admin1234!') ]
-        );
-        if (!$admin->hasRole('Super Admin')) {
-            $admin->assignRole('Super Admin');
-        }
     }
 }

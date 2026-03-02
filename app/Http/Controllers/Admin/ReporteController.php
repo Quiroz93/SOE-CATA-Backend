@@ -63,7 +63,7 @@ class ReporteController extends Controller
         
         $totalPreinscritos = (clone $basePreinscritosQuery)->count();
         $preinscritosPendientes = (clone $basePreinscritosQuery)->where('estado', 'pendiente')->count();
-        $preinscritosAceptados = (clone $basePreinscritosQuery)->where('estado', 'aceptado')->count();
+        $preinscritosAceptados = (clone $basePreinscritosQuery)->whereIn('estado', ['preinscrito', 'inscrito'])->count();
         $preinscritosRechazados = (clone $basePreinscritosQuery)->where('estado', 'rechazado')->count();
 
         // Ofertas por estado
@@ -76,7 +76,7 @@ class ReporteController extends Controller
         // Preinscritos por estado
         $preinscritosPorEstado = [
             'pendiente' => $preinscritosPendientes,
-            'aceptado' => $preinscritosAceptados,
+            'aceptados' => $preinscritosAceptados,
             'rechazado' => $preinscritosRechazados,
         ];
 

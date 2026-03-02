@@ -15,9 +15,13 @@ class PreinscritoController extends Controller
     {
         $query = Preinscrito::with(['ofertaPrograma.programa']);
 
-        // Filtro por nombre
+        // Filtro por nombres o apellidos
         if ($request->filled('nombre')) {
-            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+            $search = $request->nombre;
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', '%' . $search . '%')
+                  ->orWhere('apellido', 'like', '%' . $search . '%');
+            });
         }
 
         // Filtro por documento
@@ -69,10 +73,12 @@ class PreinscritoController extends Controller
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
             'oferta_programa_id' => 'required|exists:oferta_programa,id',
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,aceptado,rechazado',
+            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,rechazado',
         ]);
 
         Preinscrito::create($validated);
@@ -92,10 +98,12 @@ class PreinscritoController extends Controller
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
             'oferta_programa_id' => 'required|exists:oferta_programa,id',
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,aceptado,rechazado',
+            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,rechazado',
         ]);
 
         $preinscrito->update($validated);

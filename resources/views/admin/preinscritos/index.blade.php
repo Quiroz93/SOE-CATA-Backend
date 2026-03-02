@@ -37,9 +37,9 @@
         <form method="GET" action="{{ route('admin.preinscritos.index') }}" class="filter-form" id="filterForm">
             <div class="filter-form__grid">
                 <div class="filter-form__group">
-                    <label for="nombre" class="filter-form__label">Nombre</label>
+                    <label for="nombre" class="filter-form__label">Nombres o Apellidos</label>
                     <input type="text" name="nombre" id="nombre" class="filter-form__input" 
-                           placeholder="Buscar por nombre..." value="{{ request('nombre') }}">
+                           placeholder="Buscar por nombres o apellidos..." value="{{ request('nombre') }}">
                 </div>
 
                 <div class="filter-form__group">
@@ -74,8 +74,14 @@
                         <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>
                             Pendiente
                         </option>
-                        <option value="aceptado" {{ request('estado') === 'aceptado' ? 'selected' : '' }}>
-                            Aceptado
+                        <option value="novedad" {{ request('estado') === 'novedad' ? 'selected' : '' }}>
+                            Novedad
+                        </option>
+                        <option value="preinscrito" {{ request('estado') === 'preinscrito' ? 'selected' : '' }}>
+                            Preinscrito
+                        </option>
+                        <option value="inscrito" {{ request('estado') === 'inscrito' ? 'selected' : '' }}>
+                            Inscrito
                         </option>
                         <option value="rechazado" {{ request('estado') === 'rechazado' ? 'selected' : '' }}>
                             Rechazado
@@ -99,7 +105,7 @@
         <table class="admin-table">
             <thead class="admin-table__head">
                 <tr class="admin-table__head-row">
-                    <th class="admin-table__th">Nombre</th>
+                    <th class="admin-table__th">Nombres y Apellidos</th>
                     <th class="admin-table__th">Documento</th>
                     <th class="admin-table__th">Correo</th>
                     <th class="admin-table__th">Programa</th>
@@ -110,12 +116,12 @@
             <tbody>
                 @forelse($preinscritos as $preinscrito)
                 <tr class="admin-table__body-row">
-                    <td class="admin-table__td">{{ $preinscrito->nombre }}</td>
+                    <td class="admin-table__td">{{ $preinscrito->nombre_completo }}</td>
                     <td class="admin-table__td">{{ $preinscrito->documento }}</td>
                     <td class="admin-table__td">{{ $preinscrito->correo }}</td>
                     <td class="admin-table__td">{{ $preinscrito->ofertaPrograma->programa->nombre ?? 'N/A' }}</td>
                     <td class="admin-table__td">
-                        <span class="badge {{ $preinscrito->estado === 'aceptado' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
+                        <span class="badge {{ $preinscrito->estado === 'preinscrito' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'inscrito' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'novedad' ? 'badge--info' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
                             {{ ucfirst($preinscrito->estado) }}
                         </span>
                     </td>
