@@ -108,6 +108,13 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Override herencia de width: 100% de admin-crud.css */
+.form-input,
+.form-select,
+.form-textarea {
+    width: auto;
+}
+
 .form-input-file {
     padding: 0.625rem 0.75rem;
     background-color: #ffffff;
