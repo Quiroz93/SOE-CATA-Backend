@@ -37,6 +37,8 @@
         data-preinscritos-pendientes="{{ $preinscritosPendientes }}"
         data-preinscritos-aceptados="{{ $preinscritosAceptados }}"
         data-preinscritos-rechazados="{{ $preinscritosRechazados }}"
+        data-años='@json($años)'
+        data-preinscritos-año='@json($preinscritosAño)'
         style="display: none;"
     ></div>
 
@@ -165,6 +167,13 @@
             </div>
             <canvas id="preinscritosEstadoChart" height="80"></canvas>
         </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Preinscritos por Año (Últimos 5 Años)</h3>
+            </div>
+            <canvas id="preinscritosAñoChart" height="80"></canvas>
+        </div>
     </div>
 
     <!-- Data Tables Section -->
@@ -233,6 +242,73 @@
                     @empty
                         <tr>
                             <td colspan="2" class="text-center text-gray-500 py-4">No hay datos disponibles</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Ofertas con Más Preinscritos</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Oferta</th>
+                        <th>Preinscritos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($ofertasMasPreinscritos as $oferta)
+                        <tr>
+                            <td>{{ $oferta->nombre }}</td>
+                            <td><span class="badge badge-warning">{{ $oferta->preinscritos_count }}</span></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center text-gray-500 py-4">No hay datos disponibles</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detalle de Preinscritos -->
+    <div class="recent-section">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Estado de Preinscritos (Últimos 10)</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Programa</th>
+                        <th>Oferta</th>
+                        <th>Estado</th>
+                        <th>Fecha Inscripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($preinscritosDetalle as $preinscrito)
+                        <tr>
+                            <td>{{ $preinscrito->nombre }}</td>
+                            <td>{{ $preinscrito->correo }}</td>
+                            <td>{{ $preinscrito->ofertaPrograma?->programa?->nombre ?? 'N/A' }}</td>
+                            <td>{{ $preinscrito->ofertaPrograma?->oferta?->nombre ?? 'N/A' }}</td>
+                            <td>
+                                <span class="status-badge status-{{ $preinscrito->estado }}">
+                                    {{ ucfirst($preinscrito->estado) }}
+                                </span>
+                            </td>
+                            <td>{{ $preinscrito->created_at->format('d/m/Y H:i') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-gray-500 py-4">No hay preinscritos registrados</td>
                         </tr>
                     @endforelse
                 </tbody>

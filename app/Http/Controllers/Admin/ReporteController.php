@@ -132,6 +132,32 @@ class ReporteController extends Controller
             ->limit(5)
             ->get();
 
+        // Preinscritos por año (últimos 5 años)
+        $años = [];
+        $dataPreinscritosAño = [];
+        for ($i = 4; $i >= 0; $i--) {
+            $año = now()->subYears($i)->year;
+            $años[] = $año;
+            $count = Preinscrito::whereYear('created_at', $año)->count();
+            $dataPreinscritosAño[] = $count;
+        }
+
+        // Ofertas con más preinscritos
+        $ofertasMasPreinscritos = DB::table('ofertas as o')
+            ->join('oferta_programa as op', 'op.id', '=', 'o.oferta_programa_id')
+            ->join('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
+            ->selectRaw('o.nombre, COUNT(pr.id) as preinscritos_count')
+            ->groupBy('o.id', 'o.nombre')
+            ->orderByDesc('preinscritos_count')
+            ->limit(5)
+            ->get();
+
+        // Detalle de preinscritos recientes
+        $preinscritosDetalle = Preinscrito::with(['ofertaPrograma.oferta', 'ofertaPrograma.programa'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
         return view('admin.reportes.index', [
             'totalOfertas' => $totalOfertas,
             'ofertasActivas' => $ofertasActivas,
@@ -154,6 +180,11 @@ class ReporteController extends Controller
             'preinscritosPorEstado' => $preinscritosPorEstado,
             'preinscritosPorMes' => $dataPreinscritosMes,
             'programasMasPreinscritos' => $programasMasPreinscritos,
+            // New preinscritos data
+            'años' => $años,
+            'preinscritosAño' => $dataPreinscritosAño,
+            'ofertasMasPreinscritos' => $ofertasMasPreinscritos,
+            'preinscritosDetalle' => $preinscritosDetalle,
         ]);
     }
 }

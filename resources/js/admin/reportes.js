@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const preinscritosAceptados = parseInt(dashboardData.dataset.preinscritosAceptados || '0');
         const preinscritosRechazados = parseInt(dashboardData.dataset.preinscritosRechazados || '0');
 
+        // Preinscritos por año
+        const años = JSON.parse(dashboardData.dataset.años || '[]');
+        const preinscritosAño = JSON.parse(dashboardData.dataset.preinscritosAño || '[]');
+
         // Destroy existing charts before creating new ones
         if (window.reportesCharts.ofertasMes) {
             window.reportesCharts.ofertasMes.destroy();
@@ -43,6 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (window.reportesCharts.preinscritosEstado) {
             window.reportesCharts.preinscritosEstado.destroy();
+        }
+        if (window.reportesCharts.preinscritosAño) {
+            window.reportesCharts.preinscritosAño.destroy();
         }
 
         // Ofertas por Mes Chart
@@ -190,6 +197,54 @@ document.addEventListener('DOMContentLoaded', function() {
                                 color: '#333',
                                 padding: 15
                             }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Preinscritos por Año Chart
+        const ctxPreinscritosAño = document.getElementById('preinscritosAñoChart');
+        if (ctxPreinscritosAño) {
+            window.reportesCharts.preinscritosAño = new Chart(ctxPreinscritosAño.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: años,
+                    datasets: [{
+                        label: 'Preinscritos por Año',
+                        data: preinscritosAño,
+                        borderColor: '#007BFF',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#007BFF',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 },
+                                color: '#333'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#666',
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            ticks: { color: '#666' }
                         }
                     }
                 }

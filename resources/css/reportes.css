@@ -293,6 +293,11 @@
     color: #007BFF;
 }
 
+.badge-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #FFC107;
+}
+
 /* Status Badge */
 .status-badge {
     display: inline-block;
@@ -312,6 +317,27 @@
 .status-vencida {
     background-color: rgba(255, 152, 0, 0.15);
     color: #FF9800;
+}
+
+.status-inactiva {
+    background-color: rgba(224, 224, 224, 0.6);
+    color: #666;
+}
+
+/* Preinscritos Status Badges */
+.status-pendiente {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #FFC107;
+}
+
+.status-aceptado {
+    background-color: rgba(57, 169, 0, 0.15);
+    color: #39A900;
+}
+
+.status-rechazado {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #DC2626;
 }
 
 .status-inactiva {
