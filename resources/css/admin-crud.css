@@ -710,6 +710,7 @@
 .filter-form__input,
 .filter-form__select {
     padding: 0.625rem 0.75rem;
+    margin: 0.25rem 0;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.875rem;
