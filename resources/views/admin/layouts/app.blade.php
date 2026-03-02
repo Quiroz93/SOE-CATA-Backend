@@ -65,6 +65,17 @@
                     <!-- User Dropdown (Desktop) -->
                     <div class="admin-nav__dropdown" :class="{ 'is-open': dropdownOpen }">
                         <button @click="dropdownOpen = !dropdownOpen" class="admin-nav__dropdown-trigger">
+                            @if(Auth::user()?->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
+                                     alt="{{ Auth::user()->name }}" 
+                                     class="admin-nav__user-avatar">
+                            @else
+                                <div class="admin-nav__user-avatar-placeholder">
+                                    <svg fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>
+                                </div>
+                            @endif
                             <div>{{ Auth::user()?->name ?? 'Usuario' }}</div>
                             <svg class="admin-nav__dropdown-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -135,8 +146,21 @@
             <!-- Mobile User Options -->
             <div class="admin-nav__mobile-user">
                 <div class="admin-nav__mobile-user-info">
-                    <div class="admin-nav__mobile-user-name">{{ Auth::user()?->name ?? 'Usuario' }}</div>
-                    <div class="admin-nav__mobile-user-email">{{ Auth::user()?->email ?? '' }}</div>
+                    @if(Auth::user()?->profile_photo)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
+                             alt="{{ Auth::user()->name }}" 
+                             class="admin-nav__mobile-user-avatar">
+                    @else
+                        <div class="admin-nav__mobile-user-avatar-placeholder">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                    @endif
+                    <div>
+                        <div class="admin-nav__mobile-user-name">{{ Auth::user()?->name ?? 'Usuario' }}</div>
+                        <div class="admin-nav__mobile-user-email">{{ Auth::user()?->email ?? '' }}</div>
+                    </div>
                 </div>
 
                 <div class="admin-nav__mobile-user-links">
