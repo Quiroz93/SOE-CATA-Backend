@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CompetenciaController;
 use App\Http\Controllers\Admin\CentroController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PreinscritoController;
+use App\Http\Controllers\Admin\PreinscritorImportExportController;
 use App\Http\Controllers\Admin\InscritoController;
 use App\Http\Controllers\Admin\NovedadController;
 use App\Http\Controllers\Admin\ReporteController;
@@ -29,6 +30,12 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::resource('competencias', CompetenciaController::class);
         Route::resource('centros', CentroController::class);
         Route::resource('usuarios', UserController::class);
+        
+        // Rutas para import/export de preinscritos
+        Route::get('preinscritos/template', [PreinscritorImportExportController::class, 'downloadTemplate'])->name('preinscritos.downloadTemplate');
+        Route::get('preinscritos/import', [PreinscritorImportExportController::class, 'showImportForm'])->name('preinscritos.showImportForm');
+        Route::post('preinscritos/import', [PreinscritorImportExportController::class, 'handleImport'])->name('preinscritos.handleImport');
+        
         Route::resource('preinscritos', PreinscritoController::class);
         Route::resource('inscritos', InscritoController::class);
         Route::resource('novedades', NovedadController::class);

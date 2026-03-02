@@ -6,9 +6,17 @@
 <div class="admin-page">
     <div class="admin-header">
         <h1 class="admin-header__title">Gestión de Preinscritos</h1>
-        <a href="{{ route('admin.preinscritos.create') }}" class="btn btn--primary">
-            + Nuevo Preinscrito
-        </a>
+        <div class="admin-header__actions">
+            <a href="{{ route('admin.preinscritos.create') }}" class="btn btn--primary">
+                + Nuevo Preinscrito
+            </a>
+            <a href="{{ route('admin.preinscritos.downloadTemplate') }}" class="btn btn--secondary" title="Descargar plantilla Excel">
+                📋 Plantilla Excel
+            </a>
+            <a href="{{ route('admin.preinscritos.showImportForm') }}" class="btn btn--secondary" title="Importar desde Excel">
+                📤 Importar
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

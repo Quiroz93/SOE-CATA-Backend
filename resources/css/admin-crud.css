@@ -49,6 +49,16 @@
     color: #16a34a;
 }
 
+.admin-header__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.admin-header__actions .btn {
+    margin: 0;
+}
+
 /* ===========================
    BUTTONS
    =========================== */
