@@ -100,6 +100,19 @@
     box-shadow: 0 4px 8px rgba(57, 169, 0, 0.2);
 }
 
+.btn-secondary {
+    background-color: #6C757D;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background-color: #5A6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+}
+
 /* KPI Grid */
 .kpi-grid {
     display: grid;

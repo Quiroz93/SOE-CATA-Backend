@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Oferta;
 use App\Models\Preinscrito;
+use App\Models\Programa;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -34,6 +35,13 @@ class ReporteController extends Controller
         $startDate = $request->get('start_date') ? Carbon::createFromFormat('Y-m-d', $request->get('start_date')) : Carbon::now()->subMonths(3);
         $endDate = $request->get('end_date') ? Carbon::createFromFormat('Y-m-d', $request->get('end_date')) : Carbon::now();
 
+        // Additional filters
+        $programaFilter = $request->get('programa_id');
+        $estadoFilter = $request->get('estado');
+
+        // Get all programs for filter dropdown
+        $programas = Programa::orderBy('nombre')->get(['id', 'nombre']);
+
         // KPI Metrics
         $totalOfertas = Oferta::count();
         $ofertasActivas = Oferta::where('estado', 'activa')->count();
@@ -41,10 +49,22 @@ class ReporteController extends Controller
         $totalUsuarios = User::count();
 
         // Preinscritos KPIs
-        $totalPreinscritos = Preinscrito::count();
-        $preinscritosPendientes = Preinscrito::where('estado', 'pendiente')->count();
-        $preinscritosAceptados = Preinscrito::where('estado', 'aceptado')->count();
-        $preinscritosRechazados = Preinscrito::where('estado', 'rechazado')->count();
+        $basePreinscritosQuery = Preinscrito::query();
+        
+        if ($programaFilter) {
+            $basePreinscritosQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                $q->where('programa_id', $programaFilter);
+            });
+        }
+        
+        if ($estadoFilter) {
+            $basePreinscritosQuery->where('estado', $estadoFilter);
+        }
+        
+        $totalPreinscritos = (clone $basePreinscritosQuery)->count();
+        $preinscritosPendientes = (clone $basePreinscritosQuery)->where('estado', 'pendiente')->count();
+        $preinscritosAceptados = (clone $basePreinscritosQuery)->where('estado', 'aceptado')->count();
+        $preinscritosRechazados = (clone $basePreinscritosQuery)->where('estado', 'rechazado')->count();
 
         // Ofertas por estado
         $ofertasPorEstado = [
@@ -112,8 +132,19 @@ class ReporteController extends Controller
         }
 
         // Chart data: Preinscritos por mes
-        $preinscritosPorMes = Preinscrito::selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
-            ->groupBy('mes')
+        $preinscritosPorMesQuery = Preinscrito::selectRaw('MONTH(created_at) as mes, COUNT(*) as total');
+        
+        if ($programaFilter) {
+            $preinscritosPorMesQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                $q->where('programa_id', $programaFilter);
+            });
+        }
+        
+        if ($estadoFilter) {
+            $preinscritosPorMesQuery->where('estado', $estadoFilter);
+        }
+        
+        $preinscritosPorMes = $preinscritosPorMesQuery->groupBy('mes')
             ->pluck('total', 'mes')
             ->toArray();
 
@@ -123,9 +154,19 @@ class ReporteController extends Controller
         }
 
         // Programas con más preinscritos
-        $programasMasPreinscritos = DB::table('programas as p')
+        $programasMasPreinscritosQuery = DB::table('programas as p')
             ->join('oferta_programa as op', 'op.programa_id', '=', 'p.id')
-            ->join('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
+            ->join('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id');
+        
+        if ($programaFilter) {
+            $programasMasPreinscritosQuery->where('p.id', $programaFilter);
+        }
+        
+        if ($estadoFilter) {
+            $programasMasPreinscritosQuery->where('pr.estado', $estadoFilter);
+        }
+        
+        $programasMasPreinscritos = $programasMasPreinscritosQuery
             ->selectRaw('p.nombre, COUNT(pr.id) as preinscritos_count')
             ->groupBy('p.id', 'p.nombre')
             ->orderByDesc('preinscritos_count')
@@ -147,10 +188,20 @@ class ReporteController extends Controller
             
             $trimestres[] = "Q{$quarter} {$year}";
             
-            $count = Preinscrito::whereYear('created_at', $year)
-                ->whereRaw('QUARTER(created_at) = ?', [$quarter])
-                ->count();
+            $trimestreQuery = Preinscrito::whereYear('created_at', $year)
+                ->whereRaw('QUARTER(created_at) = ?', [$quarter]);
             
+            if ($programaFilter) {
+                $trimestreQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                    $q->where('programa_id', $programaFilter);
+                });
+            }
+            
+            if ($estadoFilter) {
+                $trimestreQuery->where('estado', $estadoFilter);
+            }
+            
+            $count = $trimestreQuery->count();
             $dataPreinscritosTrimestre[] = $count;
         }
 
@@ -158,13 +209,28 @@ class ReporteController extends Controller
         $trimestreActual = now();
         $trimestreAnterior = now()->subQuarter();
         
-        $preinscritosTrimestreActual = Preinscrito::whereYear('created_at', $trimestreActual->year)
-            ->whereRaw('QUARTER(created_at) = ?', [$trimestreActual->quarter])
-            ->count();
+        $preinscritosTrimestreActualQuery = Preinscrito::whereYear('created_at', $trimestreActual->year)
+            ->whereRaw('QUARTER(created_at) = ?', [$trimestreActual->quarter]);
         
-        $preinscritosTrimestreAnterior = Preinscrito::whereYear('created_at', $trimestreAnterior->year)
-            ->whereRaw('QUARTER(created_at) = ?', [$trimestreAnterior->quarter])
-            ->count();
+        $preinscritosTrimestreAnteriorQuery = Preinscrito::whereYear('created_at', $trimestreAnterior->year)
+            ->whereRaw('QUARTER(created_at) = ?', [$trimestreAnterior->quarter]);
+        
+        if ($programaFilter) {
+            $preinscritosTrimestreActualQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                $q->where('programa_id', $programaFilter);
+            });
+            $preinscritosTrimestreAnteriorQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                $q->where('programa_id', $programaFilter);
+            });
+        }
+        
+        if ($estadoFilter) {
+            $preinscritosTrimestreActualQuery->where('estado', $estadoFilter);
+            $preinscritosTrimestreAnteriorQuery->where('estado', $estadoFilter);
+        }
+        
+        $preinscritosTrimestreActual = $preinscritosTrimestreActualQuery->count();
+        $preinscritosTrimestreAnterior = $preinscritosTrimestreAnteriorQuery->count();
         
         $variacionPorcentual = 0;
         $tendencia = 'neutral';
@@ -198,8 +264,19 @@ class ReporteController extends Controller
             ->get();
 
         // Detalle de preinscritos recientes
-        $preinscritosDetalle = Preinscrito::with(['ofertaPrograma.oferta', 'ofertaPrograma.programa'])
-            ->orderByDesc('created_at')
+        $preinscritosDetalleQuery = Preinscrito::with(['ofertaPrograma.oferta', 'ofertaPrograma.programa']);
+        
+        if ($programaFilter) {
+            $preinscritosDetalleQuery->whereHas('ofertaPrograma', function($q) use ($programaFilter) {
+                $q->where('programa_id', $programaFilter);
+            });
+        }
+        
+        if ($estadoFilter) {
+            $preinscritosDetalleQuery->where('estado', $estadoFilter);
+        }
+        
+        $preinscritosDetalle = $preinscritosDetalleQuery->orderByDesc('created_at')
             ->limit(10)
             ->get();
 
@@ -241,6 +318,10 @@ class ReporteController extends Controller
             'tendencia' => $tendencia,
             'preinscritosTrimestreActual' => $preinscritosTrimestreActual,
             'preinscritosTrimestreAnterior' => $preinscritosTrimestreAnterior,
+            // Filtros
+            'programas' => $programas,
+            'programaFilter' => $programaFilter,
+            'estadoFilter' => $estadoFilter,
         ]);
     }
 }

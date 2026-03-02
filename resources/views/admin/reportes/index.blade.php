@@ -21,7 +21,28 @@
                 <label for="end_date">Hasta:</label>
                 <input type="date" id="end_date" name="end_date" value="{{ $endDate }}" class="filtro-input">
             </div>
+            <div class="filtro-group">
+                <label for="programa_id">Programa:</label>
+                <select id="programa_id" name="programa_id" class="filtro-input">
+                    <option value="">Todos los programas</option>
+                    @foreach($programas as $programa)
+                        <option value="{{ $programa->id }}" {{ $programaFilter == $programa->id ? 'selected' : '' }}>
+                            {{ $programa->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" name="estado" class="filtro-input">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente" {{ $estadoFilter == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="aceptado" {{ $estadoFilter == 'aceptado' ? 'selected' : '' }}>Aceptado</option>
+                    <option value="rechazado" {{ $estadoFilter == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{{ route('admin.reportes.index') }}" class="btn btn-secondary">Limpiar</a>
         </form>
     </div>
 
