@@ -297,6 +297,7 @@ async function consolidateFiles() {
         
         renderMetadataConsolidado(data);
         renderConsolidatedResults(data);
+        renderDownloadButtons();
         
         // Limpiar archivos después de consolidar exitosamente
         state.uploadedFiles = [];
@@ -306,6 +307,65 @@ async function consolidateFiles() {
         showStatus(`Error: ${error.message}`, 'error');
         console.error('Error al consolidar archivos:', error);
     }
+}
+
+/**
+ * Renderizar botones de descarga
+ */
+function renderDownloadButtons() {
+    let downloadContainer = document.getElementById('downloadButtonsContainer');
+    
+    if (!downloadContainer) {
+        downloadContainer = document.createElement('div');
+        downloadContainer.id = 'downloadButtonsContainer';
+        downloadContainer.style.marginTop = '20px';
+        downloadContainer.style.padding = '15px';
+        downloadContainer.style.backgroundColor = '#f0f9ff';
+        downloadContainer.style.borderRadius = '8px';
+        downloadContainer.style.borderLeft = '4px solid #1976d2';
+        downloadContainer.style.display = 'flex';
+        downloadContainer.style.gap = '10px';
+        downloadContainer.style.flexWrap = 'wrap';
+        
+        const insertPoint = document.querySelector('.stats-results');
+        if (insertPoint) {
+            insertPoint.parentNode.insertBefore(downloadContainer, insertPoint.nextSibling);
+        }
+    }
+
+    downloadContainer.innerHTML = `
+        <div style="flex: 1; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <span style="font-weight: 600; color: #333;">Descargar consolidado:</span>
+            <button type="button" id="downloadExcelBtn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                📊 Excel
+            </button>
+            <button type="button" id="downloadPDFBtn" style="background: #1976d2; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                📄 PDF
+            </button>
+        </div>
+    `;
+
+    document.getElementById('downloadExcelBtn')?.addEventListener('click', downloadExcel);
+    document.getElementById('downloadPDFBtn')?.addEventListener('click', downloadPDF);
+}
+
+/**
+ * Descargar archivo Excel
+ */
+function downloadExcel() {
+    const link = document.createElement('a');
+    link.href = '/admin/dashboard/estadisticas/download-excel';
+    link.click();
+}
+
+/**
+ * Descargar archivo PDF
+ */
+function downloadPDF() {
+    const link = document.createElement('a');
+    link.href = '/admin/dashboard/estadisticas/download-pdf';
+    link.setAttribute('target', '_blank');
+    link.click();
 }
 
 /**
@@ -703,34 +763,93 @@ function renderConsolidatedStatesTable(estadosGlobales) {
 }
 
 /**
- * Renderizar tabla de fichas con detalles
+ * Renderizar tabla de fichas con detalles - MEJORADA
  */
 function renderFichasTable(fichasData) {
     if (!individualTableBody) return;
 
+    // Convertir a array si es necesario y ordenar por código de ficha
+    const fichasArray = Array.isArray(fichasData) 
+        ? fichasData 
+        : Object.entries(fichasData).map(([code, data]) => ({...data, ficha: code}));
+    
+    const fichasOrdenadas = fichasArray.sort((a, b) => {
+        const codeA = String(a.ficha || '').trim();
+        const codeB = String(b.ficha || '').trim();
+        return codeA.localeCompare(codeB);
+    });
+
+    if (fichasOrdenadas.length === 0) {
+        individualTableBody.innerHTML = `
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 20px; color: #999;">
+                    No hay datos de fichas disponibles
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
     let html = '';
 
-    for (const [codigoFicha, fichaInfo] of Object.entries(fichasData)) {
-        // Encabezado de ficha
+    fichasOrdenadas.forEach((fichaInfo, fichaIndex) => {
+        const codigoFicha = String(fichaInfo.ficha || 'SIN CÓDIGO').trim();
+        const programa = String(fichaInfo.programa || 'Sin programa').trim();
+        const totalAprendices = fichaInfo.totalAprendices || 0;
+        const aprendices = fichaInfo.aprendices || [];
+
+        // Encabezado de ficha con mejor contraste
+        const bgColor = fichaIndex % 2 === 0 ? '#e8f5e9' : '#f1f8e9';
+        
         html += `
-            <tr style="background: #f8f9fa; font-weight: 600;">
-                <td colspan="3" style="padding: 12px; border-bottom: 2px solid #39A900;">
-                    📋 Ficha: ${escapeHtml(String(codigoFicha))} | ${escapeHtml(String(fichaInfo.programa || 'Sin programa'))} (${fichaInfo.totalAprendices} aprendices)
+            <tr style="background: ${bgColor}; border-top: 3px solid #39A900; border-bottom: 2px solid #39A900;">
+                <td colspan="3" style="padding: 15px; font-weight: 700; font-size: 14px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: #39A900; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">FICHA #${escapeHtml(codigoFicha)}</span>
+                        <span style="color: #333;">📚 ${escapeHtml(programa)}</span>
+                        <span style="color: #666; margin-left: auto; font-size: 12px;">👥 ${totalAprendices} aprendices</span>
+                    </div>
                 </td>
             </tr>
         `;
 
         // Aprendices de la ficha
-        fichaInfo.aprendices?.forEach(aprendiz => {
+        if (aprendices.length === 0) {
             html += `
-                <tr style="border-left: 4px solid #39A900;">
-                    <td style="font-weight: 600; padding-left: 30px;">${escapeHtml(String(aprendiz.identificacion || ''))}</td>
-                    <td>${escapeHtml(String(aprendiz.nombre || ''))}</td>
-                    <td>${escapeHtml(String(aprendiz.estado || 'Sin estado'))}</td>
+                <tr style="border-left: 5px solid #39A900; background: #fafafa;">
+                    <td colspan="3" style="padding: 12px; color: #999; font-style: italic;">
+                        Sin registros de aprendices en esta ficha
+                    </td>
                 </tr>
             `;
-        });
-    }
+        } else {
+            aprendices.forEach((aprendiz, index) => {
+                const isLastInFicha = index === aprendices.length - 1;
+                const borderBottom = isLastInFicha ? '2px solid #39A900' : '1px solid #e0e0e0';
+                
+                html += `
+                    <tr style="border-left: 5px solid #39A900; border-bottom: ${borderBottom}; background: ${bgColor};">
+                        <td style="font-weight: 600; padding: 12px 12px 12px 30px; color: #1b5e20;">
+                            ${escapeHtml(String(aprendiz.identificacion || ''))}
+                        </td>
+                        <td style="padding: 12px; color: #333;">
+                            ${escapeHtml(String(aprendiz.nombre || ''))}
+                        </td>
+                        <td style="padding: 12px; text-align: center;">
+                            <span style="display: inline-block; padding: 4px 10px; border-radius: 12px; background: #e3f2fd; color: #0d47a1; font-size: 12px; font-weight: 500;">
+                                ${escapeHtml(String(aprendiz.estado || 'Sin estado'))}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Espaciador entre fichas
+        if (fichaIndex < fichasOrdenadas.length - 1) {
+            html += `<tr style="height: 8px; background: #fafafa;"><td colspan="3"></td></tr>`;
+        }
+    });
 
     individualTableBody.innerHTML = html;
 }

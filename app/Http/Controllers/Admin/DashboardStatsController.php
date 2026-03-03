@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Application\Statistics\DashboardReportAnalyzerFactory;
+use App\Application\Statistics\ExportConsolidatedFichasExcel;
+use App\Application\Statistics\ExportConsolidatedFichasPDF;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Controlador para estadísticas en tiempo real del dashboard
@@ -94,6 +97,57 @@ class DashboardStatsController extends Controller
         $consolidator = new \App\Application\Statistics\ConsolidateIndividualFichas();
         $result = $consolidator->execute($filePaths);
 
+        // Guardar datos consolidados en sesión para descarga posterior
+        $request->session()->put('consolidated_fichas_data', $result);
+
         return response()->json($result);
+    }
+
+    /**
+     * Descargar datos consolidados en Excel
+     */
+    public function downloadExcel(Request $request): Response
+    {
+        $data = $request->session()->get('consolidated_fichas_data');
+
+        if (!$data || !isset($data['fichas'])) {
+            return response('No hay datos consolidados disponibles. Por favor consolida archivos primero.', 422);
+        }
+
+        try {
+            $exporter = new ExportConsolidatedFichasExcel();
+            $filepath = $exporter->generate($data);
+
+            return response()->download($filepath, 'consolidado_fichas_' . now()->format('Y-m-d_H-i-s') . '.xlsx')->deleteFileAfterSend();
+
+        } catch (\Exception $e) {
+            return response('Error al generar el archivo Excel: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Descargar datos consolidados en PDF
+     */
+    public function downloadPDF(Request $request): Response
+    {
+        $data = $request->session()->get('consolidated_fichas_data');
+
+        if (!$data || !isset($data['fichas'])) {
+            return response('No hay datos consolidados disponibles. Por favor consolida archivos primero.', 422);
+        }
+
+        try {
+            $exporter = new ExportConsolidatedFichasPDF();
+            $html = $exporter->generateHTML($data);
+
+            // Si se desea generar PDF real, se puede usar mPDF, TCPDF o Dompdf
+            // Por ahora, retornamos HTML que el usuario puede guardar como PDF desde el navegador
+            return response($html, 200)
+                ->header('Content-Type', 'text/html; charset=utf-8')
+                ->header('Content-Disposition', 'inline; filename="consolidado_fichas_' . now()->format('Y-m-d_H-i-s') . '.html"');
+
+        } catch (\Exception $e) {
+            return response('Error al generar el archivo PDF: ' . $e->getMessage(), 500);
+        }
     }
 }

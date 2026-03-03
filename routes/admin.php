@@ -24,6 +24,8 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/dashboard/estadisticas/upload', [DashboardStatsController::class, 'upload'])->name('dashboard.stats.upload');
+        Route::get('/dashboard/estadisticas/download-excel', [DashboardStatsController::class, 'downloadExcel'])->name('dashboard.stats.downloadExcel');
+        Route::get('/dashboard/estadisticas/download-pdf', [DashboardStatsController::class, 'downloadPDF'])->name('dashboard.stats.downloadPDF');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);
