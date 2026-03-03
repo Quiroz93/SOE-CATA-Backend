@@ -7,6 +7,9 @@
     <div class="admin-header">
         <h1 class="admin-header__title">Gestión de Novedades</h1>
         <div class="admin-header__actions">
+            <a href="{{ route('admin.tipo_novedades.index') }}" class="btn btn--secondary">
+                ⚙️ Gestionar Tipos
+            </a>
             <a href="{{ route('admin.novedades.create') }}" class="btn btn--primary">
                 + Nueva Novedad
             </a>

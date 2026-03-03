@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PreinscritoController;
 use App\Http\Controllers\Admin\PreinscritorImportExportController;
 use App\Http\Controllers\Admin\InscritoController;
 use App\Http\Controllers\Admin\NovedadController;
+use App\Http\Controllers\Admin\TipoNovedadController;
 use App\Http\Controllers\Admin\ReporteController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,4 +44,5 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::resource('preinscritos', PreinscritoController::class);
         Route::resource('inscritos', InscritoController::class);
         Route::resource('novedades', NovedadController::class);
+        Route::resource('tipo_novedades', TipoNovedadController::class);
     });
