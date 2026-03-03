@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Application\Statistics\DashboardReportAnalyzerFactory;
 use App\Application\Statistics\ExportConsolidatedFichasExcel;
 use App\Application\Statistics\ExportConsolidatedFichasPDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 /**
  * Controlador para estadísticas en tiempo real del dashboard
@@ -106,7 +106,7 @@ class DashboardStatsController extends Controller
     /**
      * Descargar datos consolidados en Excel
      */
-    public function downloadExcel(Request $request): Response
+    public function downloadExcel(Request $request)
     {
         $data = $request->session()->get('consolidated_fichas_data');
 
@@ -128,7 +128,7 @@ class DashboardStatsController extends Controller
     /**
      * Descargar datos consolidados en PDF
      */
-    public function downloadPDF(Request $request): Response
+    public function downloadPDF(Request $request)
     {
         $data = $request->session()->get('consolidated_fichas_data');
 
@@ -140,11 +140,9 @@ class DashboardStatsController extends Controller
             $exporter = new ExportConsolidatedFichasPDF();
             $html = $exporter->generateHTML($data);
 
-            // Si se desea generar PDF real, se puede usar mPDF, TCPDF o Dompdf
-            // Por ahora, retornamos HTML que el usuario puede guardar como PDF desde el navegador
-            return response($html, 200)
-                ->header('Content-Type', 'text/html; charset=utf-8')
-                ->header('Content-Disposition', 'inline; filename="consolidado_fichas_' . now()->format('Y-m-d_H-i-s') . '.html"');
+            $pdf = Pdf::loadHTML($html)->setPaper('a4', 'portrait');
+
+            return $pdf->download('consolidado_fichas_' . now()->format('Y-m-d_H-i-s') . '.pdf');
 
         } catch (\Exception $e) {
             return response('Error al generar el archivo PDF: ' . $e->getMessage(), 500);

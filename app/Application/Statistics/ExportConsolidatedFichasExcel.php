@@ -238,7 +238,7 @@ class ExportConsolidatedFichasExcel
             $style->getFont()->setBold(true)->setColor(new Color(Color::COLOR_WHITE));
             $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF00304D');
             $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-            $style->getBorder()->getAllBorders()->setStyle(Border::BORDER_THIN);
+            $style->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         }
 
         $sheet->getRowDimension($row)->setRowHeight(20);
@@ -251,7 +251,7 @@ class ExportConsolidatedFichasExcel
     {
         for ($i = 1; $i <= $cols; $i++) {
             $cellAddress = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i) . $row;
-            $sheet->getStyle($cellAddress)->getBorder()->getAllBorders()->setStyle(Border::BORDER_THIN);
+            $sheet->getStyle($cellAddress)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         }
     }
 }

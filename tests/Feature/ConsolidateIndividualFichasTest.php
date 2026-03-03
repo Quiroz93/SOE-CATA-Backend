@@ -226,4 +226,111 @@ class ConsolidateIndividualFichasTest extends TestCase
         @unlink($ficha1);
         @unlink($ficha2);
     }
+
+    public function test_download_endpoints_require_consolidated_data_in_session()
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $excelResponse = $this->actingAs($user)
+            ->get('/admin/dashboard/estadisticas/download-excel');
+
+        $excelResponse->assertStatus(422);
+        $this->assertStringContainsString(
+            'No hay datos consolidados disponibles',
+            (string) $excelResponse->getContent()
+        );
+
+        $pdfResponse = $this->actingAs($user)
+            ->get('/admin/dashboard/estadisticas/download-pdf');
+
+        $pdfResponse->assertStatus(422);
+        $this->assertStringContainsString(
+            'No hay datos consolidados disponibles',
+            (string) $pdfResponse->getContent()
+        );
+    }
+
+    public function test_download_endpoints_return_excel_and_pdf_with_valid_session_data()
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $sessionData = [
+            'report_kind' => 'individual_ficha_consolidado',
+            'consolidado' => true,
+            'totales' => [
+                'fichas' => 2,
+                'aprendices' => 3,
+                'estados' => 2,
+            ],
+            'fichas' => [
+                '3410558' => [
+                    'ficha' => '3410558',
+                    'programa' => 'GESTION CONTABLE',
+                    'totalAprendices' => 2,
+                    'estadoCounts' => [
+                        'Matriculado' => 1,
+                        'No Seleccionado' => 1,
+                    ],
+                    'aprendices' => [
+                        [
+                            'identificacion' => 'CC - 1096950213',
+                            'nombre' => 'ANGEL HERNANDEZ URIBE',
+                            'estado' => 'Matriculado',
+                        ],
+                        [
+                            'identificacion' => 'CC - 1007917194',
+                            'nombre' => 'ANGIE DANIELA JAIMES SANDOVAL',
+                            'estado' => 'No Seleccionado',
+                        ],
+                    ],
+                ],
+                '3410559' => [
+                    'ficha' => '3410559',
+                    'programa' => 'SISTEMAS INFORMATICOS',
+                    'totalAprendices' => 1,
+                    'estadoCounts' => [
+                        'Matriculado' => 1,
+                    ],
+                    'aprendices' => [
+                        [
+                            'identificacion' => 'CC - 1098220593',
+                            'nombre' => 'ANYI CAROLINA VEGA BASTO',
+                            'estado' => 'Matriculado',
+                        ],
+                    ],
+                ],
+            ],
+            'estados_globales' => [
+                'Matriculado' => 2,
+                'No Seleccionado' => 1,
+            ],
+            'labels' => ['Matriculado', 'No Seleccionado'],
+            'series' => [2, 1],
+            'timestamp' => now()->toIso8601String(),
+        ];
+
+        $excelResponse = $this->actingAs($user)
+            ->withSession(['consolidated_fichas_data' => $sessionData])
+            ->get('/admin/dashboard/estadisticas/download-excel');
+
+        $excelResponse->assertStatus(200);
+        $this->assertStringContainsString(
+            '.xlsx',
+            (string) $excelResponse->headers->get('content-disposition')
+        );
+
+        $pdfResponse = $this->actingAs($user)
+            ->withSession(['consolidated_fichas_data' => $sessionData])
+            ->get('/admin/dashboard/estadisticas/download-pdf');
+
+        $pdfResponse->assertStatus(200);
+        $this->assertStringContainsString(
+            'application/pdf',
+            (string) $pdfResponse->headers->get('content-type')
+        );
+        $this->assertStringContainsString(
+            '.pdf',
+            (string) $pdfResponse->headers->get('content-disposition')
+        );
+    }
 }
