@@ -6,13 +6,13 @@ namespace App\Domain\Programa\Enums;
 
 enum EstadoPreinscrito: string
 {
-    case PENDIENTE = 'pendiente';
-    case NOVEDAD = 'novedad';
-    case PREINSCRITO = 'preinscrito';
-    case INSCRITO = 'inscrito';
-    case CANCELADO = 'cancelado';
-    case CONVOCADO_MATRICULA = 'convocado_matricula';
-    case MATRICULADO = 'matriculado';
-    case NO_ADMITIDO = 'no_admitido';
-    case RECHAZADO = 'rechazado';
+    case PENDIENTE = 'Pendiente';
+    case NOVEDAD = 'Novedad';
+    case PREINSCRITO = 'Preinscrito';
+    case INSCRITO = 'Inscrito';
+    case CANCELADO = 'Cancelado';
+    case CONVOCADO_MATRICULA = 'Convocado_matricula';
+    case MATRICULADO = 'Matriculado';
+    case NO_ADMITIDO = 'No_admitido';
+    case RECHAZADO = 'Rechazado';
 }
