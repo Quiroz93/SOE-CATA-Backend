@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/welcome.css',
                 'resources/css/auth.css',
                 'resources/css/admin.css',
+                'resources/css/admin-crud.css',
                 'resources/css/profile.css',
                 'resources/css/public.css',
                 'resources/css/reportes.css',
