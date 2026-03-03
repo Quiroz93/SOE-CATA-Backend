@@ -84,6 +84,14 @@
                         <option value="pie">🥧 Gráfica Circular</option>
                     </select>
                 </div>
+                <div id="chartTypeControlIndividual" style="display: none;">
+                    <select id="individualChartType" class="stats-select">
+                        <option value="bar">📊 Gráfica de Barras</option>
+                        <option value="line">📈 Gráfica de Líneas</option>
+                        <option value="doughnut">🍩 Gráfica Donut</option>
+                        <option value="pie">🥧 Gráfica Circular</option>
+                    </select>
+                </div>
             </div>
 
             <div class="stats-upload-zone" id="dropZone">

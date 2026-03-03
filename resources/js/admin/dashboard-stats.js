@@ -12,7 +12,8 @@ const state = {
     individualChart: null,
     currentData: null,
     activeReportKind: 'general_inscripciones',
-    uploadedFiles: []  // Almacenar archivos cargados para consolidación
+    uploadedFiles: [],  // Almacenar archivos cargados para consolidación
+    individualChartType: 'bar'  // Tipo de gráfica para pestaña individual
 };
 
 // Elementos del DOM
@@ -28,6 +29,8 @@ const programChartContainer = document.getElementById('programChartContainer');
 const statsLiveTitle = document.getElementById('statsLiveTitle');
 const statsLiveSubtitle = document.getElementById('statsLiveSubtitle');
 const chartTypeControl = document.getElementById('chartTypeControl');
+const chartTypeControlIndividual = document.getElementById('chartTypeControlIndividual');
+const individualChartType = document.getElementById('individualChartType');
 const reportTabs = document.querySelectorAll('.stats-tab');
 const statsResultsGeneral = document.getElementById('statsResultsGeneral');
 const statsResultsIndividual = document.getElementById('statsResultsIndividual');
@@ -85,6 +88,15 @@ function init() {
     reportType?.addEventListener('change', () => {
         if (state.currentData && state.activeReportKind === 'general_inscripciones') {
             renderChart(state.currentData.tabla || []);
+        }
+    });
+
+    // Cambio de tipo de gráfica para pestaña individual
+    individualChartType?.addEventListener('change', (e) => {
+        state.individualChartType = e.target.value;
+        if (state.currentData && state.activeReportKind === 'individual_ficha') {
+            const estadoTotales = state.currentData.estado_totales || {};
+            renderIndividualChart(estadoTotales);
         }
     });
 
@@ -464,6 +476,7 @@ function setActiveReportKind(reportKind) {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidador de Fichas Excel';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar todos los datos en un único reporte con descargas en Excel y PDF';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
+        if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
         
         // Permitir múltiples archivos
         inputFile.multiple = true;
@@ -474,6 +487,7 @@ function setActiveReportKind(reportKind) {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Reporte Individual por Ficha';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga un archivo Excel para obtener estadísticas detalladas de una ficha específica';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
+        if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'block';
         
         // Un único archivo
         inputFile.multiple = false;
@@ -484,6 +498,7 @@ function setActiveReportKind(reportKind) {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas en Tiempo Real por COD_FICHA';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
         if (chartTypeControl) chartTypeControl.style.display = 'block';
+        if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
         
         // Un único archivo
         inputFile.multiple = false;
@@ -586,18 +601,35 @@ function renderIndividualChart(estadoTotales) {
 
     const labels = Object.keys(estadoTotales);
     const values = Object.values(estadoTotales).map(value => Number(value || 0));
+    const chartType = state.individualChartType || 'bar';
 
-    state.individualChart = new Chart(ctx, {
-        type: 'bar',
+    // Colores para gráficas circulares
+    const circularColors = [
+        'rgba(57, 169, 0, 0.8)',      // Verde SENA
+        'rgba(0, 123, 255, 0.8)',     // Azul
+        'rgba(255, 193, 7, 0.8)',     // Amarillo
+        'rgba(220, 53, 69, 0.8)',     // Rojo
+        'rgba(108, 117, 125, 0.8)',   // Gris
+        'rgba(0, 200, 83, 0.8)',      // Verde esmeralda
+        'rgba(156, 39, 176, 0.8)',    // Púrpura
+        'rgba(255, 152, 0, 0.8)',     // Naranja
+    ];
+
+    const isCircularChart = chartType === 'doughnut' || chartType === 'pie';
+    const backgroundColor = isCircularChart ? circularColors : 'rgba(57, 169, 0, 0.80)';
+    const borderColor = isCircularChart ? '#ffffff' : '#39A900';
+
+    const chartConfig = {
+        type: chartType,
         data: {
             labels,
             datasets: [
                 {
                     label: 'Aprendices por Estado',
                     data: values,
-                    backgroundColor: 'rgba(57, 169, 0, 0.80)',
-                    borderColor: '#39A900',
-                    borderWidth: 2,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: isCircularChart ? 2 : 2,
                 }
             ]
         },
@@ -606,15 +638,26 @@ function renderIndividualChart(estadoTotales) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    display: isCircularChart ? true : false,
+                    position: isCircularChart ? 'bottom' : 'top'
                 },
                 title: {
                     display: true,
                     text: 'Distribución de Aprendices por Estado',
                     font: { size: 16, weight: 'bold' }
-                }
+                },
+                tooltip: isCircularChart ? {
+                    callbacks: {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                } : undefined
             },
-            scales: {
+            scales: isCircularChart ? undefined : {
                 y: {
                     beginAtZero: true,
                     title: {
@@ -624,7 +667,9 @@ function renderIndividualChart(estadoTotales) {
                 }
             }
         }
-    });
+    };
+
+    state.individualChart = new Chart(ctx, chartConfig);
 }
 
 function renderIndividualStatesTable(estadoTotales) {
