@@ -233,23 +233,18 @@
                         </div>
                     </div>
 
-                    <div class="stats-results-grid">
-                        <div class="stats-chart-container">
-                            <canvas id="consolidadorStateChart"></canvas>
-                        </div>
-                        <div class="stats-table-container">
-                            <h4 class="stats-table-title">Totales por Estado</h4>
-                            <div class="stats-table-wrapper">
-                                <table class="stats-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Estado</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="consolidadorStatesTableBody"></tbody>
-                                </table>
-                            </div>
+                    <div class="stats-table-container">
+                        <h4 class="stats-table-title">Totales por Estado</h4>
+                        <div class="stats-table-wrapper">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Estado</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="consolidadorStatesTableBody"></tbody>
+                            </table>
                         </div>
                     </div>
 

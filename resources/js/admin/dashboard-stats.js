@@ -39,7 +39,6 @@ const individualStateChart = document.getElementById('individualStateChart');
 const individualStatesTableBody = document.getElementById('individualStatesTableBody');
 const individualTableBody = document.getElementById('individualTableBody');
 const consolidadorMetadata = document.getElementById('consolidadorMetadata');
-const consolidadorStateChart = document.getElementById('consolidadorStateChart');
 const consolidadorStatesTableBody = document.getElementById('consolidadorStatesTableBody');
 const consolidadorFichasTableBody = document.getElementById('consolidadorFichasTableBody');
 
@@ -779,8 +778,10 @@ function renderConsolidatedResults(data) {
 
     statsResults.style.display = 'block';
 
-    // Renderizar gráfica de estados consolidados
-    renderConsolidatedStatesChart(data.estados_globales || {});
+    // Renderizar gráfica solo para pestaña individual_ficha
+    if (!isConsolidadorTab) {
+        renderConsolidatedStatesChart(data.estados_globales || {});
+    }
 
     // Renderizar tabla de totales por estado
     renderConsolidatedStatesTable(data.estados_globales || {});
