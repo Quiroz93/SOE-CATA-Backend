@@ -11,7 +11,8 @@ const state = {
     demandChart: null,
     individualChart: null,
     currentData: null,
-    activeReportKind: 'general_inscripciones'
+    activeReportKind: 'general_inscripciones',
+    uploadedFiles: []  // Almacenar archivos cargados para consolidación
 };
 
 // Elementos del DOM
@@ -92,9 +93,14 @@ function init() {
 }
 
 /**
- * Subir y procesar archivo
+ * Subir y procesar archivo(s)
  */
 async function uploadFile(file) {
+    // Si es reporte individual y el input permite múltiples, usar lógica de consolidación
+    if (state.activeReportKind === 'individual_ficha' && inputFile.multiple) {
+        return uploadMultipleFiles([file]);
+    }
+
     // Validar extensión
     const validExtensions = ['.xls', '.xlsx'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
@@ -145,6 +151,160 @@ async function uploadFile(file) {
     } catch (error) {
         showStatus(`Error: ${error.message}`, 'error');
         console.error('Error al procesar archivo:', error);
+    }
+}
+
+/**
+ * Procesar múltiples archivos para consolidación
+ */
+async function uploadMultipleFiles(files) {
+    // Validar extensiones
+    const validExtensions = ['.xls', '.xlsx'];
+    let totalSize = 0;
+    
+    for (const file of files) {
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        if (!validExtensions.includes(fileExtension)) {
+            showStatus(`Error: El archivo ${file.name} no es formato Excel válido`, 'error');
+            return;
+        }
+        
+        if (file.size > 10 * 1024 * 1024) {
+            showStatus(`Error: El archivo ${file.name} pesa más de 10MB`, 'error');
+            return;
+        }
+        
+        totalSize += file.size;
+    }
+
+    // Agregar archivos al estado
+    state.uploadedFiles.push(...files);
+
+    // Mostrar lista de archivos cargados
+    updateFilesList();
+    
+    showStatus(`${state.uploadedFiles.length} archivo(s) cargado(s). Selecciona más o haz clic en "Consolidar" para procesar.`, 'info');
+}
+
+/**
+ * Actualizar lista de archivos cargados
+ */
+function updateFilesList() {
+    let filesList = document.getElementById('uploadedFilesList');
+    
+    if (!filesList) {
+        // Crear lista si no existe
+        filesList = document.createElement('div');
+        filesList.id = 'uploadedFilesList';
+        filesList.style.marginTop = '20px';
+        filesList.style.padding = '15px';
+        filesList.style.backgroundColor = '#f0f9ff';
+        filesList.style.borderRadius = '8px';
+        filesList.style.borderLeft = '4px solid #39A900';
+        
+        const insertPoint = document.querySelector('.stats-status');
+        if (insertPoint && insertPoint.parentNode) {
+            insertPoint.parentNode.insertBefore(filesList, insertPoint.nextSibling);
+        }
+    }
+
+    if (state.uploadedFiles.length === 0) {
+        filesList.style.display = 'none';
+        return;
+    }
+
+    filesList.style.display = 'block';
+    filesList.innerHTML = `
+        <div style="margin-bottom: 15px;">
+            <strong>Archivos cargados (${state.uploadedFiles.length}):</strong>
+            <ul style="list-style: none; padding: 10px 0; margin: 0;">
+                ${state.uploadedFiles.map((file, idx) => `
+                    <li style="padding: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📄 ${escapeHtml(file.name)}</span>
+                        <button type="button" data-file-index="${idx}" class="remove-file-btn" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Remover</button>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button id="consolidateBtn" type="button" style="flex: 1; padding: 10px; background: #39A900; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                ✓ Consolidar ${state.uploadedFiles.length} archivo(s)
+            </button>
+            <button id="clearFilesBtn" type="button" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                Limpiar todo
+            </button>
+        </div>
+    `;
+
+    // Agregar event listeners
+    document.querySelectorAll('.remove-file-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.dataset.fileIndex);
+            state.uploadedFiles.splice(idx, 1);
+            updateFilesList();
+        });
+    });
+
+    document.getElementById('consolidateBtn')?.addEventListener('click', consolidateFiles);
+    document.getElementById('clearFilesBtn')?.addEventListener('click', () => {
+        state.uploadedFiles = [];
+        updateFilesList();
+        resetView();
+    });
+}
+
+/**
+ * Consolidar archivos cargados
+ */
+async function consolidateFiles() {
+    if (state.uploadedFiles.length === 0) {
+        showStatus('Error: No hay archivos cargados para consolidar', 'error');
+        return;
+    }
+
+    showStatus('Consolidando archivos...', 'loading');
+    statsResults.style.display = 'none';
+
+    const formData = new FormData();
+    
+    // Agregar todos los archivos
+    state.uploadedFiles.forEach(file => {
+        formData.append('files[]', file);
+    });
+    
+    formData.append('report_kind', 'individual_ficha_consolidado');
+
+    try {
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error al consolidar archivos');
+        }
+
+        state.currentData = data;
+        
+        const successMessage = `Consolidación exitosa: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
+        showStatus(successMessage, 'success');
+        
+        renderMetadataConsolidado(data);
+        renderConsolidatedResults(data);
+        
+        // Limpiar archivos después de consolidar exitosamente
+        state.uploadedFiles = [];
+        updateFilesList();
+
+    } catch (error) {
+        showStatus(`Error: ${error.message}`, 'error');
+        console.error('Error al consolidar archivos:', error);
     }
 }
 
@@ -229,20 +389,55 @@ function splitLongText(text, maxLength = 50) {
 
 function setActiveReportKind(reportKind) {
     state.activeReportKind = reportKind;
+    state.uploadedFiles = []; // Limpiar archivos al cambiar de pestaña
 
     reportTabs.forEach((tab) => {
         tab.classList.toggle('active', tab.dataset.reportKind === reportKind);
     });
 
     if (reportKind === 'individual_ficha') {
-        if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas por Ficha (Reporte Individual)';
-        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Analiza aprendices por ficha usando Identificación, Nombre y Estado';
+        if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidar Reportes Individuales por Ficha';
+        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar datos de aprendices por ficha. Estructura esperada: Identificación, Nombre, Estado';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
+        
+        // Permitir múltiples archivos
+        inputFile.multiple = true;
+        
+        // Mostrar zona de carga múltiple
+        updateDropZoneForMultiple();
     } else {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas en Tiempo Real por COD_FICHA';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
         if (chartTypeControl) chartTypeControl.style.display = 'block';
+        
+        // Un único archivo
+        inputFile.multiple = false;
+        
+        // Restaurar zona de carga simple
+        updateDropZoneForSingle();
     }
+}
+
+/**
+ * Actualizar zona de drop para carga múltiple
+ */
+function updateDropZoneForMultiple() {
+    const title = dropZone?.querySelector('.stats-upload-title');
+    const text = dropZone?.querySelector('.stats-upload-text');
+    
+    if (title) title.textContent = 'Arrastra aquí tus archivos Excel (múltiples)';
+    if (text) text.textContent = 'o haz clic para seleccionar varios archivos';
+}
+
+/**
+ * Actualizar zona de drop para carga simple
+ */
+function updateDropZoneForSingle() {
+    const title = dropZone?.querySelector('.stats-upload-title');
+    const text = dropZone?.querySelector('.stats-upload-text');
+    
+    if (title) title.textContent = 'Arrastra aquí tu archivo Excel';
+    if (text) text.textContent = 'o haz clic para seleccionar';
 }
 
 function destroyCharts() {
@@ -373,14 +568,187 @@ function renderIndividualTable(rows) {
 }
 
 /**
+ * Renderizar metadatos consolidados (múltiples fichas)
+ */
+function renderMetadataConsolidado(data) {
+    if (!statsMetadata || !data.totales) return;
+
+    const metaLabel1 = document.getElementById('metaLabel1');
+    const metaLabel2 = document.getElementById('metaLabel2');
+    const metaLabel3 = document.getElementById('metaLabel3');
+    const metaLabel4 = document.getElementById('metaLabel4');
+    const metaValue1 = document.getElementById('metaValue1');
+    const metaValue2 = document.getElementById('metaValue2');
+    const metaValue3 = document.getElementById('metaValue3');
+    const metaValue4 = document.getElementById('metaValue4');
+
+    if (!metaLabel1 || !metaLabel2 || !metaLabel3 || !metaLabel4 || !metaValue1 || !metaValue2 || !metaValue3 || !metaValue4) {
+        return;
+    }
+
+    metaLabel1.textContent = 'Total Fichas:';
+    metaLabel2.textContent = 'Total Aprendices:';
+    metaLabel3.textContent = 'Estados Detectados:';
+    metaLabel4.textContent = 'Última Carga:';
+
+    metaValue1.textContent = data.totales.fichas || 0;
+    metaValue2.textContent = data.totales.aprendices || 0;
+    metaValue3.textContent = data.totales.estados || 0;
+    metaValue4.textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+    statsMetadata.style.display = 'block';
+}
+
+/**
+ * Renderizar resultados consolidados (múltiples fichas)
+ */
+function renderConsolidatedResults(data) {
+    if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
+    if (statsResultsIndividual) statsResultsIndividual.style.display = 'block';
+
+    statsResults.style.display = 'block';
+
+    // Renderizar gráfica de estados consolidados
+    renderConsolidatedStatesChart(data.estados_globales || {});
+
+    // Renderizar tabla de totales por estado
+    renderConsolidatedStatesTable(data.estados_globales || {});
+
+    // Renderizar tabla de fichas con detalles
+    renderFichasTable(data.fichas || {});
+}
+
+/**
+ * Renderizar gráfica consolidada de estados
+ */
+function renderConsolidatedStatesChart(estadosGlobales) {
+    const ctx = individualStateChart?.getContext('2d');
+    if (!ctx) return;
+
+    if (state.individualChart) {
+        state.individualChart.destroy();
+    }
+
+    const labels = Object.keys(estadosGlobales);
+    const values = Object.values(estadosGlobales).map(value => Number(value || 0));
+
+    state.individualChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Aprendices Consolidados',
+                    data: values,
+                    backgroundColor: [
+                        'rgba(57, 169, 0, 0.8)',      // Verde SENA
+                        'rgba(0, 123, 255, 0.8)',     // Azul
+                        'rgba(255, 193, 7, 0.8)',     // Amarillo
+                        'rgba(220, 53, 69, 0.8)',     // Rojo
+                        'rgba(108, 117, 125, 0.8)',   // Gris
+                        'rgba(0, 200, 83, 0.8)',      // Verde esmeralda
+                        'rgba(156, 39, 176, 0.8)',    // Púrpura
+                        'rgba(255, 152, 0, 0.8)',     // Naranja
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Distribución Consolidada de Aprendices por Estado',
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Renderizar tabla de totales consolidados por estado
+ */
+function renderConsolidatedStatesTable(estadosGlobales) {
+    if (!individualStatesTableBody) return;
+
+    const sortedStates = Object.entries(estadosGlobales)
+        .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+    individualStatesTableBody.innerHTML = sortedStates
+        .map(([estado, total]) => `
+            <tr>
+                <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
+                <td><strong>${Number(total || 0)}</strong></td>
+            </tr>
+        `)
+        .join('');
+}
+
+/**
+ * Renderizar tabla de fichas con detalles
+ */
+function renderFichasTable(fichasData) {
+    if (!individualTableBody) return;
+
+    let html = '';
+
+    for (const [codigoFicha, fichaInfo] of Object.entries(fichasData)) {
+        // Encabezado de ficha
+        html += `
+            <tr style="background: #f8f9fa; font-weight: 600;">
+                <td colspan="3" style="padding: 12px; border-bottom: 2px solid #39A900;">
+                    📋 Ficha: ${escapeHtml(String(codigoFicha))} | ${escapeHtml(String(fichaInfo.programa || 'Sin programa'))} (${fichaInfo.totalAprendices} aprendices)
+                </td>
+            </tr>
+        `;
+
+        // Aprendices de la ficha
+        fichaInfo.aprendices?.forEach(aprendiz => {
+            html += `
+                <tr style="border-left: 4px solid #39A900;">
+                    <td style="font-weight: 600; padding-left: 30px;">${escapeHtml(String(aprendiz.identificacion || ''))}</td>
+                    <td>${escapeHtml(String(aprendiz.nombre || ''))}</td>
+                    <td>${escapeHtml(String(aprendiz.estado || 'Sin estado'))}</td>
+                </tr>
+            `;
+        });
+    }
+
+    individualTableBody.innerHTML = html;
+}
+
+/**
  * 
  * Renderizar resultados completos
  */
 function renderResults(data) {
     statsResults.style.display = 'block';
 
-    if (state.activeReportKind === 'individual_ficha') {
+    if (state.activeReportKind === 'individual_ficha' && !data.consolidado) {
         renderIndividualResults(data);
+        return;
+    }
+
+    if (data.consolidado) {
+        renderConsolidatedResults(data);
         return;
     }
 
