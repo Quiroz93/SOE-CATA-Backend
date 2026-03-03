@@ -166,9 +166,16 @@ class PreinscritoController extends Controller
         $validated['apellidos'] = $validated['apellido'];
         unset($validated['nombre'], $validated['apellido']);
 
-        $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
+        $estadoEnum = EstadoPreinscrito::tryFromInput((string) $validated['estado']);
+        $validated['estado'] = $estadoEnum?->value;
 
-        Preinscrito::create($validated);
+        $preinscrito = Preinscrito::create($validated);
+
+        // Si el estado es 'Novedad', redirigir a crear novedad
+        if ($estadoEnum === EstadoPreinscrito::NOVEDAD) {
+            return redirect()->route('admin.novedades.create', ['preinscrito_id' => $preinscrito->id])
+                ->with('info', '⚠️ Por favor, redacta el detalle de la novedad para completar el registro del preinscrito.');
+        }
         
         return redirect()->route('admin.preinscritos.index')
             ->with('success', 'Preinscrito creado correctamente');

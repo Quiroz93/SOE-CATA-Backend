@@ -19,6 +19,12 @@
         </div>
     @endif
 
+    @if(session('info'))
+        <div class="alert alert--info">
+            {{ session('info') }}
+        </div>
+    @endif
+
     <div class="admin-form-card">
         <form action="{{ route('admin.novedades.store') }}" method="POST" class="admin-form">
             @csrf
