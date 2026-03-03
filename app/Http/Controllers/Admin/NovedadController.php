@@ -59,7 +59,7 @@ class NovedadController extends Controller
      */
     public function create(Request $request)
     {
-        $preinscritos = Preinscrito::orderBy('nombre')->get();
+        $preinscritos = Preinscrito::orderBy('nombres')->get();
         $tiposNovedad = TipoNovedad::orderBy('nombre')->get();
         $preinscritoIdPreseleccionado = $request->query('preinscrito_id');
 
@@ -102,7 +102,7 @@ class NovedadController extends Controller
      */
     public function edit(Novedad $novedad)
     {
-        $preinscritos = Preinscrito::orderBy('nombre')->get();
+        $preinscritos = Preinscrito::orderBy('nombres')->get();
         $tiposNovedad = TipoNovedad::orderBy('nombre')->get();
 
         return view('admin.novedades.edit', compact('novedad', 'preinscritos', 'tiposNovedad'));
