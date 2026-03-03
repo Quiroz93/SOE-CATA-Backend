@@ -54,8 +54,23 @@
 </div>
 
 <div class="form-group">
-    <label class="form-label">Documento</label>
-    <input type="text" name="documento" value="{{ old('documento', isset($preinscrito) ? $preinscrito->documento : '') }}" required class="form-input">
+    <label class="form-label">Tipo de Documento <span class="required">*</span></label>
+    <select name="tipo_documento" required class="form-select @error('tipo_documento') form-select--error @enderror">
+        <option value="">-- Seleccionar tipo --</option>
+        <option value="CC" {{ old('tipo_documento', isset($preinscrito) ? $preinscrito->tipo_documento : '') === 'CC' ? 'selected' : '' }}>CC - Cédula de Ciudadanía</option>
+        <option value="TI" {{ old('tipo_documento', isset($preinscrito) ? $preinscrito->tipo_documento : '') === 'TI' ? 'selected' : '' }}>TI - Tarjeta de Identidad</option>
+        <option value="CE" {{ old('tipo_documento', isset($preinscrito) ? $preinscrito->tipo_documento : '') === 'CE' ? 'selected' : '' }}>CE - Cédula de Extranjería</option>
+        <option value="PAS" {{ old('tipo_documento', isset($preinscrito) ? $preinscrito->tipo_documento : '') === 'PAS' ? 'selected' : '' }}>PAS - Pasaporte</option>
+        <option value="PPT" {{ old('tipo_documento', isset($preinscrito) ? $preinscrito->tipo_documento : '') === 'PPT' ? 'selected' : '' }}>PPT - Permiso de Permanencia Temporal</option>
+    </select>
+    @error('tipo_documento')
+        <span class="form-error">{{ $message }}</span>
+    @enderror
+</div>
+
+<div class="form-group">
+    <label class="form-label">Documento <span class="required">*</span></label>
+    <input type="text" name="documento" value="{{ old('documento', isset($preinscrito) ? $preinscrito->documento : '') }}" required class="form-input" placeholder="Número de documento">
     @error('documento')
         <span class="form-error">{{ $message }}</span>
     @enderror
