@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->text('descripcion')->nullable();
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
-            $table->string('estado')->default('activo'); // Enum recomendado, pero string para flexibilidad 
+            $table->string('estado')->default('activa'); // Valores: 'activa', 'inactiva'
             $table->timestamps();
         });
     }
