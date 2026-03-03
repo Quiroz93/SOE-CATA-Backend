@@ -94,7 +94,12 @@ class PreinscritoController extends Controller
 
     public function show(Preinscrito $preinscrito)
     {
-        $preinscrito->load(['ofertaPrograma']);
+        $preinscrito->load([
+            'ofertaPrograma',
+            'novedades' => function ($query) {
+                $query->with('tipoNovedad')->latest();
+            }
+        ]);
         return view('admin.preinscritos.show', compact('preinscrito'));
     }
 

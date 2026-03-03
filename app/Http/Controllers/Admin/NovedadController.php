@@ -57,12 +57,13 @@ class NovedadController extends Controller
     /**
      * Mostrar formulario para crear nueva novedad
      */
-    public function create()
+    public function create(Request $request)
     {
         $preinscritos = Preinscrito::orderBy('nombre')->get();
         $tiposNovedad = TipoNovedad::orderBy('nombre')->get();
+        $preinscritoIdPreseleccionado = $request->query('preinscrito_id');
 
-        return view('admin.novedades.create', compact('preinscritos', 'tiposNovedad'));
+        return view('admin.novedades.create', compact('preinscritos', 'tiposNovedad', 'preinscritoIdPreseleccionado'));
     }
 
     /**
@@ -73,12 +74,13 @@ class NovedadController extends Controller
         $validated = $request->validate([
             'preinscrito_id' => 'required|exists:preinscritos,id',
             'tipo_novedad_id' => 'required|exists:tipos_novedad,id',
-            'detalle' => 'nullable|string',
+            'detalle' => 'nullable|string|max:1000',
         ], [
             'preinscrito_id.required' => 'El preinscrito es obligatorio',
-            'preinscrito_id.exists' => 'El preinscrito seleccionado no es válido',
+            'preinscrito_id.exists' => 'El preinscrito seleccionado no es válido o no existe',
             'tipo_novedad_id.required' => 'El tipo de novedad es obligatorio',
-            'tipo_novedad_id.exists' => 'El tipo de novedad seleccionado no es válido',
+            'tipo_novedad_id.exists' => 'El tipo de novedad seleccionado no es válido o no existe',
+            'detalle.max' => 'El detalle no puede exceder 1000 caracteres',
         ]);
 
         Novedad::create($validated);
@@ -114,12 +116,13 @@ class NovedadController extends Controller
         $validated = $request->validate([
             'preinscrito_id' => 'required|exists:preinscritos,id',
             'tipo_novedad_id' => 'required|exists:tipos_novedad,id',
-            'detalle' => 'nullable|string',
+            'detalle' => 'nullable|string|max:1000',
         ], [
             'preinscrito_id.required' => 'El preinscrito es obligatorio',
-            'preinscrito_id.exists' => 'El preinscrito seleccionado no es válido',
+            'preinscrito_id.exists' => 'El preinscrito seleccionado no es válido o no existe',
             'tipo_novedad_id.required' => 'El tipo de novedad es obligatorio',
-            'tipo_novedad_id.exists' => 'El tipo de novedad seleccionado no es válido',
+            'tipo_novedad_id.exists' => 'El tipo de novedad seleccionado no es válido o no existe',
+            'detalle.max' => 'El detalle no puede exceder 1000 caracteres',
         ]);
 
         $novedad->update($validated);

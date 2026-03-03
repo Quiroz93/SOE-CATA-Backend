@@ -30,8 +30,8 @@
                 <select name="preinscrito_id" id="preinscrito_id" class="form-select @error('preinscrito_id') form-select--error @enderror" required>
                     <option value="">-- Selecciona un preinscrito --</option>
                     @foreach($preinscritos as $preinscrito)
-                        <option value="{{ $preinscrito->id }}" {{ old('preinscrito_id') == $preinscrito->id ? 'selected' : '' }}>
-                            {{ $preinscrito->nombre }} ({{ $preinscrito->documento }})
+                        <option value="{{ $preinscrito->id }}" {{ old('preinscrito_id', $preinscritoIdPreseleccionado ?? '') == $preinscrito->id ? 'selected' : '' }}>
+                            {{ $preinscrito->nombre }} {{ $preinscrito->apellido }} ({{ $preinscrito->documento }})
                         </option>
                     @endforeach
                 </select>
