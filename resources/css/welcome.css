@@ -18,12 +18,29 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, #f4f6f9, #e6edf3);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #00304D;
+    overflow: hidden;
+}
+
+/* Fondo institucional */
+.background {
+    position: absolute;
+    inset: 0;
+    background: url('/images/SENAMALAGA.jpg') no-repeat center center/cover;
+    filter: blur(6px);
+    transform: scale(1.05);
+    z-index: -2;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 48, 77, 0.65);
+    z-index: -1;
 }
 
 /* ===========================

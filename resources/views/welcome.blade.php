@@ -7,6 +7,9 @@
     @vite(['resources/css/welcome.css', 'resources/js/app.js'])
 </head>
 <body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+    
     <div class="welcome-container">
         <div class="welcome__logo">
             <img src="{{ asset('images/Logosimbolo-SENA.svg') }}" alt="Logosimbolo SENA">
