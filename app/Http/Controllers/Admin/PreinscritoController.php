@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Domain\Programa\Enums\EstadoPrograma;
 use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
@@ -38,7 +39,10 @@ class PreinscritoController extends Controller
 
         // Filtro por estado
         if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
+            $estado = EstadoPreinscrito::tryFromInput((string) $request->estado);
+            if ($estado) {
+                $query->where('estado', $estado->value);
+            }
         }
 
         // Filtro por correo
@@ -53,7 +57,9 @@ class PreinscritoController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        return view('admin.preinscritos.index', compact('preinscritos', 'programas'));
+        $estados = EstadoPreinscrito::cases();
+
+        return view('admin.preinscritos.index', compact('preinscritos', 'programas', 'estados'));
     }
 
     public function show(Preinscrito $preinscrito)
@@ -65,7 +71,8 @@ class PreinscritoController extends Controller
     public function create()
     {
         $ofertasPrograma = OfertaPrograma::all();
-        return view('admin.preinscritos.create', compact('ofertasPrograma'));
+        $estados = EstadoPreinscrito::cases();
+        return view('admin.preinscritos.create', compact('ofertasPrograma', 'estados'));
     }
 
     public function store(Request $request)
@@ -78,8 +85,18 @@ class PreinscritoController extends Controller
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,cancelado,convocado_matricula,matriculado,no_admitido,rechazado',
+            'estado' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!EstadoPreinscrito::tryFromInput((string) $value)) {
+                        $fail('El estado seleccionado no es válido.');
+                    }
+                },
+            ],
         ]);
+
+        $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 
         Preinscrito::create($validated);
         
@@ -90,7 +107,8 @@ class PreinscritoController extends Controller
     public function edit(Preinscrito $preinscrito)
     {
         $ofertasPrograma = OfertaPrograma::all();
-        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma'));
+        $estados = EstadoPreinscrito::cases();
+        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma', 'estados'));
     }
 
     public function update(Request $request, Preinscrito $preinscrito)
@@ -103,8 +121,18 @@ class PreinscritoController extends Controller
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
             'documento' => 'required|string|max:255',
             'correo' => 'required|email|max:255',
-            'estado' => 'required|in:pendiente,novedad,preinscrito,inscrito,cancelado,convocado_matricula,matriculado,no_admitido,rechazado',
+            'estado' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!EstadoPreinscrito::tryFromInput((string) $value)) {
+                        $fail('El estado seleccionado no es válido.');
+                    }
+                },
+            ],
         ]);
+
+        $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 
         $preinscrito->update($validated);
         

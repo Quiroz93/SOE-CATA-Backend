@@ -57,12 +57,15 @@
 
 <div class="form-group">
     <label class="form-label">Estado</label>
+    @php
+        $estadoActual = old('estado', isset($preinscrito) ? $preinscrito->estado_valor : (\App\Domain\Programa\Enums\EstadoPreinscrito::tryFromInput('pendiente')?->value ?? null));
+    @endphp
     <select name="estado" required class="form-select">
-        <option value="pendiente" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : 'pendiente') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-        <option value="novedad" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'novedad' ? 'selected' : '' }}>Novedad</option>
-        <option value="preinscrito" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
-        <option value="inscrito" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'inscrito' ? 'selected' : '' }}>Inscrito</option>
-        <option value="rechazado" {{ old('estado', isset($preinscrito) ? $preinscrito->estado : '') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+        @foreach($estados as $estado)
+            <option value="{{ $estado->value }}" {{ $estadoActual === $estado->value ? 'selected' : '' }}>
+                {{ $estado->label() }}
+            </option>
+        @endforeach
     </select>
     @error('estado')
         <span class="form-error">{{ $message }}</span>

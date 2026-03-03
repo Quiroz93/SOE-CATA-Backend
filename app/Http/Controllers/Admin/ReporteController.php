@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Http\Controllers\Controller;
 use App\Models\Oferta;
 use App\Models\Preinscrito;
@@ -37,7 +38,8 @@ class ReporteController extends Controller
 
         // Additional filters
         $programaFilter = $request->input('programa_id');
-        $estadoFilter = $request->input('estado');
+        $estadoFilter = EstadoPreinscrito::tryFromInput($request->input('estado'))?->value;
+        $estados = EstadoPreinscrito::cases();
 
         // Get all programs for filter dropdown
         $programas = Programa::orderBy('nombre')->get(['id', 'nombre']);
@@ -62,9 +64,21 @@ class ReporteController extends Controller
         }
         
         $totalPreinscritos = (clone $basePreinscritosQuery)->count();
-        $preinscritosPendientes = (clone $basePreinscritosQuery)->where('estado', 'pendiente')->count();
-        $preinscritosAceptados = (clone $basePreinscritosQuery)->whereIn('estado', ['preinscrito', 'inscrito', 'convocado_matricula', 'matriculado'])->count();
-        $preinscritosRechazados = (clone $basePreinscritosQuery)->where('estado', 'rechazado')->count();
+        $estadoPendiente = EstadoPreinscrito::tryFromInput('pendiente')?->value;
+        $estadoRechazado = EstadoPreinscrito::tryFromInput('rechazado')?->value;
+
+        $preinscritosPendientes = $estadoPendiente
+            ? (clone $basePreinscritosQuery)->where('estado', $estadoPendiente)->count()
+            : 0;
+
+        $acceptedValues = EstadoPreinscrito::acceptedValues();
+        $preinscritosAceptados = empty($acceptedValues)
+            ? 0
+            : (clone $basePreinscritosQuery)->whereIn('estado', $acceptedValues)->count();
+
+        $preinscritosRechazados = $estadoRechazado
+            ? (clone $basePreinscritosQuery)->where('estado', $estadoRechazado)->count()
+            : 0;
 
         // Ofertas por estado
         $ofertasPorEstado = [
@@ -327,6 +341,7 @@ class ReporteController extends Controller
             'programas' => $programas,
             'programaFilter' => $programaFilter,
             'estadoFilter' => $estadoFilter,
+            'estados' => $estados,
             // Programa líder
             'programaLiderNombre' => $programaLiderNombre,
             'programaLiderCount' => $programaLiderCount,

@@ -36,15 +36,9 @@
                 <label for="estado">Estado:</label>
                 <select id="estado" name="estado" class="filtro-input">
                     <option value="">Todos los estados</option>
-                    <option value="pendiente" {{ $estadoFilter == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="novedad" {{ $estadoFilter == 'novedad' ? 'selected' : '' }}>Novedad</option>
-                    <option value="preinscrito" {{ $estadoFilter == 'preinscrito' ? 'selected' : '' }}>Preinscrito</option>
-                    <option value="inscrito" {{ $estadoFilter == 'inscrito' ? 'selected' : '' }}>Inscrito</option>
-                    <option value="cancelado" {{ $estadoFilter == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
-                    <option value="convocado_matricula" {{ $estadoFilter == 'convocado_matricula' ? 'selected' : '' }}>Convocado Matrícula</option>
-                    <option value="matriculado" {{ $estadoFilter == 'matriculado' ? 'selected' : '' }}>Matriculado</option>
-                    <option value="no_admitido" {{ $estadoFilter == 'no_admitido' ? 'selected' : '' }}>No Admitido</option>
-                    <option value="rechazado" {{ $estadoFilter == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                    @foreach($estados as $estado)
+                        <option value="{{ $estado->value }}" {{ $estadoFilter == $estado->value ? 'selected' : '' }}>{{ $estado->label() }}</option>
+                    @endforeach
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -394,8 +388,8 @@
                             <td>{{ $preinscrito->ofertaPrograma?->programa?->nombre ?? 'N/A' }}</td>
                             <td>{{ $preinscrito->ofertaPrograma?->oferta?->nombre ?? 'N/A' }}</td>
                             <td>
-                                <span class="status-badge status-{{ $preinscrito->estado }}">
-                                    {{ ucfirst($preinscrito->estado) }}
+                                <span class="status-badge status-{{ $preinscrito->estado_css_class }}">
+                                    {{ $preinscrito->estado_label }}
                                 </span>
                             </td>
                             <td>{{ $preinscrito->created_at->format('d/m/Y H:i') }}</td>

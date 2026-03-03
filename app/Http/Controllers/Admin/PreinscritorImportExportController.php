@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Http\Controllers\Controller;
+use App\Models\Oferta;
 use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
 use App\Models\Programa;
@@ -34,7 +36,8 @@ class PreinscritorImportExportController extends Controller
         $tiposDocumento = ['CC', 'TI', 'CE', 'PAS', 'PPT'];
         
         // Estados válidos
-        $estados = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'cancelado', 'convocado_matricula', 'matriculado', 'no_admitido', 'rechazado'];
+        $estados = EstadoPreinscrito::values();
+        $estadoPorDefecto = EstadoPreinscrito::tryFromInput('pendiente')?->value ?? ($estados[0] ?? '');
         
         // Crear nuevo spreadsheet
         $spreadsheet = new Spreadsheet();
@@ -170,9 +173,9 @@ class PreinscritorImportExportController extends Controller
         $programaEjemplo = $programas[0] ?? 'Técnico en Agronomía';
         
         $exampleData = [
-            ['Juan Carlos', 'Pérez López', 'CC', '1234567890', 'juan.perez@example.com', $programaEjemplo, '', 'pendiente'],
-            ['María Isabel', 'García Rodríguez', 'CC', '0987654321', 'maria.garcia@example.com', $programaEjemplo, '', 'pendiente'],
-            ['Pedro Antonio', 'López Martínez', 'TI', '5555555555', 'pedro.lopez@example.com', $programaEjemplo, '', 'pendiente'],
+            ['Juan Carlos', 'Pérez López', 'CC', '1234567890', 'juan.perez@example.com', $programaEjemplo, '', $estadoPorDefecto],
+            ['María Isabel', 'García Rodríguez', 'CC', '0987654321', 'maria.garcia@example.com', $programaEjemplo, '', $estadoPorDefecto],
+            ['Pedro Antonio', 'López Martínez', 'TI', '5555555555', 'pedro.lopez@example.com', $programaEjemplo, '', $estadoPorDefecto],
         ];
         
         $row = 5;
@@ -303,7 +306,7 @@ class PreinscritorImportExportController extends Controller
             $validation->setShowErrorMessage(true);
             $validation->setShowDropDown(true);
             $validation->setErrorTitle('Entrada inválida');
-            $validation->setError('Por favor seleccione: pendiente, novedad, preinscrito, inscrito, cancelado, convocado_matricula, matriculado, no_admitido o rechazado.');
+            $validation->setError('Por favor seleccione un estado válido de la lista: ' . implode(', ', $estados) . '.');
             $validation->setPromptTitle('Estado');
             $validation->setPrompt('Seleccione el estado del preinscrito.');
             $validation->setFormula1('Datos_Validacion!$D$1:$D$' . $estadosCount);
@@ -333,7 +336,7 @@ class PreinscritorImportExportController extends Controller
             '• Correo Electronico: Ingrese correo valido y activo',
             '• Programa: SELECCIONE de la lista. Disponibles: ' . $programasDisponibles,
             '• Numero Ficha: AUTOMATICAMENTE al seleccionar programa (NO editar)',
-            '• Estado: SELECCIONE de lista (pendiente, novedad, preinscrito, inscrito, cancelado, convocado_matricula, matriculado, no_admitido, rechazado)',
+            '• Estado: SELECCIONE de lista (' . implode(', ', $estados) . ')',
             '',
             'IMPORTANTE: Nombres, Apellidos, Tipo Documento, Documento y Correo son OBLIGATORIOS',
             'No modifique los encabezados de las columnas',
@@ -378,7 +381,10 @@ class PreinscritorImportExportController extends Controller
      */
     public function showImportForm()
     {
-        return view('admin.preinscritos.import');
+        $ofertas = Oferta::orderByDesc('id')
+            ->get();
+
+        return view('admin.preinscritos.import', compact('ofertas'));
     }
     
     /**
@@ -388,6 +394,7 @@ class PreinscritorImportExportController extends Controller
     {
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:5120', // 5MB máximo
+            'oferta_id' => 'required|integer|exists:ofertas,id',
         ]);
         
         try {
@@ -398,6 +405,34 @@ class PreinscritorImportExportController extends Controller
             $rows = $sheet->toArray();
             $imported = 0;
             $errors = [];
+            $estadoPorDefecto = EstadoPreinscrito::tryFromInput('pendiente')?->value
+                ?? (EstadoPreinscrito::values()[0] ?? '');
+
+            $ofertaDestino = Oferta::find($request->integer('oferta_id'));
+
+            if (!$ofertaDestino) {
+                return redirect()
+                    ->route('admin.preinscritos.showImportForm')
+                    ->with('error', 'La oferta seleccionada no es válida para importar.');
+            }
+
+            $ofertasProgramaDeOferta = OfertaPrograma::with('programa')
+                ->where('oferta_id', $ofertaDestino->id)
+                ->get();
+
+            if ($ofertasProgramaDeOferta->isEmpty()) {
+                return redirect()
+                    ->route('admin.preinscritos.showImportForm')
+                    ->with('error', 'La oferta seleccionada no tiene programas asociados para importar.');
+            }
+
+            $normalizarFicha = static function (string $ficha): string {
+                return preg_replace('/\s+/', '', mb_strtolower(trim($ficha)));
+            };
+
+            $ofertaProgramaPorFicha = $ofertasProgramaDeOferta
+                ->filter(static fn (OfertaPrograma $registro): bool => !empty($registro->programa?->ficha))
+                ->keyBy(static fn (OfertaPrograma $registro): string => $normalizarFicha((string) $registro->programa->ficha));
             
             // Saltar encabezados (primeras 4 filas son encabezado)
             for ($i = 5; $i < count($rows); $i++) {
@@ -414,8 +449,8 @@ class PreinscritorImportExportController extends Controller
                 $documento = trim($row[3] ?? '');
                 $correo = trim($row[4] ?? '');
                 $programaNombre = trim($row[5] ?? '');
-                $numeroFicha = trim($row[6] ?? ''); // Se ignora, solo usado como referencia
-                $estado = trim($row[7] ?? 'pendiente');
+                $numeroFicha = trim((string) ($row[6] ?? ''));
+                $estado = trim((string) ($row[7] ?? $estadoPorDefecto));
                 
                 // Validaciones básicas
                 if (!$nombre || !$apellido || !$tipoDocumento || !$documento || !$correo) {
@@ -434,22 +469,22 @@ class PreinscritorImportExportController extends Controller
                     $errors[] = "Fila " . ($i + 1) . ": Correo inválido ($correo)";
                     continue;
                 }
-                
-                // Buscar programa por nombre
-                $ofertaProgrma = OfertaPrograma::whereHas('programa', function($q) use ($programaNombre) {
-                    $q->where('nombre', 'like', '%' . $programaNombre . '%');
-                })->first();
-                
-                if (!$ofertaProgrma) {
-                    $errors[] = "Fila " . ($i + 1) . ": Programa no encontrado ($programaNombre)";
+
+                if ($numeroFicha === '') {
+                    $errors[] = "Fila " . ($i + 1) . ": Número Ficha es obligatorio para relacionar el programa dentro de la oferta seleccionada.";
+                    continue;
+                }
+
+                $ofertaProgramaDestino = $ofertaProgramaPorFicha->get($normalizarFicha($numeroFicha));
+
+                if (!$ofertaProgramaDestino) {
+                    $errors[] = "Fila " . ($i + 1) . ": No existe relación oferta-programa para la ficha ($numeroFicha) en la oferta seleccionada.";
                     continue;
                 }
                 
                 // Validar estado
-                $estadoValido = ['pendiente', 'novedad', 'preinscrito', 'inscrito', 'cancelado', 'convocado_matricula', 'matriculado', 'no_admitido', 'rechazado'];
-                if (!in_array($estado, $estadoValido)) {
-                    $estado = 'pendiente';
-                }
+                $estadoEnum = EstadoPreinscrito::tryFromInput($estado);
+                $estado = $estadoEnum?->value ?? $estadoPorDefecto;
                 
                 // Verificar si ya existe
                 $existe = Preinscrito::where('documento', $documento)
@@ -469,8 +504,8 @@ class PreinscritorImportExportController extends Controller
                         'tipo_documento' => $tipoDocumento,
                         'documento' => $documento,
                         'correo' => $correo,
-                        'oferta_programa_id' => $ofertaProgrma->id,
-                        'oferta_id' => $ofertaProgrma->oferta_id,
+                        'oferta_programa_id' => $ofertaProgramaDestino->id,
+                        'oferta_id' => $ofertaDestino->id,
                         'estado' => $estado,
                     ]);
                     $imported++;

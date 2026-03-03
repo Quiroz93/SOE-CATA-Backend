@@ -506,12 +506,26 @@
     color: #FFC107;
 }
 
-.status-aceptado {
+.status-preinscrito,
+.status-inscrito,
+.status-convocado_matricula,
+.status-matriculado {
     background-color: rgba(57, 169, 0, 0.15);
     color: #39A900;
 }
 
+.status-novedad {
+    background-color: rgba(13, 148, 136, 0.15);
+    color: #0D9488;
+}
+
 .status-rechazado {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #DC2626;
+}
+
+.status-no_admitido,
+.status-cancelado {
     background-color: rgba(220, 38, 38, 0.15);
     color: #DC2626;
 }

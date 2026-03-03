@@ -32,8 +32,9 @@
             <div class="admin-detail-item">
                 <span class="admin-detail__label">Estado</span>
                 <span class="admin-detail__value">
-                    <span class="badge {{ $preinscrito->estado === 'aceptado' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
-                        {{ ucfirst($preinscrito->estado) }}
+                    @php($estadoCss = $preinscrito->estado_css_class)
+                    <span class="badge {{ in_array($estadoCss, ['preinscrito', 'inscrito', 'convocado_matricula', 'matriculado'], true) ? 'badge--success' : '' }} {{ $estadoCss === 'pendiente' ? 'badge--warning' : '' }} {{ $estadoCss === 'novedad' ? 'badge--info' : '' }} {{ in_array($estadoCss, ['rechazado', 'no_admitido', 'cancelado'], true) ? 'badge--danger' : '' }}">
+                        {{ $preinscrito->estado_label }}
                     </span>
                 </span>
             </div>

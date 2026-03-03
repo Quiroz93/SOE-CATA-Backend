@@ -71,21 +71,11 @@
                     <label for="estado" class="filter-form__label">Estado</label>
                     <select name="estado" id="estado" class="filter-form__select">
                         <option value="">-- Todos los Estados --</option>
-                        <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>
-                            Pendiente
-                        </option>
-                        <option value="novedad" {{ request('estado') === 'novedad' ? 'selected' : '' }}>
-                            Novedad
-                        </option>
-                        <option value="preinscrito" {{ request('estado') === 'preinscrito' ? 'selected' : '' }}>
-                            Preinscrito
-                        </option>
-                        <option value="inscrito" {{ request('estado') === 'inscrito' ? 'selected' : '' }}>
-                            Inscrito
-                        </option>
-                        <option value="rechazado" {{ request('estado') === 'rechazado' ? 'selected' : '' }}>
-                            Rechazado
-                        </option>
+                        @foreach($estados as $estado)
+                            <option value="{{ $estado->value }}" {{ request('estado') === $estado->value ? 'selected' : '' }}>
+                                {{ $estado->label() }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -121,8 +111,9 @@
                     <td class="admin-table__td">{{ $preinscrito->correo }}</td>
                     <td class="admin-table__td">{{ $preinscrito->ofertaPrograma->programa->nombre ?? 'N/A' }}</td>
                     <td class="admin-table__td">
-                        <span class="badge {{ $preinscrito->estado === 'preinscrito' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'inscrito' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'novedad' ? 'badge--info' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
-                            {{ ucfirst($preinscrito->estado) }}
+                        @php($estadoCss = $preinscrito->estado_css_class)
+                        <span class="badge {{ in_array($estadoCss, ['preinscrito', 'inscrito', 'convocado_matricula', 'matriculado'], true) ? 'badge--success' : '' }} {{ $estadoCss === 'pendiente' ? 'badge--warning' : '' }} {{ $estadoCss === 'novedad' ? 'badge--info' : '' }} {{ in_array($estadoCss, ['rechazado', 'no_admitido', 'cancelado'], true) ? 'badge--danger' : '' }}">
+                            {{ $preinscrito->estado_label }}
                         </span>
                     </td>
                     <td class="admin-table__td admin-table__td--right">

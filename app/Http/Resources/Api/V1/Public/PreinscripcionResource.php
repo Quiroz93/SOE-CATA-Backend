@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Api\V1\Public;
 
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -19,13 +20,17 @@ class PreinscripcionResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $estado = $this->estado instanceof EstadoPreinscrito
+            ? $this->estado->value
+            : $this->estado;
+
         return [
             'id' => $this->id,
             'programa_id' => $this->programa_id,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'email' => $this->email,
-            'estado' => $this->estado ?? null,
+            'estado' => $estado,
             'fecha_registro' => $this->created_at ? $this->created_at->toDateTimeString() : null,
         ];
     }
