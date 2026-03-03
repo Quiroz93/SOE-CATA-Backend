@@ -16,8 +16,15 @@
 </div>
 
 <div class="form-group">
-    <label class="form-label">ID Oferta</label>
-    <input type="number" name="oferta_id" value="{{ old('oferta_id', isset($preinscrito) ? $preinscrito->oferta_id : '') }}" required class="form-input">
+    <label class="form-label">Oferta</label>
+    <select name="oferta_id" required class="form-select">
+        <option value="">-- Seleccionar oferta --</option>
+        @foreach($ofertas as $oferta)
+            <option value="{{ $oferta->id }}" {{ old('oferta_id', isset($preinscrito) ? $preinscrito->oferta_id : '') == $oferta->id ? 'selected' : '' }}>
+                {{ $oferta->nombre }} (ID: {{ $oferta->id }})
+            </option>
+        @endforeach
+    </select>
     @error('oferta_id')
         <span class="form-error">{{ $message }}</span>
     @enderror

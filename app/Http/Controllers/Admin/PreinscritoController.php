@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Domain\Programa\Enums\EstadoPrograma;
 use App\Models\Preinscrito;
+use App\Models\Oferta;
 use App\Models\OfertaPrograma;
 use App\Models\Programa;
 use Illuminate\Http\Request;
@@ -71,8 +72,11 @@ class PreinscritoController extends Controller
     public function create()
     {
         $ofertasPrograma = OfertaPrograma::all();
+        $ofertas = Oferta::where('estado', 'activa')
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
         $estados = EstadoPreinscrito::cases();
-        return view('admin.preinscritos.create', compact('ofertasPrograma', 'estados'));
+        return view('admin.preinscritos.create', compact('ofertasPrograma', 'ofertas', 'estados'));
     }
 
     public function store(Request $request)
@@ -107,8 +111,12 @@ class PreinscritoController extends Controller
     public function edit(Preinscrito $preinscrito)
     {
         $ofertasPrograma = OfertaPrograma::all();
+        $ofertas = Oferta::where('estado', 'activa')
+            ->orWhere('id', $preinscrito->oferta_id)
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
         $estados = EstadoPreinscrito::cases();
-        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma', 'estados'));
+        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma', 'ofertas', 'estados'));
     }
 
     public function update(Request $request, Preinscrito $preinscrito)
