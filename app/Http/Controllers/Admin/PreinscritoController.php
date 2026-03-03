@@ -5,14 +5,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Domain\Programa\Enums\EstadoPrograma;
+use App\Models\User;
 use App\Models\Preinscrito;
 use App\Models\Oferta;
 use App\Models\OfertaPrograma;
 use App\Models\Programa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PreinscritoController extends Controller
 {
+    private function canManageHistoricOffers(): bool
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasRole('admin') || $user->hasRole('Super Admin');
+    }
+
+    private function validateOfertaByBusinessRule(int $ofertaId, bool $canManageHistoricOffers, ?int $currentOfertaId = null): bool
+    {
+        if ($canManageHistoricOffers) {
+            return true;
+        }
+
+        if ($currentOfertaId !== null && $currentOfertaId === $ofertaId) {
+            return true;
+        }
+
+        return Oferta::where('id', $ofertaId)
+            ->where('estado', 'activa')
+            ->exists();
+    }
+
     public function index(Request $request)
     {
         $query = Preinscrito::with(['ofertaPrograma.programa']);
@@ -71,17 +100,26 @@ class PreinscritoController extends Controller
 
     public function create()
     {
+        $canManageHistoricOffers = $this->canManageHistoricOffers();
+
         $ofertasPrograma = OfertaPrograma::with(['oferta:id,nombre', 'programa:id,nombre'])
             ->get(['id', 'oferta_id', 'programa_id']);
-        $ofertas = Oferta::where('estado', 'activa')
-            ->orderBy('nombre')
-            ->get(['id', 'nombre']);
+
+        $ofertasQuery = Oferta::query()->orderBy('nombre');
+        if (!$canManageHistoricOffers) {
+            $ofertasQuery->where('estado', 'activa');
+        }
+
+        $ofertas = $ofertasQuery->get(['id', 'nombre', 'estado']);
+
         $estados = EstadoPreinscrito::cases();
-        return view('admin.preinscritos.create', compact('ofertasPrograma', 'ofertas', 'estados'));
+        return view('admin.preinscritos.create', compact('ofertasPrograma', 'ofertas', 'estados', 'canManageHistoricOffers'));
     }
 
     public function store(Request $request)
     {
+        $canManageHistoricOffers = $this->canManageHistoricOffers();
+
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
             'oferta_programa_id' => [
@@ -109,6 +147,14 @@ class PreinscritoController extends Controller
                 },
             ],
         ]);
+
+        if (!$this->validateOfertaByBusinessRule((int) $validated['oferta_id'], $canManageHistoricOffers)) {
+            return back()
+                ->withErrors([
+                    'oferta_id' => 'Solo se permite seleccionar ofertas vigentes (activas).',
+                ])
+                ->withInput();
+        }
 
         $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 
@@ -120,18 +166,29 @@ class PreinscritoController extends Controller
 
     public function edit(Preinscrito $preinscrito)
     {
+        $canManageHistoricOffers = $this->canManageHistoricOffers();
+
         $ofertasPrograma = OfertaPrograma::with(['oferta:id,nombre', 'programa:id,nombre'])
             ->get(['id', 'oferta_id', 'programa_id']);
-        $ofertas = Oferta::where('estado', 'activa')
-            ->orWhere('id', $preinscrito->oferta_id)
-            ->orderBy('nombre')
-            ->get(['id', 'nombre']);
+
+        $ofertasQuery = Oferta::query()->orderBy('nombre');
+        if (!$canManageHistoricOffers) {
+            $ofertasQuery->where(function ($query) use ($preinscrito) {
+                $query->where('estado', 'activa')
+                    ->orWhere('id', $preinscrito->oferta_id);
+            });
+        }
+
+        $ofertas = $ofertasQuery->get(['id', 'nombre', 'estado']);
+
         $estados = EstadoPreinscrito::cases();
-        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma', 'ofertas', 'estados'));
+        return view('admin.preinscritos.edit', compact('preinscrito', 'ofertasPrograma', 'ofertas', 'estados', 'canManageHistoricOffers'));
     }
 
     public function update(Request $request, Preinscrito $preinscrito)
     {
+        $canManageHistoricOffers = $this->canManageHistoricOffers();
+
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
             'oferta_programa_id' => [
@@ -159,6 +216,14 @@ class PreinscritoController extends Controller
                 },
             ],
         ]);
+
+        if (!$this->validateOfertaByBusinessRule((int) $validated['oferta_id'], $canManageHistoricOffers, (int) $preinscrito->oferta_id)) {
+            return back()
+                ->withErrors([
+                    'oferta_id' => 'Solo se permite seleccionar ofertas vigentes (activas).',
+                ])
+                ->withInput();
+        }
 
         $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 

@@ -1,31 +1,38 @@
 @csrf
 
 <div class="form-group">
-    <label class="form-label">Oferta Programa</label>
-    <select id="oferta_programa_id" name="oferta_programa_id" required class="form-select">
-        <option value="">-- Seleccionar --</option>
-        @foreach($ofertasPrograma as $op)
-            <option value="{{ $op->id }}" data-oferta-id="{{ $op->oferta_id }}" {{ old('oferta_programa_id', isset($preinscrito) ? $preinscrito->oferta_programa_id : '') == $op->id ? 'selected' : '' }}>
-                {{ $op->oferta->nombre ?? 'N/A' }} - {{ $op->programa->nombre ?? 'N/A' }}
+    <label class="form-label">Oferta</label>
+    @if(!empty($canManageHistoricOffers) && $canManageHistoricOffers)
+        <div style="margin-bottom: 8px;">
+            <button type="button" id="toggleAllOffersBtn" class="btn btn--secondary">
+                Mostrar todas las ofertas
+            </button>
+        </div>
+    @endif
+    <select id="oferta_id" name="oferta_id" required class="form-select">
+        <option value="">-- Seleccionar oferta --</option>
+        @foreach($ofertas as $oferta)
+            <option value="{{ $oferta->id }}" data-estado="{{ $oferta->estado ?? '' }}" {{ old('oferta_id', isset($preinscrito) ? $preinscrito->oferta_id : '') == $oferta->id ? 'selected' : '' }}>
+                {{ $oferta->nombre }} (ID: {{ $oferta->id }}){{ ($oferta->estado ?? '') !== 'activa' ? ' - ' . ucfirst($oferta->estado ?? '') : '' }}
             </option>
         @endforeach
     </select>
-    @error('oferta_programa_id')
+    @error('oferta_id')
         <span class="form-error">{{ $message }}</span>
     @enderror
 </div>
 
 <div class="form-group">
-    <label class="form-label">Oferta</label>
-    <select id="oferta_id" name="oferta_id" required class="form-select">
-        <option value="">-- Seleccionar oferta --</option>
-        @foreach($ofertas as $oferta)
-            <option value="{{ $oferta->id }}" {{ old('oferta_id', isset($preinscrito) ? $preinscrito->oferta_id : '') == $oferta->id ? 'selected' : '' }}>
-                {{ $oferta->nombre }} (ID: {{ $oferta->id }})
+    <label class="form-label">Programa de formación</label>
+    <select id="oferta_programa_id" name="oferta_programa_id" required class="form-select">
+        <option value="">-- Seleccionar programa --</option>
+        @foreach($ofertasPrograma as $op)
+            <option value="{{ $op->id }}" data-oferta-id="{{ $op->oferta_id }}" {{ old('oferta_programa_id', isset($preinscrito) ? $preinscrito->oferta_programa_id : '') == $op->id ? 'selected' : '' }}>
+                {{ $op->programa->nombre ?? 'N/A' }}
             </option>
         @endforeach
     </select>
-    @error('oferta_id')
+    @error('oferta_programa_id')
         <span class="form-error">{{ $message }}</span>
     @enderror
 </div>
@@ -83,9 +90,56 @@
 document.addEventListener('DOMContentLoaded', function () {
     const ofertaProgramaSelect = document.getElementById('oferta_programa_id');
     const ofertaSelect = document.getElementById('oferta_id');
+    const toggleAllOffersBtn = document.getElementById('toggleAllOffersBtn');
+    let showAllOffers = false;
 
     if (!ofertaProgramaSelect || !ofertaSelect) {
         return;
+    }
+
+    const initialProgramaValue = ofertaProgramaSelect.value;
+
+    function filterOffersByState() {
+        const ofertaOptions = Array.from(ofertaSelect.querySelectorAll('option[data-estado]'));
+
+        ofertaOptions.forEach(function (option) {
+            const estado = option.getAttribute('data-estado');
+            const shouldShow = showAllOffers || estado === 'activa';
+            option.hidden = !shouldShow;
+        });
+
+        const selected = ofertaSelect.options[ofertaSelect.selectedIndex];
+        if (selected && selected.hidden) {
+            ofertaSelect.value = '';
+        }
+
+        if (toggleAllOffersBtn) {
+            toggleAllOffersBtn.textContent = showAllOffers ? 'Mostrar solo ofertas vigentes' : 'Mostrar todas las ofertas';
+        }
+    }
+
+    function filterProgramasByOferta(preserveSelection = false) {
+        const selectedOfertaId = ofertaSelect.value;
+        const currentPrograma = ofertaProgramaSelect.value;
+        const programOptions = Array.from(ofertaProgramaSelect.querySelectorAll('option[data-oferta-id]'));
+
+        programOptions.forEach(function (option) {
+            const belongsToOferta = selectedOfertaId !== '' && option.getAttribute('data-oferta-id') === selectedOfertaId;
+            option.hidden = !belongsToOferta;
+        });
+
+        if (preserveSelection && currentPrograma) {
+            const stillValid = programOptions.some(function (option) {
+                return option.value === currentPrograma && !option.hidden;
+            });
+
+            if (stillValid) {
+                ofertaProgramaSelect.value = currentPrograma;
+                return;
+            }
+        }
+
+        ofertaProgramaSelect.value = '';
     }
 
     ofertaProgramaSelect.addEventListener('change', function () {
@@ -99,7 +153,34 @@ document.addEventListener('DOMContentLoaded', function () {
         const targetOption = ofertaSelect.querySelector('option[value="' + ofertaId + '"]');
         if (targetOption) {
             ofertaSelect.value = ofertaId;
+            filterProgramasByOferta(true);
         }
     });
+
+    ofertaSelect.addEventListener('change', function () {
+        filterProgramasByOferta(false);
+    });
+
+    if (toggleAllOffersBtn) {
+        toggleAllOffersBtn.addEventListener('click', function () {
+            showAllOffers = !showAllOffers;
+            filterOffersByState();
+            filterProgramasByOferta(true);
+        });
+    }
+
+    filterOffersByState();
+
+    if (initialProgramaValue) {
+        const initialProgramOption = ofertaProgramaSelect.querySelector('option[value="' + initialProgramaValue + '"]');
+        if (initialProgramOption) {
+            const ofertaId = initialProgramOption.getAttribute('data-oferta-id');
+            if (ofertaId) {
+                ofertaSelect.value = ofertaId;
+            }
+        }
+    }
+
+    filterProgramasByOferta(true);
 });
 </script>
