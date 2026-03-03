@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Application\Statistics\AnalyzeExcelByProgram;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Console\Command;
 
@@ -181,7 +182,8 @@ class TestAnalyzeExcel extends Command
         ];
 
         foreach ($headers as $col => $header) {
-            $sheet->setCellValueByColumnAndRow($col + 1, 8, $header);
+            $cellAddress = Coordinate::stringFromColumnIndex($col + 1) . '8';
+            $sheet->setCellValue($cellAddress, $header);
         }
 
         // Datos (filas 9+)
@@ -201,7 +203,9 @@ class TestAnalyzeExcel extends Command
 
         foreach ($data as $rowIndex => $row) {
             foreach ($row as $colIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $rowIndex + 9, $value);
+                $rowNumber = $rowIndex + 9;
+                $cellAddress = Coordinate::stringFromColumnIndex($colIndex + 1) . $rowNumber;
+                $sheet->setCellValue($cellAddress, $value);
             }
         }
 

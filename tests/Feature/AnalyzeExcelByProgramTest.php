@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Application\Statistics\AnalyzeExcelByProgram;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
 
@@ -53,7 +54,8 @@ class AnalyzeExcelByProgramTest extends TestCase
         ];
 
         foreach ($headers as $col => $header) {
-            $sheet->setCellValueByColumnAndRow($col + 1, 8, $header);
+            $cellAddress = Coordinate::stringFromColumnIndex($col + 1) . '8';
+            $sheet->setCellValue($cellAddress, $header);
         }
 
         // Datos de prueba (filas 9+)
@@ -73,7 +75,9 @@ class AnalyzeExcelByProgramTest extends TestCase
 
         foreach ($data as $rowIndex => $row) {
             foreach ($row as $colIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $rowIndex + 9, $value);
+                $rowNumber = $rowIndex + 9;
+                $cellAddress = Coordinate::stringFromColumnIndex($colIndex + 1) . $rowNumber;
+                $sheet->setCellValue($cellAddress, $value);
             }
         }
 
