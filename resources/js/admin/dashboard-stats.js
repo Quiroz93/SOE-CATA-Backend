@@ -31,9 +31,14 @@ const chartTypeControl = document.getElementById('chartTypeControl');
 const reportTabs = document.querySelectorAll('.stats-tab');
 const statsResultsGeneral = document.getElementById('statsResultsGeneral');
 const statsResultsIndividual = document.getElementById('statsResultsIndividual');
+const statsResultsConsolidador = document.getElementById('statsResultsConsolidador');
 const individualStateChart = document.getElementById('individualStateChart');
 const individualStatesTableBody = document.getElementById('individualStatesTableBody');
 const individualTableBody = document.getElementById('individualTableBody');
+const consolidadorMetadata = document.getElementById('consolidadorMetadata');
+const consolidadorStateChart = document.getElementById('consolidadorStateChart');
+const consolidadorStatesTableBody = document.getElementById('consolidadorStatesTableBody');
+const consolidadorFichasTableBody = document.getElementById('consolidadorFichasTableBody');
 
 // Configuración
 const uploadUrl = '/admin/dashboard/estadisticas/upload';
@@ -96,8 +101,8 @@ function init() {
  * Subir y procesar archivo(s)
  */
 async function uploadFile(file) {
-    // Si es reporte individual y el input permite múltiples, usar lógica de consolidación
-    if (state.activeReportKind === 'individual_ficha' && inputFile.multiple) {
+    // Si es para consolidador o múltiples archivos, usar lógica de consolidación
+    if (state.activeReportKind === 'consolidador') {
         return uploadMultipleFiles([file]);
     }
 
@@ -455,9 +460,9 @@ function setActiveReportKind(reportKind) {
         tab.classList.toggle('active', tab.dataset.reportKind === reportKind);
     });
 
-    if (reportKind === 'individual_ficha') {
-        if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidar Reportes Individuales por Ficha';
-        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar datos de aprendices por ficha. Estructura esperada: Identificación, Nombre, Estado';
+    if (reportKind === 'consolidador') {
+        if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidador de Fichas Excel';
+        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar todos los datos en un único reporte con descargas en Excel y PDF';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         
         // Permitir múltiples archivos
@@ -465,6 +470,16 @@ function setActiveReportKind(reportKind) {
         
         // Mostrar zona de carga múltiple
         updateDropZoneForMultiple();
+    } else if (reportKind === 'individual_ficha') {
+        if (statsLiveTitle) statsLiveTitle.textContent = 'Reporte Individual por Ficha';
+        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga un archivo Excel para obtener estadísticas detalladas de una ficha específica';
+        if (chartTypeControl) chartTypeControl.style.display = 'none';
+        
+        // Un único archivo
+        inputFile.multiple = false;
+        
+        // Restaurar zona de carga simple
+        updateDropZoneForSingle();
     } else {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas en Tiempo Real por COD_FICHA';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
@@ -521,10 +536,12 @@ function resetView() {
 
     if (statsResults) statsResults.style.display = 'none';
     if (statsMetadata) statsMetadata.style.display = 'none';
+    if (consolidadorMetadata) consolidadorMetadata.style.display = 'none';
     if (statusText) showStatus('', '');
 
     if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
     if (statsResultsIndividual) statsResultsIndividual.style.display = 'none';
+    if (statsResultsConsolidador) statsResultsConsolidador.style.display = 'none';
 
     if (programChartContainer) {
         programChartContainer.innerHTML = '';
@@ -534,8 +551,16 @@ function resetView() {
         individualStatesTableBody.innerHTML = '';
     }
 
+    if (consolidadorStatesTableBody) {
+        consolidadorStatesTableBody.innerHTML = '';
+    }
+
     if (individualTableBody) {
         individualTableBody.innerHTML = '';
+    }
+
+    if (consolidadorFichasTableBody) {
+        consolidadorFichasTableBody.innerHTML = '';
     }
 }
 
@@ -631,40 +656,81 @@ function renderIndividualTable(rows) {
  * Renderizar metadatos consolidados (múltiples fichas)
  */
 function renderMetadataConsolidado(data) {
-    if (!statsMetadata || !data.totales) return;
+    // Usar los elementos del consolidador si estamos en esa pestaña
+    const isConsolidadorTab = state.activeReportKind === 'consolidador';
+    
+    const metadataContainer = isConsolidadorTab ? consolidadorMetadata : statsMetadata;
+    
+    if (!metadataContainer || !data.totales) return;
 
-    const metaLabel1 = document.getElementById('metaLabel1');
-    const metaLabel2 = document.getElementById('metaLabel2');
-    const metaLabel3 = document.getElementById('metaLabel3');
-    const metaLabel4 = document.getElementById('metaLabel4');
-    const metaValue1 = document.getElementById('metaValue1');
-    const metaValue2 = document.getElementById('metaValue2');
-    const metaValue3 = document.getElementById('metaValue3');
-    const metaValue4 = document.getElementById('metaValue4');
+    if (isConsolidadorTab) {
+        const metaLabel1 = document.getElementById('consolidadorMetaLabel1');
+        const metaLabel2 = document.getElementById('consolidadorMetaLabel2');
+        const metaLabel3 = document.getElementById('consolidadorMetaLabel3');
+        const metaLabel4 = document.getElementById('consolidadorMetaLabel4');
+        const metaValue1 = document.getElementById('consolidadorMetaValue1');
+        const metaValue2 = document.getElementById('consolidadorMetaValue2');
+        const metaValue3 = document.getElementById('consolidadorMetaValue3');
+        const metaValue4 = document.getElementById('consolidadorMetaValue4');
 
-    if (!metaLabel1 || !metaLabel2 || !metaLabel3 || !metaLabel4 || !metaValue1 || !metaValue2 || !metaValue3 || !metaValue4) {
-        return;
+        if (!metaLabel1 || !metaLabel2 || !metaLabel3 || !metaLabel4 || !metaValue1 || !metaValue2 || !metaValue3 || !metaValue4) {
+            return;
+        }
+
+        metaLabel1.textContent = 'Total Fichas:';
+        metaLabel2.textContent = 'Total Aprendices:';
+        metaLabel3.textContent = 'Estados Detectados:';
+        metaLabel4.textContent = 'Última Carga:';
+
+        metaValue1.textContent = data.totales.fichas || 0;
+        metaValue2.textContent = data.totales.aprendices || 0;
+        metaValue3.textContent = data.totales.estados || 0;
+        metaValue4.textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+        consolidadorMetadata.style.display = 'block';
+    } else {
+        const metaLabel1 = document.getElementById('metaLabel1');
+        const metaLabel2 = document.getElementById('metaLabel2');
+        const metaLabel3 = document.getElementById('metaLabel3');
+        const metaLabel4 = document.getElementById('metaLabel4');
+        const metaValue1 = document.getElementById('metaValue1');
+        const metaValue2 = document.getElementById('metaValue2');
+        const metaValue3 = document.getElementById('metaValue3');
+        const metaValue4 = document.getElementById('metaValue4');
+
+        if (!metaLabel1 || !metaLabel2 || !metaLabel3 || !metaLabel4 || !metaValue1 || !metaValue2 || !metaValue3 || !metaValue4) {
+            return;
+        }
+
+        metaLabel1.textContent = 'Total Fichas:';
+        metaLabel2.textContent = 'Total Aprendices:';
+        metaLabel3.textContent = 'Estados Detectados:';
+        metaLabel4.textContent = 'Última Carga:';
+
+        metaValue1.textContent = data.totales.fichas || 0;
+        metaValue2.textContent = data.totales.aprendices || 0;
+        metaValue3.textContent = data.totales.estados || 0;
+        metaValue4.textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+        statsMetadata.style.display = 'block';
     }
-
-    metaLabel1.textContent = 'Total Fichas:';
-    metaLabel2.textContent = 'Total Aprendices:';
-    metaLabel3.textContent = 'Estados Detectados:';
-    metaLabel4.textContent = 'Última Carga:';
-
-    metaValue1.textContent = data.totales.fichas || 0;
-    metaValue2.textContent = data.totales.aprendices || 0;
-    metaValue3.textContent = data.totales.estados || 0;
-    metaValue4.textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '-';
-
-    statsMetadata.style.display = 'block';
 }
 
 /**
  * Renderizar resultados consolidados (múltiples fichas)
  */
 function renderConsolidatedResults(data) {
-    if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
-    if (statsResultsIndividual) statsResultsIndividual.style.display = 'block';
+    const isConsolidadorTab = state.activeReportKind === 'consolidador';
+    
+    if (isConsolidadorTab) {
+        if (statsResultsConsolidador) statsResultsConsolidador.style.display = 'block';
+        if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
+        if (statsResultsIndividual) statsResultsIndividual.style.display = 'none';
+    } else {
+        if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
+        if (statsResultsIndividual) statsResultsIndividual.style.display = 'block';
+        if (statsResultsConsolidador) statsResultsConsolidador.style.display = 'none';
+    }
 
     statsResults.style.display = 'block';
 
@@ -682,7 +748,10 @@ function renderConsolidatedResults(data) {
  * Renderizar gráfica consolidada de estados
  */
 function renderConsolidatedStatesChart(estadosGlobales) {
-    const ctx = individualStateChart?.getContext('2d');
+    const isConsolidadorTab = state.activeReportKind === 'consolidador';
+    const chartElement = isConsolidadorTab ? consolidadorStateChart : individualStateChart;
+    
+    const ctx = chartElement?.getContext('2d');
     if (!ctx) return;
 
     if (state.individualChart) {
@@ -747,12 +816,15 @@ function renderConsolidatedStatesChart(estadosGlobales) {
  * Renderizar tabla de totales consolidados por estado
  */
 function renderConsolidatedStatesTable(estadosGlobales) {
-    if (!individualStatesTableBody) return;
+    const isConsolidadorTab = state.activeReportKind === 'consolidador';
+    const tableBody = isConsolidadorTab ? consolidadorStatesTableBody : individualStatesTableBody;
+    
+    if (!tableBody) return;
 
     const sortedStates = Object.entries(estadosGlobales)
         .sort((a, b) => Number(b[1]) - Number(a[1]));
 
-    individualStatesTableBody.innerHTML = sortedStates
+    tableBody.innerHTML = sortedStates
         .map(([estado, total]) => `
             <tr>
                 <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
@@ -766,7 +838,10 @@ function renderConsolidatedStatesTable(estadosGlobales) {
  * Renderizar tabla de fichas con detalles - MEJORADA
  */
 function renderFichasTable(fichasData) {
-    if (!individualTableBody) return;
+    const isConsolidadorTab = state.activeReportKind === 'consolidador';
+    const fichasTableBody = isConsolidadorTab ? consolidadorFichasTableBody : individualTableBody;
+    
+    if (!fichasTableBody) return;
 
     // Convertir a array si es necesario y ordenar por código de ficha
     const fichasArray = Array.isArray(fichasData) 
@@ -780,9 +855,9 @@ function renderFichasTable(fichasData) {
     });
 
     if (fichasOrdenadas.length === 0) {
-        individualTableBody.innerHTML = `
+        fichasTableBody.innerHTML = `
             <tr>
-                <td colspan="3" style="text-align: center; padding: 20px; color: #999;">
+                <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
                     No hay datos de fichas disponibles
                 </td>
             </tr>
@@ -803,7 +878,7 @@ function renderFichasTable(fichasData) {
         
         html += `
             <tr style="background: ${bgColor}; border-top: 3px solid #39A900; border-bottom: 2px solid #39A900;">
-                <td colspan="3" style="padding: 15px; font-weight: 700; font-size: 14px;">
+                <td colspan="4" style="padding: 15px; font-weight: 700; font-size: 14px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background: #39A900; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">FICHA #${escapeHtml(codigoFicha)}</span>
                         <span style="color: #333;">📚 ${escapeHtml(programa)}</span>
@@ -813,45 +888,61 @@ function renderFichasTable(fichasData) {
             </tr>
         `;
 
-        // Aprendices de la ficha
-        if (aprendices.length === 0) {
+        // Mostrar información consolidada de la ficha
+        if (isConsolidadorTab && fichaInfo.estados) {
+            // Mostrar estado detallado por ficha en consolidador
+            const estadosInfo = Object.entries(fichaInfo.estados || {})
+                .map(([estado, count]) => `${escapeHtml(String(estado))}: ${count}`)
+                .join(', ');
+            
             html += `
                 <tr style="border-left: 5px solid #39A900; background: #fafafa;">
-                    <td colspan="3" style="padding: 12px; color: #999; font-style: italic;">
-                        Sin registros de aprendices en esta ficha
+                    <td colspan="4" style="padding: 12px; color: #555; font-size: 13px;">
+                        <strong>Estados:</strong> ${estadosInfo}
                     </td>
                 </tr>
             `;
         } else {
-            aprendices.forEach((aprendiz, index) => {
-                const isLastInFicha = index === aprendices.length - 1;
-                const borderBottom = isLastInFicha ? '2px solid #39A900' : '1px solid #e0e0e0';
-                
+            // Aprendices detallados en individual_ficha
+            if (aprendices.length === 0) {
                 html += `
-                    <tr style="border-left: 5px solid #39A900; border-bottom: ${borderBottom}; background: ${bgColor};">
-                        <td style="font-weight: 600; padding: 12px 12px 12px 30px; color: #1b5e20;">
-                            ${escapeHtml(String(aprendiz.identificacion || ''))}
-                        </td>
-                        <td style="padding: 12px; color: #333;">
-                            ${escapeHtml(String(aprendiz.nombre || ''))}
-                        </td>
-                        <td style="padding: 12px; text-align: center;">
-                            <span style="display: inline-block; padding: 4px 10px; border-radius: 12px; background: #e3f2fd; color: #0d47a1; font-size: 12px; font-weight: 500;">
-                                ${escapeHtml(String(aprendiz.estado || 'Sin estado'))}
-                            </span>
+                    <tr style="border-left: 5px solid #39A900; background: #fafafa;">
+                        <td colspan="4" style="padding: 12px; color: #999; font-style: italic;">
+                            Sin registros de aprendices en esta ficha
                         </td>
                     </tr>
                 `;
-            });
+            } else {
+                aprendices.forEach((aprendiz, index) => {
+                    const isLastInFicha = index === aprendices.length - 1;
+                    const borderBottom = isLastInFicha ? '2px solid #39A900' : '1px solid #e0e0e0';
+                    
+                    html += `
+                        <tr style="border-left: 5px solid #39A900; border-bottom: ${borderBottom}; background: ${bgColor};">
+                            <td style="font-weight: 600; padding: 12px 12px 12px 30px; color: #1b5e20;">
+                                ${escapeHtml(String(aprendiz.identificacion || ''))}
+                            </td>
+                            <td style="padding: 12px; color: #333;">
+                                ${escapeHtml(String(aprendiz.nombre || ''))}
+                            </td>
+                            <td colspan="2" style="padding: 12px; text-align: center;">
+                                <span style="display: inline-block; padding: 4px 10px; border-radius: 12px; background: #e3f2fd; color: #0d47a1; font-size: 12px; font-weight: 500;">
+                                    ${escapeHtml(String(aprendiz.estado || 'Sin estado'))}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
         // Espaciador entre fichas
         if (fichaIndex < fichasOrdenadas.length - 1) {
-            html += `<tr style="height: 8px; background: #fafafa;"><td colspan="3"></td></tr>`;
+            html += `<tr style="height: 8px; background: #fafafa;"><td colspan="4"></td></tr>`;
         }
     });
 
-    individualTableBody.innerHTML = html;
+    fichasTableBody.innerHTML = html;
 }
 
 /**

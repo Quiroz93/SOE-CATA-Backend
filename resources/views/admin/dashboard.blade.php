@@ -67,6 +67,9 @@
                 <button type="button" class="stats-tab" data-report-kind="individual_ficha">
                     REPORTE_DE_INSCRIPCIONES INDIVIDUAL POR FICHA
                 </button>
+                <button type="button" class="stats-tab" data-report-kind="consolidador">
+                    CONSOLIDADOR DE FICHAS EXCEL
+                </button>
             </div>
 
             <div class="stats-live-header">
@@ -195,6 +198,66 @@
                                     </tr>
                                 </thead>
                                 <tbody id="individualTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="statsResultsConsolidador" style="display: none;">
+                    <div class="stats-metadata" id="consolidadorMetadata" style="display: none;">
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <span class="metadata-label" id="consolidadorMetaLabel1">Total Fichas:</span>
+                                <span class="metadata-value" id="consolidadorMetaValue1">0</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label" id="consolidadorMetaLabel2">Total Aprendices:</span>
+                                <span class="metadata-value" id="consolidadorMetaValue2">0</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label" id="consolidadorMetaLabel3">Total Cupos:</span>
+                                <span class="metadata-value" id="consolidadorMetaValue3">0</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label" id="consolidadorMetaLabel4">Ocupación Promedio:</span>
+                                <span class="metadata-value" id="consolidadorMetaValue4">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-results-grid">
+                        <div class="stats-chart-container">
+                            <canvas id="consolidadorStateChart"></canvas>
+                        </div>
+                        <div class="stats-table-container">
+                            <h4 class="stats-table-title">Totales por Estado</h4>
+                            <div class="stats-table-wrapper">
+                                <table class="stats-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Estado</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="consolidadorStatesTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-comparison">
+                        <h4 class="stats-comparison-title">Detalle de Fichas Consolidadas</h4>
+                        <div class="stats-comparison-wrapper">
+                            <table class="stats-comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ficha</th>
+                                        <th>Programa</th>
+                                        <th>Inscritos</th>
+                                        <th>Estado Detallado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="consolidadorFichasTableBody"></tbody>
                             </table>
                         </div>
                     </div>
