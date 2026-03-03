@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/css/reportes.css',
                 'resources/js/app.js',
                 'resources/js/admin/dashboard.js',
+                'resources/js/admin/dashboard-stats.js',
                 'resources/js/admin/reportes.js'
             ],
             refresh: true,

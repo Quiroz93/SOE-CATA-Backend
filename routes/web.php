@@ -27,7 +27,6 @@ Route::middleware('auth')->group(function () {
 	Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
 });
 
-require __DIR__.'/api_v1_public.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/auth.php';
 

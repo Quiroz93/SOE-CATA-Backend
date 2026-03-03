@@ -40,6 +40,9 @@ class Programa extends Model
         'estado',
         'modalidad',
         'municipio',
+        'duracion',
+        'imagen_portada',
+        'nivel_formacion_id',
     ];
 
     protected $casts = [
@@ -52,6 +55,11 @@ class Programa extends Model
     public function ofertaProgramas()
     {
         return $this->hasMany(OfertaPrograma::class);
+    }
+
+    public function nivelFormacion()
+    {
+        return $this->belongsTo(NivelFormacion::class, 'nivel_formacion_id');
     }
         // Relaciones académicas
         public function detalle()

@@ -25,6 +25,7 @@ class ProgramaResource extends JsonResource
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
             'nivel' => $this->nivel,
+            'municipio' => $this->municipio,
             'estado' => $this->estado,
         ];
     }

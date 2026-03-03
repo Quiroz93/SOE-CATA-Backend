@@ -14,6 +14,11 @@ return new class extends Migration {
             $table->string('ficha')->unique();
             $table->string('nivel');
             $table->text('descripcion')->nullable();
+            $table->string('modalidad')->nullable();
+            $table->string('municipio')->nullable();
+            $table->string('duracion')->nullable();
+            $table->string('imagen_portada')->nullable();
+            $table->foreignId('nivel_formacion_id')->nullable()->constrained('niveles_formacion')->nullOnDelete();
             $table->enum('estado', ['borrador', 'publicado', 'archivado', 'cancelado'])->default('borrador');
             $table->timestamps();
             $table->softDeletes();

@@ -20,7 +20,8 @@ class PreinscritoFactory extends Factory
         return [
             'oferta_id' => \App\Models\Oferta::factory(),
             'oferta_programa_id' => \App\Models\OfertaPrograma::factory(),
-            'nombre' => $this->faker->name(),
+            'nombres' => $this->faker->firstName(),
+            'apellidos' => $this->faker->lastName(),
             'tipo_documento' => $this->faker->randomElement(['CC', 'TI', 'CE', 'PAS', 'PPT']),
             'documento' => $this->faker->unique()->numerify('########'),
             'correo' => $this->faker->unique()->safeEmail(),

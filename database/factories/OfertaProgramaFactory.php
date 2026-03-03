@@ -14,7 +14,7 @@ class OfertaProgramaFactory extends Factory
      */
     public function activo(): static
     {
-        return $this->state(fn () => ['estado' => 'activo']);
+        return $this->state(fn () => ['estado' => true]);
     }
 
     /**
@@ -22,7 +22,7 @@ class OfertaProgramaFactory extends Factory
      */
     public function inactivo(): static
     {
-        return $this->state(fn () => ['estado' => 'inactivo']);
+        return $this->state(fn () => ['estado' => false]);
     }
 
     /**
@@ -38,9 +38,7 @@ class OfertaProgramaFactory extends Factory
             'instructor_id' => \App\Models\Instructor::factory(),
             'centro_id' => \App\Models\Centro::factory(),
             'cupos' => $this->faker->numberBetween(1, 50),
-            'estado' => $this->faker->randomElement(['activo', 'inactivo']),
-            'fecha_inicio' => $this->faker->date(),
-            'fecha_fin' => $this->faker->date(),
+            'estado' => $this->faker->boolean(),
             'modalidad' => $this->faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
             'version' => 1,
         ];

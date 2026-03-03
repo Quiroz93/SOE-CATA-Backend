@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\WelcomeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardStatsController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\NoticiaController;
 use App\Http\Controllers\Admin\InstructorController;
@@ -22,6 +23,7 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
     ->group(function () {
         Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/dashboard/estadisticas/upload', [DashboardStatsController::class, 'upload'])->name('dashboard.stats.upload');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);

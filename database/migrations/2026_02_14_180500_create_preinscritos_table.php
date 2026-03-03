@@ -13,6 +13,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('oferta_id');
             $table->unsignedBigInteger('oferta_programa_id');
+            $table->unsignedBigInteger('programa_id')->nullable();
             $table->string('nombres');
             $table->string('apellidos');
             $table->string('tipo_documento', 10);
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('oferta_id')->references('id')->on('ofertas')->onDelete('cascade');
             $table->foreign('oferta_programa_id')->references('id')->on('oferta_programa')->onDelete('cascade');
+            $table->foreign('programa_id')->references('id')->on('programas')->nullOnDelete();
         });
     }
 
