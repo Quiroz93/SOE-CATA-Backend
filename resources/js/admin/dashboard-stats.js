@@ -112,8 +112,8 @@ function init() {
  * Subir y procesar archivo(s)
  */
 async function uploadFile(file) {
-    // Si es para consolidador o múltiples archivos, usar lógica de consolidación
-    if (state.activeReportKind === 'consolidador') {
+    // Si es para consolidador o individual_ficha, usar lógica de múltiples archivos
+    if (state.activeReportKind === 'consolidador' || state.activeReportKind === 'individual_ficha') {
         return uploadMultipleFiles([file]);
     }
 
@@ -230,6 +230,11 @@ function updateFilesList() {
     }
 
     filesList.style.display = 'block';
+    
+    const buttonText = state.activeReportKind === 'consolidador' 
+        ? `✓ Consolidar ${state.uploadedFiles.length} archivo(s)`
+        : `✓ Procesar ${state.uploadedFiles.length} archivo(s)`;
+    
     filesList.innerHTML = `
         <div style="margin-bottom: 15px;">
             <strong>Archivos cargados (${state.uploadedFiles.length}):</strong>
@@ -244,7 +249,7 @@ function updateFilesList() {
         </div>
         <div style="display: flex; gap: 10px;">
             <button id="consolidateBtn" type="button" style="flex: 1; padding: 10px; background: #39A900; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                ✓ Consolidar ${state.uploadedFiles.length} archivo(s)
+                ${buttonText}
             </button>
             <button id="clearFilesBtn" type="button" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
                 Limpiar todo
@@ -274,11 +279,12 @@ function updateFilesList() {
  */
 async function consolidateFiles() {
     if (state.uploadedFiles.length === 0) {
-        showStatus('Error: No hay archivos cargados para consolidar', 'error');
+        showStatus('Error: No hay archivos cargados para procesar', 'error');
         return;
     }
 
-    showStatus('Consolidando archivos...', 'loading');
+    const isConsolidador = state.activeReportKind === 'consolidador';
+    showStatus(isConsolidador ? 'Consolidando archivos...' : 'Procesando archivos...', 'loading');
     statsResults.style.display = 'none';
 
     const formData = new FormData();
@@ -288,7 +294,8 @@ async function consolidateFiles() {
         formData.append('files[]', file);
     });
     
-    formData.append('report_kind', 'individual_ficha_consolidado');
+    // Usar report_kind específico según pestaña
+    formData.append('report_kind', isConsolidador ? 'individual_ficha_consolidado' : 'individual_ficha_consolidado');
 
     try {
         const response = await fetch(uploadUrl, {
@@ -303,25 +310,31 @@ async function consolidateFiles() {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Error al consolidar archivos');
+            throw new Error(data.message || 'Error al procesar archivos');
         }
 
         state.currentData = data;
         
-        const successMessage = `Consolidación exitosa: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
-        showStatus(successMessage, 'success');
+        if (isConsolidador) {
+            const successMessage = `Consolidación exitosa: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
+            showStatus(successMessage, 'success');
+            renderMetadataConsolidado(data);
+            renderConsolidatedResults(data);
+            renderDownloadButtons();
+        } else {
+            const successMessage = `Procesamiento exitoso: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
+            showStatus(successMessage, 'success');
+            renderMetadataConsolidado(data);
+            renderConsolidatedResults(data);
+        }
         
-        renderMetadataConsolidado(data);
-        renderConsolidatedResults(data);
-        renderDownloadButtons();
-        
-        // Limpiar archivos después de consolidar exitosamente
+        // Limpiar archivos después de procesar exitosamente
         state.uploadedFiles = [];
         updateFilesList();
 
     } catch (error) {
         showStatus(`Error: ${error.message}`, 'error');
-        console.error('Error al consolidar archivos:', error);
+        console.error('Error al procesar archivos:', error);
     }
 }
 
@@ -484,15 +497,15 @@ function setActiveReportKind(reportKind) {
         updateDropZoneForMultiple();
     } else if (reportKind === 'individual_ficha') {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Reporte Individual por Ficha';
-        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga un archivo Excel para obtener estadísticas detalladas de una ficha específica';
+        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga uno o múltiples archivos Excel para obtener estadísticas detalladas. Consolida aprendices de diferentes fichas.';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'block';
         
-        // Un único archivo
-        inputFile.multiple = false;
+        // Permitir múltiples archivos
+        inputFile.multiple = true;
         
-        // Restaurar zona de carga simple
-        updateDropZoneForSingle();
+        // Mostrar zona de carga múltiple
+        updateDropZoneForMultiple();
     } else {
         if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas en Tiempo Real por COD_FICHA';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
