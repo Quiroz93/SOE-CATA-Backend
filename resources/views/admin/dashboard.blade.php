@@ -4,6 +4,17 @@
 
 @section('content')
 <div class="admin-page">
+    <!-- Botón Manual de Usuario (Discreto) -->
+    <button id="userManualBtn" class="user-manual-btn" title="Manual de Usuario">
+        <svg class="manual-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M8 7h8"></path>
+            <path d="M8 11h8"></path>
+            <path d="M8 15h4"></path>
+        </svg>
+    </button>
+
     <div class="admin-header">
         <h1 class="admin-header__title">Dashboard Administrativo</h1>
     </div>
@@ -233,26 +244,415 @@
         </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="dashboard-activity">
-        <div class="activity-card">
-            <h3 class="activity-title">Actividad Reciente</h3>
-            <ul class="activity-list">
-                @foreach($actividades as $actividad)
-                    <li class="activity-item">
-                        <span class="activity-dot"></span>
-                        <span class="activity-text">{{ $actividad }}</span>
-                    </li>
-                @endforeach
-            </ul>
+    <!-- Modal Manual de Usuario -->
+    <div id="userManualModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📖 Manual de Usuario - Sistema de Reportes</h2>
+                <button class="modal-close-btn" id="closeManualBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Manual Content with Accordion -->
+                <div class="manual-section">
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="1">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">1. Descripción General del Sistema</span>
+                        </button>
+                        <div class="manual-item-content" id="section-1" style="display: none;">
+                            <p>El sistema de reportes permite cargar y analizar archivos Excel con datos de inscritos en programas de formación. Dispone de tres módulos principales:</p>
+                            <ul>
+                                <li><strong>Reporte General:</strong> Análisis comparativo de cupos vs inscritos por ficha</li>
+                                <li><strong>Reporte Individual por Ficha:</strong> Estadísticas detalladas de aprendices por ficha</li>
+                                <li><strong>Consolidador de Fichas:</strong> Unificación de múltiples archivos con descargas Excel/PDF</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="2">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">2. Reporte General de Inscripciones</span>
+                        </button>
+                        <div class="manual-item-content" id="section-2" style="display: none;">
+                            <p><strong>Funcionalidad:</strong> Carga un archivo Excel con datos generales de fichas y obtén análisis detallados.</p>
+                            <h4>Pasos:</h4>
+                            <ol>
+                                <li>Selecciona la pestaña "Reporte General"</li>
+                                <li>Arrastra un archivo Excel o haz clic para seleccionar</li>
+                                <li>El sistema procesará automáticamente los datos</li>
+                                <li>Visualiza gráficas de barras, líneas o circulares</li>
+                                <li>Cambia el tipo de gráfica con el selector desplegable</li>
+                            </ol>
+                            <p><strong>Archivo requerido:</strong> Excel con columnas: COD_FICHA, PROGRAMA, CUPO, INSCRITOS_1, INSCRITOS_2</p>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="3">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">3. Reporte Individual por Ficha</span>
+                        </button>
+                        <div class="manual-item-content" id="section-3" style="display: none;">
+                            <p><strong>Funcionalidad:</strong> Carga uno o múltiples archivos para consolidar aprendices y ver estadísticas detalladas.</p>
+                            <h4>Características:</h4>
+                            <ul>
+                                <li>Permite carga de múltiples archivos simultáneamente</li>
+                                <li>Consolida datos de diferentes fichas</li>
+                                <li>Selector de gráficas: Barras, Líneas, Donut, Circular</li>
+                                <li>Visualiza tabla de totales por estado</li>
+                                <li>Detalle completo de aprendices con sus estados</li>
+                            </ul>
+                            <p><strong>Archivo requerido:</strong> Excel con columnas: IDENTIFICACIÓN, NOMBRE, ESTADO</p>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="4">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">4. Consolidador de Fichas Excel</span>
+                        </button>
+                        <div class="manual-item-content" id="section-4" style="display: none;">
+                            <p><strong>Funcionalidad:</strong> Módulo exclusivo para unir múltiples archivos y generar reportes descargables.</p>
+                            <h4>Pasos:</h4>
+                            <ol>
+                                <li>Selecciona la pestaña "Consolidador de Fichas Excel"</li>
+                                <li>Carga múltiples archivos Excel</li>
+                                <li>Haz clic en "Consolidar archivos"</li>
+                                <li>Revisa los resultados: tabla de estados + listado de fichas</li>
+                                <li>Descarga en Excel o PDF usando los botones de descargas</li>
+                            </ol>
+                            <p><strong>Salida:</strong> Archivo con consolidación de todas las fichas, metadata completa y distribución de estados.</p>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="5">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">5. Gestión de Archivos</span>
+                        </button>
+                        <div class="manual-item-content" id="section-5" style="display: none;">
+                            <h4>Cargar Archivos:</h4>
+                            <ul>
+                                <li><strong>Opción 1:</strong> Arrastra el archivo directamente a la zona de carga</li>
+                                <li><strong>Opción 2:</strong> Haz clic en la zona para abrir el selector de archivos</li>
+                                <li><strong>Límite:</strong> 10MB por archivo, formatos .xls y .xlsx</li>
+                            </ul>
+                            <h4>Manejo de Múltiples Archivos:</h4>
+                            <ul>
+                                <li>Se muestra lista de archivos cargados</li>
+                                <li>Puedes remover archivos individuales con el botón "Remover"</li>
+                                <li>Opción "Limpiar todo" elimina todos los archivos</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="6">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">6. Visualización de Gráficas</span>
+                        </button>
+                        <div class="manual-item-content" id="section-6" style="display: none;">
+                            <h4>Tipos de Gráficas Disponibles:</h4>
+                            <ul>
+                                <li><strong>Barras (📊):</strong> Comparación de valores con ejes X-Y</li>
+                                <li><strong>Líneas (📈):</strong> Tendencia de datos conectados</li>
+                                <li><strong>Donut (🍩):</strong> Proporción circular con agujero central</li>
+                                <li><strong>Circular (🥧):</strong> Pastel tradicional sin agujero</li>
+                            </ul>
+                            <p><strong>Interacción:</strong> Pasa el mouse sobre la gráfica para ver valores detallados.</p>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="7">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">7. Descargas y Exportación</span>
+                        </button>
+                        <div class="manual-item-content" id="section-7" style="display: none;">
+                            <h4>Módulo: Consolidador de Fichas</h4>
+                            <p>Después de consolidar archivos, están disponibles dos opciones de descarga:</p>
+                            <ul>
+                                <li><strong>Excel (📊):</strong> Descarga un archivo .xlsx con:
+                                    <ul>
+                                        <li>Metadata del consolidado</li>
+                                        <li>Tabla de estados globales</li>
+                                        <li>Detalle de cada ficha</li>
+                                        <li>Estilos y formatos profesionales</li>
+                                    </ul>
+                                </li>
+                                <li><strong>PDF (📄):</strong> Documento PDF imprimible con:
+                                    <ul>
+                                        <li>Encabezado institucional</li>
+                                        <li>Tablas formateadas</li>
+                                        <li>Listo para presentaciones</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="manual-item">
+                        <button class="manual-item-header" data-section="8">
+                            <span class="manual-item-icon">▶</span>
+                            <span class="manual-item-title">8. Solución de Problemas</span>
+                        </button>
+                        <div class="manual-item-content" id="section-8" style="display: none;">
+                            <h4>Errores Comunes:</h4>
+                            <ul>
+                                <li><strong>"El archivo debe ser formato Excel":</strong> Verifica que sea .xls o .xlsx</li>
+                                <li><strong>"El archivo pesa más de 10MB":</strong> Divide el archivo en partes más pequeñas</li>
+                                <li><strong>"Columna no encontrada":</strong> Asegúrate de que el Excel tiene las columnas requeridas</li>
+                                <li><strong>"Error al procesar":</strong> Recarga la página e intenta nuevamente</li>
+                            </ul>
+                            <h4>Contacto:</h4>
+                            <p>Para soporte técnico adicional, contacta al administrador del sistema.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 
 @endsection
 
 @section('styles')
 <style>
+/* Botón Manual de Usuario */
+.user-manual-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #39A900 0%, #2d8400 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 998;
+}
+
+.user-manual-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(57, 169, 0, 0.4);
+}
+
+.user-manual-btn:active {
+    transform: scale(0.95);
+}
+
+.manual-icon {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 40px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    color: #333;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+/* Manual Sections */
+.manual-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.manual-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.manual-item:hover {
+    border-color: #39A900;
+    box-shadow: 0 2px 8px rgba(57, 169, 0, 0.1);
+}
+
+.manual-item-header {
+    width: 100%;
+    padding: 16px;
+    background: white;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.manual-item-header:hover {
+    background: #f8f9fa;
+    color: #39A900;
+}
+
+.manual-item-header.expanded {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f8f9fa 100%);
+    color: #2d8400;
+    border-bottom: 2px solid #39A900;
+}
+
+.manual-item-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 12px;
+    color: #39A900;
+}
+
+.manual-item-header.expanded .manual-item-icon {
+    transform: rotate(90deg);
+}
+
+.manual-item-title {
+    flex: 1;
+}
+
+.manual-item-content {
+    padding: 16px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    animation: slideOpen 0.3s ease;
+}
+
+@keyframes slideOpen {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+.manual-item-content p {
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+    color: #555;
+}
+
+.manual-item-content h4 {
+    margin: 16px 0 8px 0;
+    color: #39A900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.manual-item-content ul,
+.manual-item-content ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+
+.manual-item-content li {
+    margin: 6px 0;
+    line-height: 1.5;
+    color: #555;
+}
+
+.manual-item-content strong {
+    color: #2d8400;
+}
+
 /* Encabezado Institucional */
 .institutional-header {
     background: linear-gradient(135deg, #39A900 0%, #2d8400 100%);
@@ -754,4 +1154,69 @@
 
 @section('scripts')
 @vite(['resources/js/admin/dashboard-stats.js'])
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userManualBtn = document.getElementById('userManualBtn');
+    const userManualModal = document.getElementById('userManualModal');
+    const closeManualBtn = document.getElementById('closeManualBtn');
+    const manualItemHeaders = document.querySelectorAll('.manual-item-header');
+
+    // Abrir modal
+    userManualBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        userManualModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Cerrar modal con botón close
+    closeManualBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        userManualModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    });
+
+    // Cerrar modal al hacer click en overlay
+    userManualModal.addEventListener('click', function(e) {
+        if (e.target === userManualModal) {
+            userManualModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Expandir/contraer secciones acordeón
+    manualItemHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const isExpanded = this.classList.contains('expanded');
+            const contentId = this.getAttribute('data-section');
+            const content = document.getElementById('section-' + contentId);
+
+            if (isExpanded) {
+                // Contraer
+                this.classList.remove('expanded');
+                content.style.display = 'none';
+            } else {
+                // Expandir
+                this.classList.add('expanded');
+                content.style.display = 'block';
+                
+                // Scroll suave a la sección
+                setTimeout(() => {
+                    content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        });
+    });
+
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && userManualModal.classList.contains('active')) {
+            userManualModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
+</script>
 @endsection
