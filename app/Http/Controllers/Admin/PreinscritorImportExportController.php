@@ -9,6 +9,7 @@ use App\Models\Preinscrito;
 use App\Models\OfertaPrograma;
 use App\Models\Programa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -404,7 +405,8 @@ class PreinscritorImportExportController extends Controller
             
             $rows = $sheet->toArray();
             $imported = 0;
-            $errors = [];
+            $failed = 0;
+            $resultadosPorFila = [];
             $estadoPorDefecto = EstadoPreinscrito::tryFromInput('pendiente')?->value
                 ?? (EstadoPreinscrito::values()[0] ?? '');
 
@@ -433,6 +435,15 @@ class PreinscritorImportExportController extends Controller
             $ofertaProgramaPorFicha = $ofertasProgramaDeOferta
                 ->filter(static fn (OfertaPrograma $registro): bool => !empty($registro->programa?->ficha))
                 ->keyBy(static fn (OfertaPrograma $registro): string => $normalizarFicha((string) $registro->programa->ficha));
+
+            $registrarResultado = static function (array &$resultadosPorFila, int $excelRow, array $baseData, bool $success, string $message): void {
+                $resultadosPorFila[] = [
+                    'excel_row' => $excelRow,
+                    'data' => $baseData,
+                    'success' => $success,
+                    'message' => $message,
+                ];
+            };
             
             // Saltar encabezados (primeras 4 filas son encabezado)
             for ($i = 5; $i < count($rows); $i++) {
@@ -451,48 +462,131 @@ class PreinscritorImportExportController extends Controller
                 $programaNombre = trim($row[5] ?? '');
                 $numeroFicha = trim((string) ($row[6] ?? ''));
                 $estado = trim((string) ($row[7] ?? $estadoPorDefecto));
+
+                $baseData = [
+                    'nombre' => $nombre,
+                    'apellido' => $apellido,
+                    'tipo_documento' => $tipoDocumento,
+                    'documento' => $documento,
+                    'correo' => $correo,
+                    'programa' => $programaNombre,
+                    'numero_ficha' => $numeroFicha,
+                    'estado' => $estado,
+                ];
                 
                 // Validaciones básicas
                 if (!$nombre || !$apellido || !$tipoDocumento || !$documento || !$correo) {
-                    $errors[] = "Fila " . ($i + 1) . ": Datos incompletos. Nombres, Apellidos, Tipo Documento, Documento y Correo son obligatorios. Numero Ficha se genera automaticamente.";
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        'Fallo: Datos incompletos. Nombres, Apellidos, Tipo Documento, Documento y Correo son obligatorios.'
+                    );
                     continue;
                 }
                 
                 // Validar tipo de documento
                 $tiposValidos = ['CC', 'TI', 'CE', 'PAS', 'PPT'];
                 if (!in_array($tipoDocumento, $tiposValidos)) {
-                    $errors[] = "Fila " . ($i + 1) . ": Tipo de documento inválido ($tipoDocumento). Use: CC, TI, CE, PAS o PPT";
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        "Fallo: Tipo de documento inválido ($tipoDocumento). Use: CC, TI, CE, PAS o PPT."
+                    );
                     continue;
                 }
                 
                 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-                    $errors[] = "Fila " . ($i + 1) . ": Correo inválido ($correo)";
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        "Fallo: Correo inválido ($correo)."
+                    );
                     continue;
                 }
 
                 if ($numeroFicha === '') {
-                    $errors[] = "Fila " . ($i + 1) . ": Número Ficha es obligatorio para relacionar el programa dentro de la oferta seleccionada.";
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        'Fallo: Número Ficha es obligatorio para relacionar el programa dentro de la oferta seleccionada.'
+                    );
                     continue;
                 }
 
                 $ofertaProgramaDestino = $ofertaProgramaPorFicha->get($normalizarFicha($numeroFicha));
 
                 if (!$ofertaProgramaDestino) {
-                    $errors[] = "Fila " . ($i + 1) . ": No existe relación oferta-programa para la ficha ($numeroFicha) en la oferta seleccionada.";
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        "Fallo: No existe relación oferta-programa para la ficha ($numeroFicha) en la oferta seleccionada."
+                    );
                     continue;
                 }
                 
                 // Validar estado
                 $estadoEnum = EstadoPreinscrito::tryFromInput($estado);
+                if (!$estadoEnum && $estado !== '') {
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        "Fallo: Estado inválido ($estado)."
+                    );
+                    continue;
+                }
+
                 $estado = $estadoEnum?->value ?? $estadoPorDefecto;
+                $baseData['estado'] = $estado;
                 
-                // Verificar si ya existe
-                $existe = Preinscrito::where('documento', $documento)
-                    ->where('correo', $correo)
+                // Verificar si ya existe en el mismo programa/oferta
+                $existeMismoPrograma = Preinscrito::where('documento', $documento)
+                    ->where('oferta_programa_id', $ofertaProgramaDestino->id)
                     ->exists();
-                
-                if ($existe) {
-                    $errors[] = "Fila " . ($i + 1) . ": Preinscrito con este documento y correo ya existe";
+
+                if ($existeMismoPrograma) {
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        'Fallo: El preinscrito ya se encuentra dentro del mismo programa en la base de datos.'
+                    );
+                    continue;
+                }
+
+                // Verificar si existe en otro programa
+                $existeOtroPrograma = Preinscrito::where('documento', $documento)
+                    ->where('oferta_programa_id', '!=', $ofertaProgramaDestino->id)
+                    ->first();
+
+                if ($existeOtroPrograma) {
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        'Fallo: El preinscrito ya está registrado en la base de datos, pero en un programa distinto al señalado en la importación.'
+                    );
                     continue;
                 }
                 
@@ -509,20 +603,163 @@ class PreinscritorImportExportController extends Controller
                         'estado' => $estado,
                     ]);
                     $imported++;
+
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        true,
+                        'Éxito: Preinscrito importado correctamente.'
+                    );
                 } catch (\Exception $e) {
-                    $errors[] = "Fila " . ($i + 1) . ": Error al guardar - " . $e->getMessage();
+                    $failed++;
+                    $registrarResultado(
+                        $resultadosPorFila,
+                        $i + 1,
+                        $baseData,
+                        false,
+                        'Fallo: Error al guardar - ' . $e->getMessage()
+                    );
                 }
             }
-            
-            $message = "Se importaron $imported preinscritos correctamente.";
-            if (!empty($errors)) {
-                $message .= " Se encontraron " . count($errors) . " errores.";
+
+            $auditSpreadsheet = new Spreadsheet();
+            $auditSheet = $auditSpreadsheet->getActiveSheet();
+
+            $auditSheet->getColumnDimension('A')->setWidth(20);
+            $auditSheet->getColumnDimension('B')->setWidth(20);
+            $auditSheet->getColumnDimension('C')->setWidth(15);
+            $auditSheet->getColumnDimension('D')->setWidth(15);
+            $auditSheet->getColumnDimension('E')->setWidth(30);
+            $auditSheet->getColumnDimension('F')->setWidth(30);
+            $auditSheet->getColumnDimension('G')->setWidth(15);
+            $auditSheet->getColumnDimension('H')->setWidth(18);
+            $auditSheet->getColumnDimension('I')->setWidth(65);
+            $auditSheet->getColumnDimension('J')->setWidth(40);
+
+            $logoPath = public_path('logo-sena.png');
+            if (file_exists($logoPath)) {
+                $drawing = new Drawing();
+                $drawing->setName('Logo SENA');
+                $drawing->setDescription('Logo del SENA');
+                $drawing->setPath($logoPath);
+                $drawing->setCoordinates('A1');
+                $drawing->setHeight(50);
+                $drawing->setOffsetX(5);
+                $drawing->setOffsetY(5);
+                $drawing->setWorksheet($auditSheet);
             }
-            
-            return redirect()
-                ->route('admin.preinscritos.index')
-                ->with('success', $message)
-                ->with('errors', $errors);
+
+            $auditSheet->mergeCells('B1:I1');
+            $headerCell = $auditSheet->getCell('B1');
+            $headerCell->setValue('CENTRO AGROEMPRESARIAL Y TURÍSTICO DE LOS ANDES - SENA');
+            $headerCell->getStyle()->getFont()->setSize(14)->setBold(true)->setColor(new Color('FFFFFF'));
+            $headerCell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('39A900');
+            $headerCell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+            $auditSheet->getRowDimension('1')->setRowHeight(30);
+
+            $auditSheet->mergeCells('A2:I2');
+            $subtitleCell = $auditSheet->getCell('A2');
+            $subtitleCell->setValue('RESULTADO DE IMPORTACIÓN DE PREINSCRITOS - Oferta: ' . ($ofertaDestino->nombre ?? ('#' . $ofertaDestino->id)) . ' - ' . now()->format('d/m/Y H:i'));
+            $subtitleCell->getStyle()->getFont()->setSize(10)->setBold(true)->setColor(new Color('00304D'));
+            $subtitleCell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+            $subtitleCell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E8F5E9');
+            $auditSheet->getRowDimension('2')->setRowHeight(22);
+
+            $auditSheet->mergeCells('A3:I3');
+            $summaryCell = $auditSheet->getCell('A3');
+            $summaryCell->setValue("Resumen: $imported exitosos / $failed fallidos / " . count($resultadosPorFila) . ' procesados');
+            $summaryCell->getStyle()->getFont()->setSize(10)->setBold(true)->setColor(new Color('00304D'));
+            $summaryCell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
+            $summaryCell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F2F7F2');
+            $auditSheet->getRowDimension('3')->setRowHeight(20);
+
+            $headers = ['Nombres', 'Apellidos', 'Tipo Documento', 'Documento', 'Correo Electrónico', 'Programa', 'Número Ficha', 'Estado', 'Resultado Importación'];
+            for ($i = 0; $i < count($headers); $i++) {
+                $column = chr(65 + $i);
+                $cell = $auditSheet->getCell($column . '4');
+                $cell->setValue($headers[$i]);
+
+                $cell->getStyle()->getFont()->setBold(true)->setSize(11)->setColor(new Color('FFFFFF'));
+                $cell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('00304D');
+                $cell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+                $cell->getStyle()->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->setColor(new Color('E0E0E0'));
+            }
+            $auditSheet->getRowDimension('4')->setRowHeight(24);
+
+            $rowAudit = 5;
+            foreach ($resultadosPorFila as $resultado) {
+                $data = $resultado['data'];
+
+                $auditSheet->setCellValue('A' . $rowAudit, $data['nombre']);
+                $auditSheet->setCellValue('B' . $rowAudit, $data['apellido']);
+                $auditSheet->setCellValue('C' . $rowAudit, $data['tipo_documento']);
+                $auditSheet->setCellValue('D' . $rowAudit, $data['documento']);
+                $auditSheet->setCellValue('E' . $rowAudit, $data['correo']);
+                $auditSheet->setCellValue('F' . $rowAudit, $data['programa']);
+                $auditSheet->setCellValue('G' . $rowAudit, $data['numero_ficha']);
+                $auditSheet->setCellValue('H' . $rowAudit, $data['estado']);
+                $auditSheet->setCellValue('I' . $rowAudit, $resultado['message']);
+
+                for ($col = 'A'; $col <= 'I'; $col++) {
+                    $cell = $auditSheet->getCell($col . $rowAudit);
+                    $cell->getStyle()->getFont()->setSize(10)->setColor(new Color('333333'));
+                    $cell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+                    $cell->getStyle()->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->setColor(new Color('E0E0E0'));
+                }
+
+                if ($resultado['success']) {
+                    $auditSheet->getStyle('I' . $rowAudit)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setRGB('C6EFCE');
+                    $auditSheet->getStyle('I' . $rowAudit)->getFont()->setColor(new Color('006100'))->setBold(true);
+                } else {
+                    $auditSheet->getStyle('I' . $rowAudit)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setRGB('FFC7CE');
+                    $auditSheet->getStyle('I' . $rowAudit)->getFont()->setColor(new Color('9C0006'))->setBold(true);
+                }
+
+                $auditSheet->getRowDimension((string) $rowAudit)->setRowHeight(22);
+                $rowAudit++;
+            }
+
+            $instructionsTitleRow = max($rowAudit + 1, 9);
+            $auditSheet->setCellValue('J' . $instructionsTitleRow, 'INSTRUCCIONES DE FISCALIZACIÓN');
+            $auditSheet->getStyle('J' . $instructionsTitleRow)->getFont()->setBold(true)->setSize(11)->setColor(new Color('39A900'));
+
+            $instructions = [
+                '• Columna I en verde: registro importado correctamente.',
+                '• Columna I en rojo: registro no importado, revise motivo en el mensaje.',
+                '• Revise y corrija únicamente las filas en rojo para una nueva importación.',
+                '• Este archivo conserva la estructura de la plantilla base para control y trazabilidad.',
+            ];
+
+            $instructionRow = $instructionsTitleRow + 1;
+            foreach ($instructions as $instruction) {
+                $auditSheet->setCellValue('J' . $instructionRow, $instruction);
+                $auditSheet->getStyle('J' . $instructionRow)->getFont()->setSize(9)->setColor(new Color('333333'));
+                $auditSheet->getStyle('J' . $instructionRow)->getAlignment()->setWrapText(true);
+                $instructionRow++;
+            }
+
+            $tempDir = storage_path('app/temp');
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            $safeOfferName = Str::slug((string) ($ofertaDestino->nombre ?? ('oferta-' . $ofertaDestino->id)));
+            $filename = 'Resultado_Importacion_Preinscritos_' . $safeOfferName . '_' . now()->format('Ymd_His') . '.xlsx';
+            $filePath = $tempDir . DIRECTORY_SEPARATOR . $filename;
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($auditSpreadsheet, 'Xlsx');
+            $writer->save($filePath);
+
+            return response()->download($filePath, $filename)->deleteFileAfterSend(true);
                 
         } catch (\Exception $e) {
             return redirect()

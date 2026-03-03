@@ -20,8 +20,8 @@ class PreinscritoController extends Controller
         if ($request->filled('nombre')) {
             $search = $request->nombre;
             $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('apellido', 'like', '%' . $search . '%');
+                $q->where('nombres', 'like', '%' . $search . '%')
+                  ->orWhere('apellidos', 'like', '%' . $search . '%');
             });
         }
 

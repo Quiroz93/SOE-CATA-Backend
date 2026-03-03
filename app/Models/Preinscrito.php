@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EstadoPreinscritoCast;
 use App\Domain\Programa\Enums\EstadoPreinscrito;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,8 @@ class Preinscrito extends Model
     protected $fillable = [
         'oferta_id',
         'oferta_programa_id',
+        'nombres',
+        'apellidos',
         'nombre',
         'apellido',
         'tipo_documento',
@@ -24,7 +27,7 @@ class Preinscrito extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'estado' => EstadoPreinscrito::class,
+        'estado' => EstadoPreinscritoCast::class,
     ];
 
     /**
@@ -38,6 +41,26 @@ class Preinscrito extends Model
     public function getNombreCompletoAttribute(): string
     {
         return trim("{$this->nombre} {$this->apellido}");
+    }
+
+    public function getNombreAttribute(): ?string
+    {
+        return $this->attributes['nombres'] ?? null;
+    }
+
+    public function setNombreAttribute(?string $value): void
+    {
+        $this->attributes['nombres'] = $value;
+    }
+
+    public function getApellidoAttribute(): ?string
+    {
+        return $this->attributes['apellidos'] ?? null;
+    }
+
+    public function setApellidoAttribute(?string $value): void
+    {
+        $this->attributes['apellidos'] = $value;
     }
 
     /**

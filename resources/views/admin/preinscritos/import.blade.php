@@ -140,9 +140,9 @@
                 <h4>7. Revisar Resultados</h4>
                 <p>Al finalizar verás:</p>
                 <ul>
-                    <li>✅ Número de registros importados exitosamente</li>
-                    <li>⚠️ Listado de errores por fila (si los hay)</li>
-                    <li>Razones de rechazo: duplicados, correos inválidos, programas no encontrados, etc.</li>
+                    <li>✅ Descarga automática de un Excel de fiscalización con el resultado fila por fila</li>
+                    <li>🟩 Celda verde: importación exitosa</li>
+                    <li>🟥 Celda roja: importación fallida con la razón específica del rechazo</li>
                 </ul>
             </div>
         </div>
@@ -161,6 +161,7 @@
                 <li><strong>Límite de archivo:</strong> Máximo 5 MB por archivo Excel</li>
                 <li><strong>Capacidad:</strong> La plantilla soporta hasta 100 registros con validación automática</li>
                 <li><strong>Fecha de plantilla:</strong> Verifica la fecha en el encabezado para asegurar que uses la versión más reciente</li>
+                <li><strong>Fiscalización:</strong> Conserva el archivo de resultados generado como soporte de auditoría del proceso</li>
             </ul>
         </div>
     </div>
