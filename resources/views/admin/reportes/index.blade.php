@@ -58,6 +58,7 @@
         data-preinscritos-pendientes="{{ $preinscritosPendientes }}"
         data-preinscritos-aceptados="{{ $preinscritosAceptados }}"
         data-preinscritos-rechazados="{{ $preinscritosRechazados }}"
+        data-preinscritos-por-estado-detallado='@json($preinscritosPorEstadoDetallado)'
         data-años='@json($años)'
         data-preinscritos-año='@json($preinscritosAño)'
         data-programas-nombres='@json($programasNombres)'

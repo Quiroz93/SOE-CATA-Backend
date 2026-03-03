@@ -64,21 +64,16 @@ class ReporteController extends Controller
         }
         
         $totalPreinscritos = (clone $basePreinscritosQuery)->count();
-        $estadoPendiente = EstadoPreinscrito::tryFromInput('pendiente')?->value;
-        $estadoRechazado = EstadoPreinscrito::tryFromInput('rechazado')?->value;
 
-        $preinscritosPendientes = $estadoPendiente
-            ? (clone $basePreinscritosQuery)->where('estado', $estadoPendiente)->count()
-            : 0;
-
-        $acceptedValues = EstadoPreinscrito::acceptedValues();
-        $preinscritosAceptados = empty($acceptedValues)
-            ? 0
-            : (clone $basePreinscritosQuery)->whereIn('estado', $acceptedValues)->count();
-
-        $preinscritosRechazados = $estadoRechazado
-            ? (clone $basePreinscritosQuery)->where('estado', $estadoRechazado)->count()
-            : 0;
+        // Contar preinscritos por cada uno de los 9 estados disponibles
+        $preinscritosPorEstado = [];
+        foreach (EstadoPreinscrito::cases() as $estado) {
+            $preinscritosPorEstado[$estado->name] = [
+                'label' => $estado->label(),
+                'valor' => $estado->value,
+                'count' => (clone $basePreinscritosQuery)->where('estado', $estado->value)->count(),
+            ];
+        }
 
         // Ofertas por estado
         $ofertasPorEstado = [
@@ -87,12 +82,13 @@ class ReporteController extends Controller
             'inactiva' => Oferta::where('estado', 'inactiva')->count(),
         ];
 
-        // Preinscritos por estado
-        $preinscritosPorEstado = [
-            'pendiente' => $preinscritosPendientes,
-            'aceptados' => $preinscritosAceptados,
-            'rechazado' => $preinscritosRechazados,
-        ];
+        // Legacy simplificado (para compatibilidad)
+        $preinscritosPendientes = $preinscritosPorEstado['PENDIENTE']['count'] ?? 0;
+        $preinscritosAceptados = ($preinscritosPorEstado['PREINSCRITO']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['INSCRITO']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['CONVOCADO_MATRICULA']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['MATRICULADO']['count'] ?? 0);
+        $preinscritosRechazados = $preinscritosPorEstado['RECHAZADO']['count'] ?? 0;
 
         // Usuarios por rol (Spatie Permission)
         $rolesTable = config('permission.table_names.roles', 'roles');
@@ -318,6 +314,7 @@ class ReporteController extends Controller
             'preinscritosPendientes' => $preinscritosPendientes,
             'preinscritosAceptados' => $preinscritosAceptados,
             'preinscritosRechazados' => $preinscritosRechazados,
+            'preinscritosPorEstadoDetallado' => $preinscritosPorEstado,
             'preinscritosPorEstado' => $preinscritosPorEstado,
             'preinscritosPorMes' => $dataPreinscritosMes,
             'programasMasPreinscritos' => $programasMasPreinscritos,
