@@ -44,7 +44,8 @@ class PreinscritoController extends Controller
 
     public function index(Request $request)
     {
-        $query = Preinscrito::with(['ofertaPrograma.programa']);
+        $query = Preinscrito::with(['ofertaPrograma.programa'])
+            ->withCount('novedades');
 
         // Filtro por nombres o apellidos
         if ($request->filled('nombre')) {

@@ -100,6 +100,7 @@
                     <th class="admin-table__th">Correo</th>
                     <th class="admin-table__th">Programa</th>
                     <th class="admin-table__th">Estado</th>
+                    <th class="admin-table__th">Novedades</th>
                     <th class="admin-table__th admin-table__th--right">Acciones</th>
                 </tr>
             </thead>
@@ -115,6 +116,15 @@
                         <span class="badge {{ in_array($estadoCss, ['preinscrito', 'inscrito', 'convocado_matricula', 'matriculado'], true) ? 'badge--success' : '' }} {{ $estadoCss === 'pendiente' ? 'badge--warning' : '' }} {{ $estadoCss === 'novedad' ? 'badge--info' : '' }} {{ in_array($estadoCss, ['rechazado', 'no_admitido', 'cancelado'], true) ? 'badge--danger' : '' }}">
                             {{ $preinscrito->estado_label }}
                         </span>
+                    </td>
+                    <td class="admin-table__td">
+                        @if($preinscrito->novedades_count > 0)
+                            <span class="badge badge--info" title="{{ $preinscrito->novedades_count }} novedad(es)">
+                                📋 {{ $preinscrito->novedades_count }}
+                            </span>
+                        @else
+                            <span style="color: #999; font-size: 0.9em;">Sin novedades</span>
+                        @endif
                     </td>
                     <td class="admin-table__td admin-table__td--right">
                         <div class="admin-table__actions">
