@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\admin;
+
+use App\Domain\Programa\Enums\EstadoPreinscrito;
+use App\Models\Oferta;
+use App\Models\OfertaPrograma;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
+
+class PreinscritoOfertaVigenteTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_usuario_sin_rol_admin_no_puede_crear_preinscrito_en_oferta_inactiva(): void
+    {
+        $user = User::factory()->create();
+
+        $ofertaInactiva = Oferta::factory()->create([
+            'estado' => 'inactiva',
+        ]);
+
+        $ofertaPrograma = OfertaPrograma::factory()->create([
+            'oferta_id' => $ofertaInactiva->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('admin.preinscritos.store'), $this->validPayload($ofertaInactiva->id, $ofertaPrograma->id));
+
+        $response->assertSessionHasErrors('oferta_id');
+        $this->assertDatabaseCount('preinscritos', 0);
+    }
+
+    public function test_admin_si_puede_crear_preinscrito_en_oferta_inactiva(): void
+    {
+        $admin = User::factory()->create();
+        Role::firstOrCreate(['name' => 'admin']);
+        $admin->assignRole('admin');
+
+        $ofertaInactiva = Oferta::factory()->create([
+            'estado' => 'inactiva',
+        ]);
+
+        $ofertaPrograma = OfertaPrograma::factory()->create([
+            'oferta_id' => $ofertaInactiva->id,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->post(route('admin.preinscritos.store'), $this->validPayload($ofertaInactiva->id, $ofertaPrograma->id));
+
+        $response->assertRedirect(route('admin.preinscritos.index'));
+        $this->assertDatabaseHas('preinscritos', [
+            'oferta_id' => $ofertaInactiva->id,
+            'oferta_programa_id' => $ofertaPrograma->id,
+            'documento' => '1234567890',
+        ]);
+    }
+
+    public function test_usuario_sin_rol_admin_si_puede_crear_preinscrito_en_oferta_activa(): void
+    {
+        $user = User::factory()->create();
+
+        $ofertaActiva = Oferta::factory()->create([
+            'estado' => 'activa',
+        ]);
+
+        $ofertaPrograma = OfertaPrograma::factory()->create([
+            'oferta_id' => $ofertaActiva->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('admin.preinscritos.store'), $this->validPayload($ofertaActiva->id, $ofertaPrograma->id));
+
+        $response->assertRedirect(route('admin.preinscritos.index'));
+        $this->assertDatabaseHas('preinscritos', [
+            'oferta_id' => $ofertaActiva->id,
+            'oferta_programa_id' => $ofertaPrograma->id,
+            'documento' => '1234567890',
+        ]);
+    }
+
+    private function validPayload(int $ofertaId, int $ofertaProgramaId): array
+    {
+        return [
+            'oferta_id' => $ofertaId,
+            'oferta_programa_id' => $ofertaProgramaId,
+            'nombre' => 'Ana',
+            'apellido' => 'Pérez',
+            'tipo_documento' => 'CC',
+            'documento' => '1234567890',
+            'correo' => 'ana.perez@example.com',
+            'estado' => EstadoPreinscrito::PENDIENTE->value,
+        ];
+    }
+}

@@ -156,6 +156,10 @@ class PreinscritoController extends Controller
                 ->withInput();
         }
 
+        $validated['nombres'] = $validated['nombre'];
+        $validated['apellidos'] = $validated['apellido'];
+        unset($validated['nombre'], $validated['apellido']);
+
         $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 
         Preinscrito::create($validated);
@@ -224,6 +228,10 @@ class PreinscritoController extends Controller
                 ])
                 ->withInput();
         }
+
+        $validated['nombres'] = $validated['nombre'];
+        $validated['apellidos'] = $validated['apellido'];
+        unset($validated['nombre'], $validated['apellido']);
 
         $validated['estado'] = EstadoPreinscrito::tryFromInput((string) $validated['estado'])?->value;
 
