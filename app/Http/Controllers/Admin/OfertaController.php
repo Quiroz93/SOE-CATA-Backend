@@ -119,7 +119,7 @@ class OfertaController extends Controller
         $centros = Centro::orderBy('nombre')->get(['id', 'nombre']);
         $programas = Programa::where('estado', 'publicado')
             ->orderBy('nombre')
-            ->get(['id', 'nombre', 'modalidad']);
+            ->get(['id', 'nombre']);
         $instructores = Instructor::orderBy('nombre')->get(['id', 'nombre']);
 
         return view('admin.ofertas.edit', compact('oferta', 'centros', 'programas', 'instructores'));
