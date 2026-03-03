@@ -8,52 +8,16 @@
         <h1 class="admin-header__title">Dashboard Administrativo</h1>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="dashboard-kpis">
-        <div class="kpi-card kpi-primary">
-            <div class="kpi-header">
-                <span class="kpi-label">Total Usuarios</span>
-                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+    <!-- Encabezado Institucional -->
+    <div class="institutional-header">
+        <div class="institutional-header__content">
+            <div class="institutional-header__logo">
+                <img src="/images/Logosimbolo-SENA.svg" alt="Logo SENA" class="institutional-logo">
             </div>
-            <div class="kpi-value">{{ $totalUsuarios }}</div>
-        </div>
-
-        <div class="kpi-card kpi-success">
-            <div class="kpi-header">
-                <span class="kpi-label">Ofertas Activas</span>
-                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
+            <div class="institutional-header__info">
+                <h2 class="institutional-header__title">Centro Agroempresarial y Turístico de los Andes</h2>
+                <p class="institutional-header__subtitle">Servicio Nacional de Aprendizaje - SENA</p>
             </div>
-            <div class="kpi-value kpi-success">{{ $ofertasActivas }}</div>
-        </div>
-
-        <div class="kpi-card kpi-warning">
-            <div class="kpi-header">
-                <span class="kpi-label">Ofertas Vencidas</span>
-                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-            </div>
-            <div class="kpi-value kpi-warning">{{ $ofertasVencidas }}</div>
-        </div>
-
-        <div class="kpi-card kpi-secondary">
-            <div class="kpi-header">
-                <span class="kpi-label">Total Ofertas</span>
-                <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                    <path d="M2 17l10 5 10-5"></path>
-                    <path d="M2 12l10 5 10-5"></path>
-                </svg>
-            </div>
-            <div class="kpi-value">{{ $totalOfertas }}</div>
         </div>
     </div>
 
@@ -289,20 +253,86 @@
 
 @section('styles')
 <style>
-/* Dashboard KPIs */
+/* Encabezado Institucional */
+.institutional-header {
+    background: linear-gradient(135deg, #39A900 0%, #2d8400 100%);
+    color: white;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.2);
+}
+
+.institutional-header__content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.institutional-header__logo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.institutional-logo {
+    width: 100px;
+    height: 100px;
+    opacity: 0.95;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.institutional-header__info {
+    flex: 1;
+}
+
+.institutional-header__title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.institutional-header__subtitle {
+    font-size: 14px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .institutional-header {
+        padding: 30px 15px;
+    }
+
+    .institutional-header__content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .institutional-header__title {
+        font-size: 22px;
+    }
+
+    .institutional-logo {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Dashboard KPIs - Deprecated but kept for reference */
 .dashboard-kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+    display: none;
 }
 
 .kpi-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+    display: none;
 }
 
 .kpi-card:hover {
