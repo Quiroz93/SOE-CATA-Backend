@@ -593,8 +593,8 @@ class PreinscritorImportExportController extends Controller
                 // Crear preinscrito
                 try {
                     Preinscrito::create([
-                        'nombre' => $nombre,
-                        'apellido' => $apellido,
+                        'nombres' => $nombre,
+                        'apellidos' => $apellido,
                         'tipo_documento' => $tipoDocumento,
                         'documento' => $documento,
                         'correo' => $correo,

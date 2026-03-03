@@ -16,8 +16,6 @@ class Preinscrito extends Model
         'oferta_programa_id',
         'nombres',
         'apellidos',
-        'nombre',
-        'apellido',
         'tipo_documento',
         'documento',
         'correo',
