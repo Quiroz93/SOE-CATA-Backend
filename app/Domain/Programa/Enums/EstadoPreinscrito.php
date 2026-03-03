@@ -71,6 +71,12 @@ enum EstadoPreinscrito: string
 
     private static function normalize(string $value): string
     {
-        return strtolower(str_replace(' ', '_', trim($value)));
+        $normalized = strtolower(str_replace(' ', '_', trim($value)));
+        // Remover acentos/diacríticos para compatibilidad con entradas del usuario
+        return preg_replace('/[áéíóú]/i', function($match) {
+            $replacements = ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+                            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u'];
+            return $replacements[$match[0]] ?? $match[0];
+        }, $normalized);
     }
 }
