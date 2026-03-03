@@ -44,5 +44,5 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::resource('preinscritos', PreinscritoController::class);
         Route::resource('inscritos', InscritoController::class);
         Route::resource('novedades', NovedadController::class);
-        Route::resource('tipo_novedades', TipoNovedadController::class);
+        Route::resource('tipo-novedad', TipoNovedadController::class);
     });

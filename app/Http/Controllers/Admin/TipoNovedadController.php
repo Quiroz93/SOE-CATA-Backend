@@ -44,13 +44,13 @@ class TipoNovedadController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:100|unique:tipo_novedades,nombre',
+            'nombre' => 'required|string|max:100|unique:tipos_novedad,nombre',
             'descripcion' => 'nullable|string|max:500',
         ]);
 
         TipoNovedad::create($validated);
 
-        return redirect()->route('admin.tipo_novedades.index')
+        return redirect()->route('admin.tipo-novedad.index')
             ->with('success', 'Tipo de novedad creado correctamente');
     }
 
@@ -68,13 +68,13 @@ class TipoNovedadController extends Controller
     public function update(Request $request, TipoNovedad $tipoNovedad)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:100|unique:tipo_novedades,nombre,' . $tipoNovedad->id,
+            'nombre' => 'required|string|max:100|unique:tipos_novedad,nombre,' . $tipoNovedad->id,
             'descripcion' => 'nullable|string|max:500',
         ]);
 
         $tipoNovedad->update($validated);
 
-        return redirect()->route('admin.tipo_novedades.index')
+        return redirect()->route('admin.tipo-novedad.index')
             ->with('success', 'Tipo de novedad actualizado correctamente');
     }
 
@@ -92,7 +92,7 @@ class TipoNovedadController extends Controller
 
         $tipoNovedad->delete();
 
-        return redirect()->route('admin.tipo_novedades.index')
+        return redirect()->route('admin.tipo-novedad.index')
             ->with('success', 'Tipo de novedad eliminado correctamente');
     }
 }

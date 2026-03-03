@@ -7,7 +7,7 @@
     <div class="admin-header">
         <h1 class="admin-header__title">Gestión de Tipos de Novedades</h1>
         <div class="admin-header__actions">
-            <a href="{{ route('admin.tipo_novedades.create') }}" class="btn btn--primary">
+            <a href="{{ route('admin.tipo-novedad.create') }}" class="btn btn--primary">
                 + Nuevo Tipo
             </a>
             <a href="{{ route('admin.novedades.index') }}" class="btn btn--secondary">
@@ -37,7 +37,7 @@
             </button>
         </div>
 
-        <form method="GET" action="{{ route('admin.tipo_novedades.index') }}" class="filter-form" id="filterForm">
+        <form method="GET" action="{{ route('admin.tipo-novedad.index') }}" class="filter-form" id="filterForm">
             <div class="filter-form__grid">
                 <div class="filter-form__group">
                     <label for="nombre" class="filter-form__label">Nombre</label>
@@ -54,7 +54,7 @@
 
             <div class="filter-form__actions">
                 <button type="submit" class="btn btn--secondary">🔍 Buscar</button>
-                <a href="{{ route('admin.tipo_novedades.index') }}" class="btn btn--secondary">🔄 Limpiar</a>
+                <a href="{{ route('admin.tipo-novedad.index') }}" class="btn btn--secondary">🔄 Limpiar</a>
             </div>
         </form>
     </div>
@@ -85,11 +85,11 @@
                             </td>
                             <td class="admin-table__cell">
                                 <div class="admin-table__actions">
-                                    <a href="{{ route('admin.tipo_novedades.edit', $tipo) }}" 
+                                    <a href="{{ route('admin.tipo-novedad.edit', $tipo) }}" 
                                        class="btn btn--sm btn--info" title="Editar">
                                         ✏️ Editar
                                     </a>
-                                    <form action="{{ route('admin.tipo_novedades.destroy', $tipo) }}" 
+                                    <form action="{{ route('admin.tipo-novedad.destroy', $tipo) }}" 
                                           method="POST" 
                                           style="display:inline;" 
                                           onsubmit="return confirm('¿Estás seguro de que deseas eliminar este tipo de novedad?');">
@@ -115,7 +115,7 @@
         @else
             <div class="admin-table__empty">
                 <p>No hay tipos de novedades registrados.</p>
-                <a href="{{ route('admin.tipo_novedades.create') }}" class="btn btn--primary">
+                <a href="{{ route('admin.tipo-novedad.create') }}" class="btn btn--primary">
                     + Crear el primer tipo
                 </a>
             </div>

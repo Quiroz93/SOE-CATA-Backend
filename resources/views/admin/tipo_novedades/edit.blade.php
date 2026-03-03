@@ -20,7 +20,7 @@
     @endif
 
     <div class="admin-form-card">
-        <form action="{{ route('admin.tipo_novedades.update', $tipoNovedad) }}" method="POST" class="admin-form">
+        <form action="{{ route('admin.tipo-novedad.update', $tipoNovedad) }}" method="POST" class="admin-form">
             @csrf
             @method('PUT')
 
@@ -53,7 +53,7 @@
                 <button type="submit" class="btn btn--primary">
                     ✅ Actualizar Tipo de Novedad
                 </button>
-                <a href="{{ route('admin.tipo_novedades.index') }}" class="btn btn--secondary">
+                <a href="{{ route('admin.tipo-novedad.index') }}" class="btn btn--secondary">
                     ❌ Cancelar
                 </a>
             </div>
