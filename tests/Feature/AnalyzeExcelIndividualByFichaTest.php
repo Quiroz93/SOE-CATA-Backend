@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Application\Statistics\AnalyzeExcelIndividualByFicha;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
 
@@ -53,7 +54,9 @@ class AnalyzeExcelIndividualByFichaTest extends TestCase
 
         foreach ($data as $rowIndex => $row) {
             foreach ($row as $colIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $rowIndex + 7, $value);
+                $rowNumber = $rowIndex + 7;
+                $cellAddress = Coordinate::stringFromColumnIndex($colIndex + 1) . $rowNumber;
+                $sheet->setCellValue($cellAddress, $value);
             }
         }
 
