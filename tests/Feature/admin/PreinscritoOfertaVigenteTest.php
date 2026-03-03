@@ -185,6 +185,30 @@ class PreinscritoOfertaVigenteTest extends TestCase
         ]);
     }
 
+    public function test_usuario_sin_rol_admin_no_ve_boton_mostrar_todas_las_ofertas(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->get(route('admin.preinscritos.create'));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('id="toggleAllOffersBtn"', false);
+    }
+
+    public function test_admin_si_ve_boton_mostrar_todas_las_ofertas(): void
+    {
+        $admin = User::factory()->create();
+        Role::firstOrCreate(['name' => 'admin']);
+        $admin->assignRole('admin');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.preinscritos.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('id="toggleAllOffersBtn"', false);
+    }
+
     private function validPayload(int $ofertaId, int $ofertaProgramaId): array
     {
         return [
