@@ -2,10 +2,10 @@
 
 <div class="form-group">
     <label class="form-label">Oferta Programa</label>
-    <select name="oferta_programa_id" required class="form-select">
+    <select id="oferta_programa_id" name="oferta_programa_id" required class="form-select">
         <option value="">-- Seleccionar --</option>
         @foreach($ofertasPrograma as $op)
-            <option value="{{ $op->id }}" {{ old('oferta_programa_id', isset($preinscrito) ? $preinscrito->oferta_programa_id : '') == $op->id ? 'selected' : '' }}>
+            <option value="{{ $op->id }}" data-oferta-id="{{ $op->oferta_id }}" {{ old('oferta_programa_id', isset($preinscrito) ? $preinscrito->oferta_programa_id : '') == $op->id ? 'selected' : '' }}>
                 {{ $op->oferta->nombre ?? 'N/A' }} - {{ $op->programa->nombre ?? 'N/A' }}
             </option>
         @endforeach
@@ -17,7 +17,7 @@
 
 <div class="form-group">
     <label class="form-label">Oferta</label>
-    <select name="oferta_id" required class="form-select">
+    <select id="oferta_id" name="oferta_id" required class="form-select">
         <option value="">-- Seleccionar oferta --</option>
         @foreach($ofertas as $oferta)
             <option value="{{ $oferta->id }}" {{ old('oferta_id', isset($preinscrito) ? $preinscrito->oferta_id : '') == $oferta->id ? 'selected' : '' }}>
@@ -78,3 +78,28 @@
         <span class="form-error">{{ $message }}</span>
     @enderror
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ofertaProgramaSelect = document.getElementById('oferta_programa_id');
+    const ofertaSelect = document.getElementById('oferta_id');
+
+    if (!ofertaProgramaSelect || !ofertaSelect) {
+        return;
+    }
+
+    ofertaProgramaSelect.addEventListener('change', function () {
+        const selectedOption = ofertaProgramaSelect.options[ofertaProgramaSelect.selectedIndex];
+        const ofertaId = selectedOption ? selectedOption.getAttribute('data-oferta-id') : null;
+
+        if (!ofertaId) {
+            return;
+        }
+
+        const targetOption = ofertaSelect.querySelector('option[value="' + ofertaId + '"]');
+        if (targetOption) {
+            ofertaSelect.value = ofertaId;
+        }
+    });
+});
+</script>

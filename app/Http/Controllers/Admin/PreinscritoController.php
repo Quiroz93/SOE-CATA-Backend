@@ -71,7 +71,8 @@ class PreinscritoController extends Controller
 
     public function create()
     {
-        $ofertasPrograma = OfertaPrograma::all();
+        $ofertasPrograma = OfertaPrograma::with(['oferta:id,nombre', 'programa:id,nombre'])
+            ->get(['id', 'oferta_id', 'programa_id']);
         $ofertas = Oferta::where('estado', 'activa')
             ->orderBy('nombre')
             ->get(['id', 'nombre']);
@@ -83,7 +84,16 @@ class PreinscritoController extends Controller
     {
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
-            'oferta_programa_id' => 'required|exists:oferta_programa,id',
+            'oferta_programa_id' => [
+                'required',
+                'exists:oferta_programa,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $ofertaPrograma = OfertaPrograma::find($value);
+                    if (!$ofertaPrograma || (int) $ofertaPrograma->oferta_id !== (int) $request->input('oferta_id')) {
+                        $fail('La oferta de programa seleccionada no corresponde a la oferta elegida.');
+                    }
+                },
+            ],
             'nombre' => 'required|string|max:100',
             'apellido' => 'required|string|max:100',
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
@@ -110,7 +120,8 @@ class PreinscritoController extends Controller
 
     public function edit(Preinscrito $preinscrito)
     {
-        $ofertasPrograma = OfertaPrograma::all();
+        $ofertasPrograma = OfertaPrograma::with(['oferta:id,nombre', 'programa:id,nombre'])
+            ->get(['id', 'oferta_id', 'programa_id']);
         $ofertas = Oferta::where('estado', 'activa')
             ->orWhere('id', $preinscrito->oferta_id)
             ->orderBy('nombre')
@@ -123,7 +134,16 @@ class PreinscritoController extends Controller
     {
         $validated = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
-            'oferta_programa_id' => 'required|exists:oferta_programa,id',
+            'oferta_programa_id' => [
+                'required',
+                'exists:oferta_programa,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $ofertaPrograma = OfertaPrograma::find($value);
+                    if (!$ofertaPrograma || (int) $ofertaPrograma->oferta_id !== (int) $request->input('oferta_id')) {
+                        $fail('La oferta de programa seleccionada no corresponde a la oferta elegida.');
+                    }
+                },
+            ],
             'nombre' => 'required|string|max:100',
             'apellido' => 'required|string|max:100',
             'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
