@@ -83,6 +83,52 @@ class PreinscritoOfertaVigenteTest extends TestCase
         ]);
     }
 
+    public function test_falla_si_programa_no_corresponde_a_la_oferta_seleccionada(): void
+    {
+        $user = User::factory()->create();
+
+        $ofertaA = Oferta::factory()->create([
+            'estado' => 'activa',
+        ]);
+
+        $ofertaB = Oferta::factory()->create([
+            'estado' => 'activa',
+        ]);
+
+        $ofertaProgramaDeB = OfertaPrograma::factory()->create([
+            'oferta_id' => $ofertaB->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('admin.preinscritos.store'), $this->validPayload($ofertaA->id, $ofertaProgramaDeB->id));
+
+        $response->assertSessionHasErrors('oferta_programa_id');
+        $this->assertDatabaseCount('preinscritos', 0);
+    }
+
+    public function test_crea_si_programa_corresponde_a_la_oferta_seleccionada(): void
+    {
+        $user = User::factory()->create();
+
+        $oferta = Oferta::factory()->create([
+            'estado' => 'activa',
+        ]);
+
+        $ofertaPrograma = OfertaPrograma::factory()->create([
+            'oferta_id' => $oferta->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('admin.preinscritos.store'), $this->validPayload($oferta->id, $ofertaPrograma->id));
+
+        $response->assertRedirect(route('admin.preinscritos.index'));
+        $this->assertDatabaseHas('preinscritos', [
+            'oferta_id' => $oferta->id,
+            'oferta_programa_id' => $ofertaPrograma->id,
+            'documento' => '1234567890',
+        ]);
+    }
+
     private function validPayload(int $ofertaId, int $ofertaProgramaId): array
     {
         return [
