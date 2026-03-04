@@ -1,0 +1,33 @@
+/**
+ * SENA CATA - Admin Navigation Menu (Desktop)
+ * Estilos de los links del menú de navegación desktop
+ */
+
+.admin-nav__menu {
+    display: none;
+    align-items: center;
+    gap: 2rem;
+    margin-left: 2.5rem;
+}
+
+@media (min-width: 640px) {
+    .admin-nav__menu {
+        display: flex;
+    }
+}
+
+.admin-nav__link {
+    color: #374151;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    padding: 0.5rem 0;
+}
+
+.admin-nav__link:hover {
+    color: #16a34a;
+}
+
+.admin-nav__link--active {
+    color: #16a34a;
+}

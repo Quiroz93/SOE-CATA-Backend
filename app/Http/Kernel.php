@@ -23,6 +23,7 @@ use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Http\Middleware\CheckStorageLink;
 
 class Kernel extends HttpKernel
 {
@@ -47,7 +48,8 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            // ...middlewares web...
+            // Verificar y reparar storage link en cada request
+            CheckStorageLink::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,

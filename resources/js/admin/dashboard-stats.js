@@ -604,12 +604,32 @@ function renderIndividualResults(data) {
 }
 
 function renderIndividualChart(estadoTotales) {
-    const ctx = individualStateChart?.getContext('2d');
-    if (!ctx) return;
+    // Buscar el canvas siempre por ID para obtener la referencia actualizada
+    let canvasElement = document.getElementById('individualStateChart');
+    if (!canvasElement) return;
 
+    const canvasContainer = canvasElement.parentNode;
+    if (!canvasContainer) return;
+
+    // Destruir chart anterior y limpiar canvas completamente
     if (state.individualChart) {
         state.individualChart.destroy();
+        state.individualChart = null;
     }
+
+    // Recrear el canvas para evitar problemas con Chart.js
+    const oldCanvas = canvasElement;
+    const newCanvas = document.createElement('canvas');
+    newCanvas.id = 'individualStateChart';
+    newCanvas.style.maxHeight = '400px';
+    
+    if (oldCanvas && oldCanvas.parentNode) {
+        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+    }
+
+    // Actualizar referencia en state si es necesario
+    const ctx = newCanvas.getContext('2d');
+    if (!ctx) return;
 
     const labels = Object.keys(estadoTotales);
     const values = Object.values(estadoTotales).map(value => Number(value || 0));
@@ -808,14 +828,33 @@ function renderConsolidatedResults(data) {
  */
 function renderConsolidatedStatesChart(estadosGlobales) {
     const isConsolidadorTab = state.activeReportKind === 'consolidador';
-    const chartElement = isConsolidadorTab ? consolidadorStateChart : individualStateChart;
     
-    const ctx = chartElement?.getContext('2d');
-    if (!ctx) return;
+    // Solo renderizar gráfica si NO estamos en consolidador (porque esa pestaña no tiene canvas)
+    if (isConsolidadorTab) {
+        return;
+    }
+    
+    const canvasContainer = individualStateChart?.parentNode;
+    if (!canvasContainer) return;
 
+    // Destruir chart anterior y limpiar canvas completamente
     if (state.individualChart) {
         state.individualChart.destroy();
+        state.individualChart = null;
     }
+
+    // Recrear el canvas para evitar problemas con Chart.js
+    const oldCanvas = individualStateChart;
+    const newCanvas = document.createElement('canvas');
+    newCanvas.id = 'individualStateChart';
+    newCanvas.style.maxHeight = '400px';
+    
+    if (oldCanvas && oldCanvas.parentNode) {
+        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+    }
+
+    const ctx = newCanvas.getContext('2d');
+    if (!ctx) return;
 
     const labels = Object.keys(estadosGlobales);
     const values = Object.values(estadosGlobales).map(value => Number(value || 0));

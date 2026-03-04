@@ -1,0 +1,36 @@
+/**
+ * SENA CATA - Admin Navigation Brand
+ * Estilos del logo y marca de la aplicación
+ */
+
+.admin-nav__brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.admin-nav__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.admin-nav__logo-img {
+    height: 2.5rem;
+    width: auto;
+    display: block;
+}
+
+.admin-nav__logo-text--primary {
+    color: #16a34a;
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
+
+.admin-nav__logo-text--secondary {
+    color: #374151;
+    font-weight: 600;
+    font-size: 1rem;
+}

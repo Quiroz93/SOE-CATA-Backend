@@ -1,0 +1,44 @@
+/**
+ * SENA CATA - Admin Navigation Structure
+ * Estructura y contenedores principales de la navegación
+ */
+
+.admin-nav {
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-nav__container {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .admin-nav__container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-nav__container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+.admin-nav__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+}
+
+.admin-nav__left {
+    display: flex;
+    align-items: center;
+}

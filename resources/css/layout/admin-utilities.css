@@ -1,0 +1,42 @@
+/**
+ * SENA CATA - Admin Utilities
+ * Clases de utilidad y helpers responsive
+ */
+
+/* ===========================
+   UTILITY CLASSES
+   =========================== */
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.gap-0-5 {
+    gap: 0.5rem;
+}
+
+.gap-1 {
+    gap: 1rem;
+}
+
+.gap-2 {
+    gap: 2rem;
+}
+
+/* ===========================
+   RESPONSIVE UTILITIES
+   =========================== */
+
+.hidden-mobile {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hidden-mobile {
+        display: flex;
+    }
+}

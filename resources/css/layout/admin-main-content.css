@@ -1,0 +1,21 @@
+/**
+ * SENA CATA - Admin Main Content
+ * Estilos del contenedor principal de contenido
+ */
+
+.admin-main {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+@media (min-width: 640px) {
+    .admin-main {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-main {
+        padding: 2rem 2rem;
+    }
+}
