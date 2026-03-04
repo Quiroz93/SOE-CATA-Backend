@@ -2059,9 +2059,230 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+/**
+ * --- FUNCIONALIDAD DE FORMULARIO MANUAL ---
+ * Permite ingresar datos manualmente cuando no hay archivo Excel
+ */
+
+// Estado local para formulario manual
+const manualFormState = {
+    estadoRows: [],
+    rowCounter: 0
+};
+
+function initManualForm() {
+    const toggleBtn = document.getElementById('toggleManualFormBtn');
+    const manualForm = document.getElementById('manualDataForm');
+    const cancelBtn = document.getElementById('cancelManualFormBtn');
+    const addEstadoBtn = document.getElementById('addEstadoBtn');
+    const generateBtn = document.getElementById('generateManualChartsBtn');
+
+    if (!toggleBtn) return;
+
+    // Mostrar/ocultar formulario
+    toggleBtn.addEventListener('click', () => {
+        manualForm.style.display = manualForm.style.display === 'none' ? 'block' : 'none';
+        if (manualForm.style.display === 'block') {
+            // Inicializar con una fila vacía si está vacío
+            if (manualFormState.estadoRows.length === 0) {
+                addEstadoRow();
+            }
+        }
+    });
+
+    cancelBtn?.addEventListener('click', () => {
+        manualForm.style.display = 'none';
+        resetManualForm();
+    });
+
+    addEstadoBtn?.addEventListener('click', addEstadoRow);
+    generateBtn?.addEventListener('click', generateManualCharts);
+}
+
+function addEstadoRow() {
+    const rowId = `estado_row_${manualFormState.rowCounter++}`;
+    const tbody = document.getElementById('manualEstadosTableBody');
+    
+    const row = document.createElement('tr');
+    row.id = rowId;
+    row.innerHTML = `
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+            <input type="text" class="estado-input" placeholder="Ej: Matriculado" style="
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 12px;
+                box-sizing: border-box;
+            " value="">
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+            <input type="number" class="cantidad-input" placeholder="0" min="0" style="
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 12px;
+                box-sizing: border-box;
+            " value="0">
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            <button type="button" class="remove-estado-btn" data-row-id="${rowId}" style="
+                padding: 5px 10px;
+                background: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+            ">
+                Quitar
+            </button>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+    manualFormState.estadoRows.push(rowId);
+
+    // Agregar listener para eliminar
+    row.querySelector('.remove-estado-btn').addEventListener('click', () => removeEstadoRow(rowId));
+}
+
+function removeEstadoRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) {
+        row.remove();
+        manualFormState.estadoRows = manualFormState.estadoRows.filter(id => id !== rowId);
+    }
+}
+
+function resetManualForm() {
+    document.getElementById('manualFichaCodigo').value = '';
+    document.getElementById('manualPrograma').value = '';
+    document.getElementById('manualTotalAprendices').value = '';
+    
+    const tbody = document.getElementById('manualEstadosTableBody');
+    tbody.innerHTML = '';
+    manualFormState.estadoRows = [];
+    manualFormState.rowCounter = 0;
+}
+
+function generateManualCharts() {
+    // Recopilar datos del formulario
+    const codigo = document.getElementById('manualFichaCodigo').value.trim();
+    const programa = document.getElementById('manualPrograma').value.trim();
+    const totalAprendices = parseInt(document.getElementById('manualTotalAprendices').value) || 0;
+
+    // Validar campos requeridos
+    if (!codigo || !programa) {
+        alert('Por favor ingresa el código de ficha y programa');
+        return;
+    }
+
+    // Recopilar estados
+    const estadoCounts = {};
+    let totalCount = 0;
+
+    document.querySelectorAll('#manualEstadosTableBody tr').forEach(row => {
+        const estadoInput = row.querySelector('.estado-input');
+        const cantidadInput = row.querySelector('.cantidad-input');
+        
+        const estado = (estadoInput?.value || '').trim();
+        const cantidad = parseInt(cantidadInput?.value || 0);
+
+        if (estado && cantidad > 0) {
+            estadoCounts[estado] = cantidad;
+            totalCount += cantidad;
+        }
+    });
+
+    // Validar que hay al menos un estado
+    if (Object.keys(estadoCounts).length === 0) {
+        alert('Por favor ingresa al menos un estado con su cantidad de aprendices');
+        return;
+    }
+
+    // Crear objeto de respuesta simulado como si viniera del API
+    const manualData = {
+        report_kind: 'individual_ficha',
+        metadata: {
+            ficha: codigo,
+            programa: programa,
+            totalAprendices: totalAprendices > 0 ? totalAprendices : totalCount,
+        },
+        estado_totales: estadoCounts,
+        labels: Object.keys(estadoCounts),
+        series: Object.values(estadoCounts),
+        tabla: [], // No tenemos detalle de aprendices individuales
+    };
+
+    // Procesar los datos y mostrar gráficas
+    showManualResults(manualData);
+
+    // Ocultar el formulario
+    document.getElementById('manualDataForm').style.display = 'none';
+}
+
+function showManualResults(data) {
+    // Mostrar área de resultados
+    const resultsIndividual = document.getElementById('statsResultsIndividual');
+    if (resultsIndividual) {
+        resultsIndividual.style.display = 'block';
+    }
+
+    // Renderizar gráfica
+    const estadoTotales = data.estado_totales;
+    renderIndividualChart(estadoTotales);
+
+    // Renderizar tabla
+    renderIndividualStatesTable(estadoTotales, data);
+
+    // Actualizar metadata
+    renderMetadataIndividual(data);
+
+    // Scroll a resultados
+    setTimeout(() => {
+        document.getElementById('statsResultsIndividual')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+}
+
+function renderMetadataIndividual(data) {
+    const metaLabel1 = document.getElementById('metaLabel1');
+    const metaValue1 = document.getElementById('metaValue1');
+    const metaLabel2 = document.getElementById('metaLabel2');
+    const metaValue2 = document.getElementById('metaValue2');
+    const metaLabel3 = document.getElementById('metaLabel3');
+    const metaValue3 = document.getElementById('metaValue3');
+    const metaLabel4 = document.getElementById('metaLabel4');
+    const metaValue4 = document.getElementById('metaValue4');
+
+    if (metaLabel1 && metaValue1) {
+        metaLabel1.textContent = 'Código Ficha:';
+        metaValue1.textContent = data.metadata?.ficha || 'N/A';
+    }
+    if (metaLabel2 && metaValue2) {
+        metaLabel2.textContent = 'Programa:';
+        metaValue2.textContent = data.metadata?.programa || 'N/A';
+    }
+    if (metaLabel3 && metaValue3) {
+        metaLabel3.textContent = 'Total Aprendices:';
+        metaValue3.textContent = data.metadata?.totalAprendices || 0;
+    }
+    if (metaLabel4 && metaValue4) {
+        metaLabel4.textContent = 'Total Estados:';
+        metaValue4.textContent = Object.keys(data.estado_totales || {}).length;
+    }
+}
+
 // Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        initManualForm();
+    });
 } else {
     init();
+    initManualForm();
 }
+

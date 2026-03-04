@@ -149,6 +149,140 @@
                 </div>
 
                 <div id="statsResultsIndividual" style="display: none;">
+                    <!-- Botón para formulario manual -->
+                    <div style="margin-bottom: 30px; text-align: center;">
+                        <button id="toggleManualFormBtn" type="button" class="stats-select" style="
+                            padding: 10px 20px;
+                            background: #39a900;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 14px;
+                        ">
+                            ➕ Ingresar Datos Manualmente
+                        </button>
+                    </div>
+
+                    <!-- Formulario manual para ingresar datos -->
+                    <div id="manualDataForm" style="display: none; margin-bottom: 40px; padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                        <h3 style="color: #333; font-size: 16px; font-weight: 700; margin-bottom: 20px;">
+                            📋 Formulario de Ingreso Manual de Datos
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                            <!-- Código de Ficha -->
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Código de Ficha:
+                                </label>
+                                <input type="text" id="manualFichaCodigo" placeholder="Ej: SOE-001" style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 4px;
+                                    font-size: 13px;
+                                    box-sizing: border-box;
+                                ">
+                            </div>
+
+                            <!-- Programa -->
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Programa de Formación:
+                                </label>
+                                <input type="text" id="manualPrograma" placeholder="Ej: Desarrollo de Software" style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 4px;
+                                    font-size: 13px;
+                                    box-sizing: border-box;
+                                ">
+                            </div>
+
+                            <!-- Total Aprendices -->
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Total de Aprendices:
+                                </label>
+                                <input type="number" id="manualTotalAprendices" placeholder="Ej: 50" min="0" style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 4px;
+                                    font-size: 13px;
+                                    box-sizing: border-box;
+                                ">
+                            </div>
+
+                            <div></div>
+                        </div>
+
+                        <!-- Tabla de Estados Dinámicos -->
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="font-weight: 700; color: #333; font-size: 14px; margin-bottom: 15px;">
+                                Estados y Cantidades de Aprendices
+                            </h4>
+                            
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                <thead>
+                                    <tr style="background: #39a900; color: white;">
+                                        <th style="padding: 10px; text-align: left; font-size: 12px;">Estado</th>
+                                        <th style="padding: 10px; text-align: left; font-size: 12px;">Total de Aprendices</th>
+                                        <th style="padding: 10px; text-align: center; font-size: 12px; width: 80px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manualEstadosTableBody">
+                                    <!-- Filas dinámicas se insertarán aquí -->
+                                </tbody>
+                            </table>
+
+                            <button id="addEstadoBtn" type="button" style="
+                                padding: 8px 15px;
+                                background: #007bff;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                font-size: 12px;
+                                margin-bottom: 20px;
+                            ">
+                                + Agregar Estado
+                            </button>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="generateManualChartsBtn" type="button" style="
+                                padding: 12px 24px;
+                                background: #39a900;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-weight: 700;
+                                font-size: 14px;
+                            ">
+                                ✓ Generar Gráficas y Estadísticas
+                            </button>
+                            <button id="cancelManualFormBtn" type="button" style="
+                                padding: 12px 24px;
+                                background: #999;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                font-size: 14px;
+                            ">
+                                ✕ Cancelar
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="stats-results-grid">
                         <div class="stats-chart-container">
                             <canvas id="individualStateChart"></canvas>
