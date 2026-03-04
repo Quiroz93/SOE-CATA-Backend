@@ -7,6 +7,24 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
 {
+    /**
+     * Mapeo de estados normalizados a formas canónicas
+     * Esto asegura que todas las variaciones de un estado se mostren con una sola forma uniforme
+     */
+    private const CANONICAL_STATES = [
+        'convocado matricula' => 'Convocado Matrícula',
+        'anulado matricula' => 'Anulado Matrícula',
+        'matriculado' => 'Matriculado',
+        'inscrito' => 'Inscrito',
+        'no admitido' => 'No Admitido',
+        'cancelado' => 'Cancelado',
+        'no seleccionado' => 'No Seleccionado',
+        'seleccionado' => 'Seleccionado',
+        'preinscrito' => 'Preinscrito',
+        'pendiente' => 'Pendiente',
+        'sin estado' => 'Sin estado',
+    ];
+
     public function execute(string $filePath): array
     {
         $spreadsheet = IOFactory::load($filePath);
@@ -37,7 +55,6 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
 
         $tabla = [];
         $estadoCounts = [];
-        $estadoOriginalMap = []; // Mapeo de estado normalizado -> estado original más frecuente
 
         for ($i = $headerRowIndex + 1; $i < count($rows); $i++) {
             $row = $rows[$i];
@@ -63,11 +80,6 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
             // Normalizar el estado para agrupar variaciones
             $estadoNormalizado = $this->normalizeEstado($estado);
             $estadoCounts[$estadoNormalizado] = ($estadoCounts[$estadoNormalizado] ?? 0) + 1;
-            
-            // Guardar mapeo para mostrar el estado original más frecuente
-            if (!isset($estadoOriginalMap[$estadoNormalizado])) {
-                $estadoOriginalMap[$estadoNormalizado] = $estado;
-            }
         }
 
         if (count($tabla) === 0) {
@@ -76,11 +88,11 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
 
         arsort($estadoCounts);
         
-        // Reemplazar claves normalizadas con estados originales en el diccionario de conteos
+        // Reemplazar claves normalizadas con estados canónicos en el diccionario de conteos
         $estadoTotales = [];
         foreach ($estadoCounts as $estadoNorm => $count) {
-            $estadoOriginal = $estadoOriginalMap[$estadoNorm] ?? $estadoNorm;
-            $estadoTotales[$estadoOriginal] = $count;
+            $estadoCanonica = $this->getCanonicalEstado($estadoNorm);
+            $estadoTotales[$estadoCanonica] = $count;
         }
         arsort($estadoTotales);
 
@@ -197,6 +209,21 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
         
         // PASO 7: Limpiar espacios al inicio y final
         return trim($estado);
+    }
+
+    /**
+     * Obtiene la forma canónica de un estado normalizado
+     * Usa el mapeo CANONICAL_STATES para devolver una forma estándar
+     */
+    private function getCanonicalEstado(string $estadoNormalizado): string
+    {
+        // Si existe en el mapeo canónico, usar ese
+        if (isset(self::CANONICAL_STATES[$estadoNormalizado])) {
+            return self::CANONICAL_STATES[$estadoNormalizado];
+        }
+        
+        // Si no, devolver el estado normalizado con primera letra mayúscula de cada palabra
+        return ucwords($estadoNormalizado);
     }
 
     /**
