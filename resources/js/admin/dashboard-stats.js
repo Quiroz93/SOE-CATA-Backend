@@ -4,6 +4,31 @@
  */
 
 import Chart from 'chart.js/auto';
+import {
+    Chart as ChartJS,
+    ArcElement,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
+
+// Registrar todos los elementos de Chart.js explícitamente
+ChartJS.register(
+    ArcElement,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 // Estado global del módulo
 const state = {
@@ -94,8 +119,8 @@ function init() {
     individualChartType?.addEventListener('change', (e) => {
         state.individualChartType = e.target.value;
         if (state.currentData && state.activeReportKind === 'individual_ficha') {
-            const estadoTotales = state.currentData.estado_totales || {};
-            renderIndividualChart(estadoTotales);
+            const statesData = getIndividualStatesData(state.currentData);
+            renderIndividualChart(statesData);
         }
     });
 
@@ -156,6 +181,7 @@ async function uploadFile(file) {
         }
 
         state.currentData = data;
+        
         const successMessage = state.activeReportKind === 'individual_ficha'
             ? `Archivo procesado correctamente. Total de aprendices: ${data.metadata?.totalAprendices ?? (data.tabla || []).length}`
             : `Archivo procesado correctamente. Total de fichas: ${data.metadata?.totalFichas ?? data.totalRegistros}`;
@@ -196,6 +222,14 @@ async function uploadMultipleFiles(files) {
     // Agregar archivos al estado
     state.uploadedFiles.push(...files);
 
+    // Para Individual Ficha: procesar automáticamente
+    if (state.activeReportKind === 'individual_ficha') {
+        // Procesar automáticamente sin esperar botón
+        await consolidateFiles();
+        return;
+    }
+
+    // Para Consolidador: mostrar lista y botón para procesar manualmente
     // Mostrar lista de archivos cargados
     updateFilesList();
     
@@ -284,6 +318,8 @@ async function consolidateFiles() {
     }
 
     const isConsolidador = state.activeReportKind === 'consolidador';
+    const isIndividualFicha = state.activeReportKind === 'individual_ficha';
+    
     showStatus(isConsolidador ? 'Consolidando archivos...' : 'Procesando archivos...', 'loading');
     statsResults.style.display = 'none';
 
@@ -321,6 +357,11 @@ async function consolidateFiles() {
             renderMetadataConsolidado(data);
             renderConsolidatedResults(data);
             renderDownloadButtons();
+        } else if (isIndividualFicha) {
+            const successMessage = `Procesamiento exitoso: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
+            showStatus(successMessage, 'success');
+            renderMetadataConsolidado(data);
+            renderConsolidatedResults(data);
         } else {
             const successMessage = `Procesamiento exitoso: ${data.totales?.fichas ?? 0} fichas, ${data.totales?.aprendices ?? 0} aprendices`;
             showStatus(successMessage, 'success');
@@ -591,9 +632,16 @@ function resetView() {
     }
 }
 
+function getIndividualStatesData(data) {
+    if (!data) return {};
+    return data.estado_totales || data.estados_globales || {};
+}
+
 function renderIndividualResults(data) {
     const rows = data.tabla || [];
-    const estadoTotales = data.estado_totales || {};
+    const estadoTotales = getIndividualStatesData(data);
+    
+    state.currentData = data;
 
     if (statsResultsGeneral) statsResultsGeneral.style.display = 'none';
     if (statsResultsIndividual) statsResultsIndividual.style.display = 'block';
@@ -604,53 +652,80 @@ function renderIndividualResults(data) {
 }
 
 function renderIndividualChart(estadoTotales) {
-    // Buscar el canvas siempre por ID para obtener la referencia actualizada
-    let canvasElement = document.getElementById('individualStateChart');
-    if (!canvasElement) return;
-
-    const canvasContainer = canvasElement.parentNode;
-    if (!canvasContainer) return;
-
-    // Destruir chart anterior y limpiar canvas completamente
+    
+    // PASO 1: Obtener el contenedor PADRE del canvas
+    const canvasElement = document.getElementById('individualStateChart');
+    if (!canvasElement) {
+        console.error('Canvas element not found');
+        return;
+    }
+    
+    const container = canvasElement.parentNode;
+    if (!container) {
+        console.error('Canvas container not found');
+        return;
+    }
+    
+    // PASO 2: Destruir gráfica anterior
     if (state.individualChart) {
         state.individualChart.destroy();
         state.individualChart = null;
     }
-
-    // Recrear el canvas para evitar problemas con Chart.js
-    const oldCanvas = canvasElement;
-    const newCanvas = document.createElement('canvas');
-    newCanvas.id = 'individualStateChart';
-    newCanvas.style.maxHeight = '400px';
     
-    if (oldCanvas && oldCanvas.parentNode) {
-        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+    // PASO 3: LIMPIAR completamente el contenedor (CLAVE)
+    container.innerHTML = '';
+    
+    // PASO 4: Crear estructura HTML similar a renderChart
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '100%';
+    wrapper.style.height = '400px';
+    wrapper.style.overflow = 'hidden';
+    
+    const canvas = document.createElement('canvas');
+    canvas.id = 'individualStateChart';
+    canvas.style.width = '100% !important';
+    canvas.style.height = '100% !important';
+    canvas.style.maxWidth = '100%';
+    canvas.style.display = 'block';
+    
+    wrapper.appendChild(canvas);
+    container.appendChild(wrapper);
+    
+    // PASO 5: Obtener contexto del canvas nuevo
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Failed to get 2d context');
+        return;
     }
-
-    // Actualizar referencia en state si es necesario
-    const ctx = newCanvas.getContext('2d');
-    if (!ctx) return;
-
+    
+    // PASO 6: Preparar datos
     const labels = Object.keys(estadoTotales);
     const values = Object.values(estadoTotales).map(value => Number(value || 0));
-    const chartType = state.individualChartType || 'bar';
-
-    // Colores para gráficas circulares
+    let chartType = state.individualChartType || 'bar';
+    
+    // Validar tipo
+    const validChartTypes = ['bar', 'line', 'pie', 'doughnut'];
+    if (!validChartTypes.includes(chartType)) {
+        chartType = 'bar';
+    }
+    
+    // PASO 7: Colores
     const circularColors = [
-        'rgba(57, 169, 0, 0.8)',      // Verde SENA
-        'rgba(0, 123, 255, 0.8)',     // Azul
-        'rgba(255, 193, 7, 0.8)',     // Amarillo
-        'rgba(220, 53, 69, 0.8)',     // Rojo
-        'rgba(108, 117, 125, 0.8)',   // Gris
-        'rgba(0, 200, 83, 0.8)',      // Verde esmeralda
-        'rgba(156, 39, 176, 0.8)',    // Púrpura
-        'rgba(255, 152, 0, 0.8)',     // Naranja
+        'rgba(57, 169, 0, 0.8)',
+        'rgba(0, 123, 255, 0.8)',
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(220, 53, 69, 0.8)',
+        'rgba(108, 117, 125, 0.8)',
+        'rgba(0, 200, 83, 0.8)',
+        'rgba(156, 39, 176, 0.8)',
+        'rgba(255, 152, 0, 0.8)',
     ];
-
+    
     const isCircularChart = chartType === 'doughnut' || chartType === 'pie';
     const backgroundColor = isCircularChart ? circularColors : 'rgba(57, 169, 0, 0.80)';
     const borderColor = isCircularChart ? '#ffffff' : '#39A900';
-
+    
+    // PASO 8: Configuración de gráfica (igual a renderChart)
     const chartConfig = {
         type: chartType,
         data: {
@@ -662,6 +737,8 @@ function renderIndividualChart(estadoTotales) {
                     backgroundColor: backgroundColor,
                     borderColor: borderColor,
                     borderWidth: isCircularChart ? 2 : 2,
+                    fill: chartType === 'line' ? false : true,
+                    tension: chartType === 'line' ? 0.3 : undefined,
                 }
             ]
         },
@@ -670,7 +747,7 @@ function renderIndividualChart(estadoTotales) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: isCircularChart ? true : false,
+                    display: true,
                     position: isCircularChart ? 'bottom' : 'top'
                 },
                 title: {
@@ -678,30 +755,44 @@ function renderIndividualChart(estadoTotales) {
                     text: 'Distribución de Aprendices por Estado',
                     font: { size: 16, weight: 'bold' }
                 },
-                tooltip: isCircularChart ? {
-                    callbacks: {
+                tooltip: {
+                    enabled: true,
+                    callbacks: isCircularChart ? {
                         label: (context) => {
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const value = context.parsed;
                             const percentage = ((value / total) * 100).toFixed(1);
                             return `${context.label}: ${value} (${percentage}%)`;
                         }
-                    }
-                } : undefined
+                    } : undefined
+                }
             },
-            scales: isCircularChart ? undefined : {
+            scales: isCircularChart ? {} : {
                 y: {
                     beginAtZero: true,
+                    ticks: { beginAtZero: true },
                     title: {
                         display: true,
                         text: 'Cantidad de aprendices'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Estados'
                     }
                 }
             }
         }
     };
-
-    state.individualChart = new Chart(ctx, chartConfig);
+    
+    // PASO 9: Crear gráfica
+    try {
+        state.individualChart = new Chart(ctx, chartConfig);
+    } catch (error) {
+        console.error('Error creating chart:', error);
+        console.error('Stack:', error.stack);
+    }
 }
 
 function renderIndividualStatesTable(estadoTotales) {
@@ -813,7 +904,7 @@ function renderConsolidatedResults(data) {
 
     // Renderizar gráfica solo para pestaña individual_ficha
     if (!isConsolidadorTab) {
-        renderConsolidatedStatesChart(data.estados_globales || {});
+        renderIndividualChart(getIndividualStatesData(data));
     }
 
     // Renderizar tabla de totales por estado
