@@ -202,8 +202,12 @@ function init() {
     reportTabs.forEach((tab) => {
         tab.addEventListener('click', () => {
             const kind = tab.dataset.reportKind || 'general_inscripciones';
+            // Solo resetear si realmente se cambia de pestaña
+            const isChangingTab = state.activeReportKind !== kind;
             setActiveReportKind(kind);
-            resetView();
+            if (isChangingTab) {
+                resetView();
+            }
         });
     });
 }
@@ -606,8 +610,12 @@ function splitLongText(text, maxLength = 50) {
 }
 
 function setActiveReportKind(reportKind) {
+    const isChangingTab = state.activeReportKind !== reportKind;
     state.activeReportKind = reportKind;
-    state.uploadedFiles = []; // Limpiar archivos al cambiar de pestaña
+    // Solo limpiar archivos si realmente se cambia de pestaña
+    if (isChangingTab) {
+        state.uploadedFiles = []; // Limpiar archivos al cambiar de pestaña
+    }
 
     reportTabs.forEach((tab) => {
         tab.classList.toggle('active', tab.dataset.reportKind === reportKind);
@@ -2385,7 +2393,13 @@ function generateManualCharts() {
 }
 
 function showManualResults(data) {
-    // Mostrar área de resultados
+    // Ocultar otros contenedores de resultados
+    const resultsGeneral = document.getElementById('statsResultsGeneral');
+    const resultsConsolidador = document.getElementById('statsResultsConsolidador');
+    if (resultsGeneral) resultsGeneral.style.display = 'none';
+    if (resultsConsolidador) resultsConsolidador.style.display = 'none';
+    
+    // Mostrar área de resultados individual
     const resultsIndividual = document.getElementById('statsResultsIndividual');
     if (resultsIndividual) {
         resultsIndividual.style.display = 'block';
