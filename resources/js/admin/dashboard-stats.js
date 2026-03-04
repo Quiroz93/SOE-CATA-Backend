@@ -754,6 +754,7 @@ function renderIndividualResults(data) {
 }
 
 function renderIndividualChart(estadoTotales) {
+    console.log('renderIndividualChart called with:', estadoTotales);
     
     // PASO 1: Obtener el contenedor PADRE del canvas
     const canvasElement = document.getElementById('individualStateChart');
@@ -761,12 +762,14 @@ function renderIndividualChart(estadoTotales) {
         console.error('Canvas element not found');
         return;
     }
+    console.log('Canvas element found:', canvasElement);
     
     const container = canvasElement.parentNode;
     if (!container) {
         console.error('Canvas container not found');
         return;
     }
+    console.log('Canvas container found:', container);
     
     // PASO 2: Destruir gráfica anterior
     if (state.individualChart) {
@@ -890,6 +893,7 @@ function renderIndividualChart(estadoTotales) {
     // PASO 9: Crear gráfica
     try {
         state.individualChart = new Chart(ctx, chartConfig);
+        console.log('Chart created successfully:', state.individualChart);
     } catch (error) {
         console.error('Error creating chart:', error);
         console.error('Stack:', error.stack);
@@ -897,7 +901,12 @@ function renderIndividualChart(estadoTotales) {
 }
 
 function renderIndividualStatesTable(estadoTotales, data) {
-    if (!individualStatesTableBody) return;
+    console.log('renderIndividualStatesTable called with:', estadoTotales, data);
+    
+    if (!individualStatesTableBody) {
+        console.error('individualStatesTableBody element not found');
+        return;
+    }
 
     // Calcular el total de aprendices
     const totalAprendices = data?.metadata?.totalAprendices || Object.values(estadoTotales).reduce((sum, val) => sum + Number(val || 0), 0);
@@ -942,6 +951,8 @@ function renderIndividualStatesTable(estadoTotales, data) {
             `;
         })
         .join('');
+    
+    console.log('Table rendered with', Object.keys(estadoTotales).length, 'estados');
 }
 
 function renderIndividualTable(rows) {
@@ -2393,32 +2404,48 @@ function generateManualCharts() {
 }
 
 function showManualResults(data) {
+    console.log('showManualResults called with data:', data);
+    
     // Ocultar otros contenedores de resultados
     const resultsGeneral = document.getElementById('statsResultsGeneral');
     const resultsConsolidador = document.getElementById('statsResultsConsolidador');
     if (resultsGeneral) resultsGeneral.style.display = 'none';
     if (resultsConsolidador) resultsConsolidador.style.display = 'none';
     
-    // Mostrar área de resultados individual
+    // Mostrar área de resultados individual PRIMERO
     const resultsIndividual = document.getElementById('statsResultsIndividual');
-    if (resultsIndividual) {
-        resultsIndividual.style.display = 'block';
+    if (!resultsIndividual) {
+        console.error('statsResultsIndividual element not found');
+        return;
     }
+    
+    resultsIndividual.style.display = 'block';
+    
+    // Esperar a que el navegador renderice el cambio de display
+    // Esto es crítico para que el canvas sea accesible
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            console.log('Starting render with estadoTotales:', data.estado_totales);
+            
+            // Renderizar gráfica
+            const estadoTotales = data.estado_totales;
+            renderIndividualChart(estadoTotales);
 
-    // Renderizar gráfica
-    const estadoTotales = data.estado_totales;
-    renderIndividualChart(estadoTotales);
+            // Renderizar tabla de totales por estado
+            renderIndividualStatesTable(estadoTotales, data);
+            
+            // Limpiar tabla de detalles de aprendices (no disponible en manual)
+            renderIndividualTable(data.tabla || []);
 
-    // Renderizar tabla
-    renderIndividualStatesTable(estadoTotales, data);
+            // Actualizar metadata
+            renderMetadataIndividual(data);
 
-    // Actualizar metadata
-    renderMetadataIndividual(data);
-
-    // Scroll a resultados
-    setTimeout(() => {
-        document.getElementById('statsResultsIndividual')?.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
+            // Scroll a resultados
+            setTimeout(() => {
+                resultsIndividual.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }, 50);
+    });
 }
 
 function renderMetadataIndividual(data) {
@@ -2446,6 +2473,12 @@ function renderMetadataIndividual(data) {
     if (metaLabel4 && metaValue4) {
         metaLabel4.textContent = 'Total Estados:';
         metaValue4.textContent = Object.keys(data.estado_totales || {}).length;
+    }
+    
+    // Mostrar el contenedor de metadata
+    const statsMetadata = document.getElementById('statsMetadata');
+    if (statsMetadata) {
+        statsMetadata.style.display = 'block';
     }
 }
 
