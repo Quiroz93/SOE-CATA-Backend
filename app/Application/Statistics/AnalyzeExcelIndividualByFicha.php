@@ -14,8 +14,12 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
     private const CANONICAL_STATES = [
         'convocado matricula' => 'Convocado Matrícula',
         'convocado matrcula' => 'Convocado Matrícula',  // Sin í
+        'convocado matr cula' => 'Convocado Matrícula',  // Con espacio en lugar de í
+        'convocado matr icula' => 'Convocado Matrícula',  // Con espacio + i
         'anulado matricula' => 'Anulado Matrícula',
         'anulado matrcula' => 'Anulado Matrícula',  // Sin í
+        'anulado matr cula' => 'Anulado Matrícula',  // Con espacio en lugar de í
+        'anulado matr icula' => 'Anulado Matrícula',  // Con espacio + i
         'matriculado' => 'Matriculado',
         'inscrito' => 'Inscrito',
         'no admitido' => 'No Admitido',
@@ -229,6 +233,19 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
         // Si existe en el mapeo canónico, usar ese
         if (isset(self::CANONICAL_STATES[$estadoNormalizado])) {
             return self::CANONICAL_STATES[$estadoNormalizado];
+        }
+        
+        // Fallback: buscar patrones conocidos para manejar variaciones no mapeadas
+        // Esto captura casos donde los caracteres están tan corruptos que no coinciden exactamente
+        
+        // Patrón: "convocado" + "matr" + algo + "cula"
+        if (preg_match('/^convocado\s+matr.*cula$/i', $estadoNormalizado)) {
+            return 'Convocado Matrícula';
+        }
+        
+        // Patrón: "anulado" + "matr" + algo + "cula"
+        if (preg_match('/^anulado\s+matr.*cula$/i', $estadoNormalizado)) {
+            return 'Anulado Matrícula';
         }
         
         // Si no, devolver el estado normalizado con primera letra mayúscula de cada palabra
