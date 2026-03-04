@@ -661,7 +661,7 @@ function renderIndividualResults(data) {
     if (statsResultsIndividual) statsResultsIndividual.style.display = 'block';
 
     renderIndividualChart(estadoTotales);
-    renderIndividualStatesTable(estadoTotales);
+    renderIndividualStatesTable(estadoTotales, data);
     renderIndividualTable(rows);
 }
 
@@ -809,16 +809,51 @@ function renderIndividualChart(estadoTotales) {
     }
 }
 
-function renderIndividualStatesTable(estadoTotales) {
+function renderIndividualStatesTable(estadoTotales, data) {
     if (!individualStatesTableBody) return;
 
+    // Calcular el total de aprendices
+    const totalAprendices = data?.metadata?.totalAprendices || Object.values(estadoTotales).reduce((sum, val) => sum + Number(val || 0), 0);
+    
+    // Si no hay datos, evitar división por cero
+    if (totalAprendices === 0) {
+        individualStatesTableBody.innerHTML = '';
+        return;
+    }
+
     individualStatesTableBody.innerHTML = Object.entries(estadoTotales)
-        .map(([estado, total]) => `
-            <tr>
-                <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
-                <td><strong>${Number(total || 0)}</strong></td>
-            </tr>
-        `)
+        .map(([estado, total]) => {
+            const count = Number(total || 0);
+            const percentage = ((count / totalAprendices) * 100).toFixed(1);
+            const progressWidth = Math.round((count / totalAprendices) * 100);
+            
+            return `
+                <tr>
+                    <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
+                    <td><strong>${count}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="
+                                flex: 1; 
+                                height: 20px; 
+                                background-color: #e9ecef; 
+                                border-radius: 4px; 
+                                overflow: hidden;
+                                min-width: 80px;
+                            ">
+                                <div style="
+                                    height: 100%; 
+                                    background: linear-gradient(90deg, #39a900, #5fbf2b);
+                                    width: ${progressWidth}%;
+                                    transition: width 0.3s ease;
+                                "></div>
+                            </div>
+                            <span style="min-width: 45px; text-align: right; font-weight: 500;">${percentage}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        })
         .join('');
 }
 
@@ -922,7 +957,7 @@ function renderConsolidatedResults(data) {
     }
 
     // Renderizar tabla de totales por estado
-    renderConsolidatedStatesTable(data.estados_globales || {});
+    renderConsolidatedStatesTable(data.estados_globales || {}, data);
 
     // Renderizar tabla de fichas con detalles
     renderFichasTable(data.fichas || {});
@@ -1018,22 +1053,57 @@ function renderConsolidatedStatesChart(estadosGlobales) {
 /**
  * Renderizar tabla de totales consolidados por estado
  */
-function renderConsolidatedStatesTable(estadosGlobales) {
+function renderConsolidatedStatesTable(estadosGlobales, data) {
     const isConsolidadorTab = state.activeReportKind === 'consolidador';
     const tableBody = isConsolidadorTab ? consolidadorStatesTableBody : individualStatesTableBody;
     
     if (!tableBody) return;
 
+    // Calcular el total de aprendices
+    const totalAprendices = data?.totales?.aprendices || data?.metadata?.totalAprendices || Object.values(estadosGlobales).reduce((sum, val) => sum + Number(val || 0), 0);
+    
+    // Si no hay datos, evitar división por cero
+    if (totalAprendices === 0) {
+        tableBody.innerHTML = '';
+        return;
+    }
+
     const sortedStates = Object.entries(estadosGlobales)
         .sort((a, b) => Number(b[1]) - Number(a[1]));
 
     tableBody.innerHTML = sortedStates
-        .map(([estado, total]) => `
-            <tr>
-                <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
-                <td><strong>${Number(total || 0)}</strong></td>
-            </tr>
-        `)
+        .map(([estado, total]) => {
+            const count = Number(total || 0);
+            const percentage = ((count / totalAprendices) * 100).toFixed(1);
+            const progressWidth = Math.round((count / totalAprendices) * 100);
+            
+            return `
+                <tr>
+                    <td style="font-weight: 500;">${escapeHtml(String(estado))}</td>
+                    <td><strong>${count}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="
+                                flex: 1; 
+                                height: 20px; 
+                                background-color: #e9ecef; 
+                                border-radius: 4px; 
+                                overflow: hidden;
+                                min-width: 80px;
+                            ">
+                                <div style="
+                                    height: 100%; 
+                                    background: linear-gradient(90deg, #39a900, #5fbf2b);
+                                    width: ${progressWidth}%;
+                                    transition: width 0.3s ease;
+                                "></div>
+                            </div>
+                            <span style="min-width: 45px; text-align: right; font-weight: 500;">${percentage}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        })
         .join('');
 }
 
