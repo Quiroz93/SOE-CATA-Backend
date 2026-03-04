@@ -37,6 +37,7 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
 
         $tabla = [];
         $estadoCounts = [];
+        $estadoOriginalMap = []; // Mapeo de estado normalizado -> estado original más frecuente
 
         for ($i = $headerRowIndex + 1; $i < count($rows); $i++) {
             $row = $rows[$i];
@@ -59,7 +60,14 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
                 'estado' => $estado,
             ];
 
-            $estadoCounts[$estado] = ($estadoCounts[$estado] ?? 0) + 1;
+            // Normalizar el estado para agrupar variaciones
+            $estadoNormalizado = $this->normalizeEstado($estado);
+            $estadoCounts[$estadoNormalizado] = ($estadoCounts[$estadoNormalizado] ?? 0) + 1;
+            
+            // Guardar mapeo para mostrar el estado original más frecuente
+            if (!isset($estadoOriginalMap[$estadoNormalizado])) {
+                $estadoOriginalMap[$estadoNormalizado] = $estado;
+            }
         }
 
         if (count($tabla) === 0) {
@@ -67,18 +75,26 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
         }
 
         arsort($estadoCounts);
+        
+        // Reemplazar claves normalizadas con estados originales en el diccionario de conteos
+        $estadoTotales = [];
+        foreach ($estadoCounts as $estadoNorm => $count) {
+            $estadoOriginal = $estadoOriginalMap[$estadoNorm] ?? $estadoNorm;
+            $estadoTotales[$estadoOriginal] = $count;
+        }
+        arsort($estadoTotales);
 
         return [
             'report_kind' => 'individual_ficha',
-            'labels' => array_keys($estadoCounts),
-            'series' => array_values($estadoCounts),
+            'labels' => array_keys($estadoTotales),
+            'series' => array_values($estadoTotales),
             'tabla' => $tabla,
-            'estado_totales' => $estadoCounts,
+            'estado_totales' => $estadoTotales,
             'metadata' => [
                 'ficha' => $ficha,
                 'programa' => $programa,
                 'totalAprendices' => count($tabla),
-                'totalEstados' => count($estadoCounts),
+                'totalEstados' => count($estadoTotales),
             ],
         ];
     }
@@ -143,6 +159,28 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
             $value
         );
         return str_replace([' ', '_', '-', '.', '/', ':'], '', $value);
+    }
+
+    /**
+     * Normaliza un estado para agrupar variaciones (espacios, mayúsculas, etc.)
+     * Mantiene legibilidad a diferencia de normalize() que es más agresiva
+     */
+    private function normalizeEstado(string $estado): string
+    {
+        // Convertir a minúsculas
+        $estado = mb_strtolower(trim($estado));
+        
+        // Normalizar acentos
+        $estado = str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'],
+            ['a', 'e', 'i', 'o', 'u', 'u', 'n'],
+            $estado
+        );
+        
+        // Normalizar espacios múltiples y guiones/underscore a espacio único
+        $estado = preg_replace('/[\s_-]+/', ' ', $estado);
+        
+        return trim($estado);
     }
 
     /**

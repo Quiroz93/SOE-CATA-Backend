@@ -57,20 +57,21 @@ class ConsolidateIndividualFichas
                     ];
                 }
 
-                // Agregar aprendices de este archivo
-                foreach ($result['tabla'] as $aprendiz) {
-                    $fichasData[$ficha]['aprendices'][] = $aprendiz;
-                    $estado = $aprendiz['estado'];
-
-                    // Contar estados por ficha
-                    $fichasData[$ficha]['estadoCounts'][$estado] = 
-                        ($fichasData[$ficha]['estadoCounts'][$estado] ?? 0) + 1;
-
-                    // Contar estados globales
-                    $estadoCounts[$estado] = ($estadoCounts[$estado] ?? 0) + 1;
-
-                    $fichasData[$ficha]['totalAprendices']++;
-                    $totalAprendices++;
+                // Usar los estados_totales ya normalizados del analyzer para la ficha
+                if (!empty($result['estado_totales'])) {
+                    $fichasData[$ficha]['estadoCounts'] = $result['estado_totales'];
+                    $fichasData[$ficha]['totalAprendices'] = $result['metadata']['totalAprendices'];
+                    $totalAprendices += $result['metadata']['totalAprendices'];
+                    
+                    // Agregar aprendices
+                    foreach ($result['tabla'] as $aprendiz) {
+                        $fichasData[$ficha]['aprendices'][] = $aprendiz;
+                    }
+                    
+                    // Contar estados globales usando los ya normalizados
+                    foreach ($result['estado_totales'] as $estado => $count) {
+                        $estadoCounts[$estado] = ($estadoCounts[$estado] ?? 0) + $count;
+                    }
                 }
             } catch (\Exception $e) {
                 // Registrar error pero continuar procesando otros archivos
