@@ -16,6 +16,9 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
             throw new \Exception('El archivo no tiene la estructura esperada para reporte individual por ficha.');
         }
 
+        // Normalizar todas las filas a UTF-8 para evitar problemas de codificación
+        $rows = array_map(fn($row) => $this->ensureUtf8($row), $rows);
+
         [$ficha, $programa] = $this->extractHeaderData($rows);
         $headerRowIndex = $this->findTableHeaderRow($rows);
 
@@ -140,5 +143,32 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
             $value
         );
         return str_replace([' ', '_', '-', '.', '/', ':'], '', $value);
+    }
+
+    /**
+     * Garantiza que todos los valores en una fila están correctamente codificados en UTF-8
+     * Esto evita problemas de mojibake cuando el Excel tiene caracteres especiales
+     */
+    private function ensureUtf8(array $row): array
+    {
+        return array_map(function ($value) {
+            if (!is_string($value)) {
+                return $value;
+            }
+
+            // Si el valor ya es UTF-8 válido, devolverlo tal cual
+            if (mb_check_encoding($value, 'UTF-8')) {
+                return $value;
+            }
+
+            // Si no es UTF-8, intentar detectar y convertir la codificación
+            $encoding = mb_detect_encoding($value, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+            if ($encoding && $encoding !== 'UTF-8') {
+                return mb_convert_encoding($value, 'UTF-8', $encoding);
+            }
+
+            // Último recurso: asumir Windows-1252 y convertir
+            return mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+        }, $row);
     }
 }

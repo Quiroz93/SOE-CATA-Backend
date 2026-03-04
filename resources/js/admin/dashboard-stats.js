@@ -83,9 +83,10 @@ function init() {
     dropZone.addEventListener('click', () => inputFile.click());
 
     // Cambio en input de archivo
-    inputFile.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (file) uploadFile(file);
+    inputFile.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files || []);
+        await handleSelectedFiles(files);
+        e.target.value = '';
     });
 
     // Drag & Drop
@@ -103,9 +104,9 @@ function init() {
         });
     });
 
-    dropZone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer.files?.[0];
-        if (file) uploadFile(file);
+    dropZone.addEventListener('drop', async (e) => {
+        const files = Array.from(e.dataTransfer?.files || []);
+        await handleSelectedFiles(files);
     });
 
     // Cambio de tipo de reporte
@@ -131,6 +132,19 @@ function init() {
             resetView();
         });
     });
+}
+
+async function handleSelectedFiles(files) {
+    if (!files.length) return;
+
+    const supportsMultipleFiles = state.activeReportKind === 'consolidador' || state.activeReportKind === 'individual_ficha';
+
+    if (supportsMultipleFiles) {
+        await uploadMultipleFiles(files);
+        return;
+    }
+
+    await uploadFile(files[0]);
 }
 
 /**
