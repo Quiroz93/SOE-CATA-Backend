@@ -11,7 +11,7 @@ class Competencia extends Model
     use HasFactory;
     
     protected $fillable = [
-        'nombre', 'codigo', 'descripcion'
+        'nombre', 'descripcion', 'area', 'estado'
     ];
 
     public function programas()

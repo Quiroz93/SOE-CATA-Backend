@@ -11,7 +11,7 @@ class CompetenciaController extends Controller
 {
     public function index()
     {
-        $competencias = Competencia::with('programas')->latest()->paginate(15);
+        $competencias = Competencia::withCount('programas')->orderBy('nombre')->paginate(15);
         return view('admin.competencias.index', compact('competencias'));
     }
 

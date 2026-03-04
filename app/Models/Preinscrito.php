@@ -77,6 +77,14 @@ class Preinscrito extends Model
         return $this->hasMany(NovedadPreinscrito::class);
     }
 
+    /**
+     * Relación: Un preinscrito tiene un inscrito (si fue promovido)
+     */
+    public function inscrito()
+    {
+        return $this->hasOne(Inscrito::class);
+    }
+
     public function getEstadoValorAttribute(): ?string
     {
         if ($this->estado instanceof EstadoPreinscrito) {

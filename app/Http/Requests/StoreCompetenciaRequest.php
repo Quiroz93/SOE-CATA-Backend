@@ -6,18 +6,28 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCompetenciaRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        return $this->user()->can('programas.create'); // Ajustar si el permiso es diferente
+        return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            // TODO: Agregar reglas reales según los campos de Competencia
             'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:50|unique:competencias,codigo',
-            // ...otros campos...
+            'descripcion' => 'nullable|string',
+            'area' => 'nullable|string|max:255',
+            'estado' => 'required|in:publicado,borrador',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombre.required' => 'El nombre de la competencia es obligatorio',
+            'nombre.max' => 'El nombre no puede exceder 255 caracteres',
+            'estado.required' => 'El estado es obligatorio',
+            'estado.in' => 'El estado debe ser publicado o borrador',
         ];
     }
 }
