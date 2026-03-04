@@ -167,6 +167,9 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
      */
     private function normalizeEstado(string $estado): string
     {
+        // Decodificar entidades HTML primero (ej: &iacute; -> í)
+        $estado = html_entity_decode($estado, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        
         // Convertir a minúsculas
         $estado = mb_strtolower(trim($estado));
         
