@@ -101,6 +101,21 @@
     @enderror
 </div>
 
+<div class="form-group">
+    <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="tiene_novedad" id="tiene_novedad" value="1" 
+               {{ old('tiene_novedad') ? 'checked' : '' }}
+               style="width: auto; margin: 0;">
+        <span>Este preinscrito tiene una novedad que registrar</span>
+    </label>
+    <small style="color: #666; margin-top: 0.25rem; display: block;">
+        Si marcas esta casilla, serás redirigido al formulario de novedades después de guardar el preinscrito.
+    </small>
+    @error('tiene_novedad')
+        <span class="form-error">{{ $message }}</span>
+    @enderror
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const ofertaProgramaSelect = document.getElementById('oferta_programa_id');

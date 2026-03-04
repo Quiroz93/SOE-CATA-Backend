@@ -169,10 +169,13 @@ class PreinscritoController extends Controller
         $estadoEnum = EstadoPreinscrito::tryFromInput((string) $validated['estado']);
         $validated['estado'] = $estadoEnum?->value;
 
+        // Capturar el checkbox de novedad antes de crear
+        $tieneNovedad = $request->has('tiene_novedad') && $request->input('tiene_novedad') == '1';
+
         $preinscrito = Preinscrito::create($validated);
 
-        // Si el estado es 'Novedad', redirigir a crear novedad
-        if ($estadoEnum === EstadoPreinscrito::NOVEDAD) {
+        // Si el checkbox de novedad está marcado, redirigir a crear novedad
+        if ($tieneNovedad) {
             return redirect()->route('admin.novedades.create', ['preinscrito_id' => $preinscrito->id])
                 ->with('info', '⚠️ Por favor, redacta el detalle de la novedad para completar el registro del preinscrito.');
         }

@@ -16,9 +16,9 @@ class PreinscritoEstadoNovedadTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createValidPayload($ofertaId, $ofertaProgramaId, $estado = 'Pendiente')
+    private function createValidPayload($ofertaId, $ofertaProgramaId, $estado = 'Pendiente', $tieneNovedad = false)
     {
-        return [
+        $payload = [
             'oferta_id' => $ofertaId,
             'oferta_programa_id' => $ofertaProgramaId,
             'nombre' => 'Juan',
@@ -28,16 +28,22 @@ class PreinscritoEstadoNovedadTest extends TestCase
             'correo' => 'juan@example.com',
             'estado' => $estado,
         ];
+
+        if ($tieneNovedad) {
+            $payload['tiene_novedad'] = '1';
+        }
+
+        return $payload;
     }
 
-    public function test_crea_preinscrito_con_estado_novedad_redirije_a_crear_novedad(): void
+    public function test_crea_preinscrito_con_checkbox_novedad_marcado_redirije_a_crear_novedad(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'), 
-            $this->createValidPayload($oferta->id, $programa->id, 'Novedad')
+            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente', true)
         );
 
         // Debe redirigir a la creación de novedad
@@ -53,14 +59,14 @@ class PreinscritoEstadoNovedadTest extends TestCase
         ));
     }
 
-    public function test_crea_preinscrito_con_estado_pendiente_redirije_a_lista(): void
+    public function test_crea_preinscrito_sin_checkbox_novedad_redirije_a_lista(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente')
+            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente', false)
         );
 
         // Debe redirigir a la lista
@@ -70,30 +76,34 @@ class PreinscritoEstadoNovedadTest extends TestCase
         $response->assertSessionHas('success', 'Preinscrito creado correctamente');
     }
 
-    public function test_preinscrito_novedad_se_crea_correctamente_en_bd(): void
-    {
-        $user = User::factory()->create();
-        $oferta = Oferta::factory()->create(['estado' => 'activa']);
-        $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
-
-        $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Novedad')
-        );
-
-        $this->assertDatabaseHas('preinscritos', [
-            'documento' => '1234567890',
-            'estado' => EstadoPreinscrito::NOVEDAD->value,
-        ]);
-    }
-
-    public function test_mensaje_info_se_muestra_en_formulario_novedad(): void
+    public function test_preinscrito_con_estado_novedad_sin_checkbox_no_redirige(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Novedad')
+            $this->createValidPayload($oferta->id, $programa->id, 'Novedad', false)
+        );
+
+        // Debe redirigir a la lista, NO a novedades (porque el checkbox no está marcado)
+        $response->assertRedirect(route('admin.preinscritos.index'));
+        
+        // Verificar que se creó con estado Novedad
+        $this->assertDatabaseHas('preinscritos', [
+            'documento' => '1234567890',
+            'estado' => EstadoPreinscrito::NOVEDAD->value,
+        ]);
+    }
+
+    public function test_mensaje_info_se_muestra_cuando_checkbox_esta_marcado(): void
+    {
+        $user = User::factory()->create();
+        $oferta = Oferta::factory()->create(['estado' => 'activa']);
+        $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
+
+        $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
+            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente', true)
         );
 
         // Obtener el preinscrito creado
@@ -110,14 +120,14 @@ class PreinscritoEstadoNovedadTest extends TestCase
         $newResponse->assertSee('Por favor, redacta el detalle de la novedad');
     }
 
-    public function test_formulario_novedad_preselecciona_preinscrito_novedad(): void
+    public function test_formulario_novedad_preselecciona_preinscrito_cuando_se_redirige(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Novedad')
+            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente', true)
         );
 
         // Obtener el preinscrito creado
@@ -133,17 +143,19 @@ class PreinscritoEstadoNovedadTest extends TestCase
         $followResponse->assertSee($preinscrito->nombre_completo);
     }
 
-    public function test_crea_preinscrito_inscrito_no_redirije_a_novedad(): void
+    public function test_cualquier_estado_con_checkbox_marca_redirije_a_novedad(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
+        // Probar con estado "Inscrito" y checkbox marcado
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Inscrito')
+            $this->createValidPayload($oferta->id, $programa->id, 'Inscrito', true)
         );
 
-        // Debe redirigir a la lista, NO a novedades
-        $response->assertRedirect(route('admin.preinscritos.index'));
+        // Debe redirigir a novedades porque el checkbox está marcado
+        $response->assertRedirect();
+        $this->assertTrue(str_contains($response->headers->get('Location'), 'admin/novedades/create'));
     }
 }
