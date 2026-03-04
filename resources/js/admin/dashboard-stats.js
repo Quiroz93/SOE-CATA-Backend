@@ -2412,6 +2412,14 @@ function showManualResults(data) {
     if (resultsGeneral) resultsGeneral.style.display = 'none';
     if (resultsConsolidador) resultsConsolidador.style.display = 'none';
     
+    // Mostrar el contenedor padre statsResults (CRÍTICO)
+    const statsResults = document.getElementById('statsResults');
+    if (!statsResults) {
+        console.error('statsResults element not found');
+        return;
+    }
+    statsResults.style.display = 'block';
+    
     // Mostrar área de resultados individual PRIMERO
     const resultsIndividual = document.getElementById('statsResultsIndividual');
     if (!resultsIndividual) {
