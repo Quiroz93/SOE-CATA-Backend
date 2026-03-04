@@ -167,22 +167,35 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
      */
     private function normalizeEstado(string $estado): string
     {
-        // Decodificar entidades HTML primero (ej: &iacute; -> í)
+        // PASO 1: Asegurar UTF-8 válido
+        if (!mb_check_encoding($estado, 'UTF-8')) {
+            $estado = mb_convert_encoding($estado, 'UTF-8', mb_detect_encoding($estado));
+        }
+        
+        // PASO 2: Decodificar entidades HTML (ej: &iacute; -> í)
         $estado = html_entity_decode($estado, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         
-        // Convertir a minúsculas
-        $estado = mb_strtolower(trim($estado));
+        // PASO 3: Remover caracteres de control y bytes inválidos
+        $estado = preg_replace('/[\x00-\x1F\x7F-\x9F]/u', '', $estado);
         
-        // Normalizar acentos
-        $estado = str_replace(
-            ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'],
-            ['a', 'e', 'i', 'o', 'u', 'u', 'n'],
-            $estado
-        );
+        // PASO 4: Convertir a minúsculas usando mb_strtolower
+        $estado = mb_strtolower(trim($estado), 'UTF-8');
         
-        // Normalizar espacios múltiples y guiones/underscore a espacio único
+        // PASO 5: Normalizar acentos usando iconv para mejor cobertura
+        $estado = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $estado);
+        if ($estado === false) {
+            // Fallback manual si iconv falla
+            $estado = str_replace(
+                ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ', 'à', 'è', 'ì', 'ò', 'ù'],
+                ['a', 'e', 'i', 'o', 'u', 'u', 'n', 'a', 'e', 'i', 'o', 'u'],
+                $estado
+            );
+        }
+        
+        // PASO 6: Normalizar espacios múltiples y guiones/underscore a espacio único
         $estado = preg_replace('/[\s_-]+/', ' ', $estado);
         
+        // PASO 7: Limpiar espacios al inicio y final
         return trim($estado);
     }
 
