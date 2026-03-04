@@ -13,7 +13,9 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
      */
     private const CANONICAL_STATES = [
         'convocado matricula' => 'Convocado Matrícula',
+        'convocado matrcula' => 'Convocado Matrícula',  // Sin í
         'anulado matricula' => 'Anulado Matrícula',
+        'anulado matrcula' => 'Anulado Matrícula',  // Sin í
         'matriculado' => 'Matriculado',
         'inscrito' => 'Inscrito',
         'no admitido' => 'No Admitido',
@@ -189,6 +191,13 @@ class AnalyzeExcelIndividualByFicha implements ExcelReportAnalyzer
         
         // PASO 3: Remover caracteres de control y bytes inválidos
         $estado = preg_replace('/[\x00-\x1F\x7F-\x9F]/u', '', $estado);
+        
+        // PASO 3.5: Limpiar patrones comunes de mojibake (comillas + vocal)
+        $estado = preg_replace("/['`´]([aeiouAEIOU])/u", '$1', $estado);
+        
+        // PASO 3.6: Reemplazar cualquier secuencia de caracteres no deseados
+        // Mantener solo letras, números, espacios, guiones y underscores
+        $estado = preg_replace('/[^\p{L}\p{N}\s_-]/u', ' ', $estado);
         
         // PASO 4: Convertir a minúsculas usando mb_strtolower
         $estado = mb_strtolower(trim($estado), 'UTF-8');
