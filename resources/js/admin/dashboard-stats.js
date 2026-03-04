@@ -2079,20 +2079,30 @@ function initManualForm() {
 
     if (!toggleBtn) return;
 
-    // Mostrar/ocultar formulario
+    // Mostrar/ocultar formulario con aria-expanded actualizado
     toggleBtn.addEventListener('click', () => {
-        manualForm.style.display = manualForm.style.display === 'none' ? 'block' : 'none';
-        if (manualForm.style.display === 'block') {
+        const isHidden = manualForm.style.display === 'none';
+        manualForm.style.display = isHidden ? 'block' : 'none';
+        toggleBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+        
+        if (isHidden) {
             // Inicializar con una fila vacía si está vacío
             if (manualFormState.estadoRows.length === 0) {
                 addEstadoRow();
             }
+            // Focus en primer input del formulario
+            document.getElementById('manualFichaCodigo').focus();
+        } else {
+            clearValidationMessages();
         }
     });
 
     cancelBtn?.addEventListener('click', () => {
         manualForm.style.display = 'none';
+        toggleBtn.setAttribute('aria-expanded', 'false');
         resetManualForm();
+        clearValidationMessages();
+        toggleBtn.focus();
     });
 
     addEstadoBtn?.addEventListener('click', addEstadoRow);
@@ -2107,36 +2117,68 @@ function addEstadoRow() {
     row.id = rowId;
     row.innerHTML = `
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
-            <input type="text" class="estado-input" placeholder="Ej: Matriculado" style="
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 12px;
-                box-sizing: border-box;
-            " value="">
+            <input 
+                type="text" 
+                class="estado-input" 
+                placeholder="Ej: Matriculado"
+                aria-label="Estado de aprendices fila ${manualFormState.rowCounter}"
+                data-field-type="estado"
+                style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 2px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    box-sizing: border-box;
+                    transition: border-color 0.2s ease;
+                " 
+                onfocus="this.style.borderColor='#39a900'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                value=""
+            >
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
-            <input type="number" class="cantidad-input" placeholder="0" min="0" style="
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 12px;
-                box-sizing: border-box;
-            " value="0">
+            <input 
+                type="number" 
+                class="cantidad-input" 
+                placeholder="0" 
+                min="0"
+                aria-label="Cantidad de aprendices en estado fila ${manualFormState.rowCounter}"
+                data-field-type="cantidad"
+                style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 2px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    box-sizing: border-box;
+                    transition: border-color 0.2s ease;
+                "
+                onfocus="this.style.borderColor='#39a900'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                value="0"
+            >
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-            <button type="button" class="remove-estado-btn" data-row-id="${rowId}" style="
-                padding: 5px 10px;
-                background: #dc3545;
-                color: white;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 12px;
-                font-weight: 600;
-            ">
+            <button 
+                type="button" 
+                class="remove-estado-btn" 
+                data-row-id="${rowId}"
+                aria-label="Eliminar fila de estado ${manualFormState.rowCounter}"
+                style="
+                    padding: 5px 10px;
+                    background: #dc3545;
+                    color: white;
+                    border: 2px solid transparent;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                "
+                onmouseover="this.style.background='#c82333'; this.style.outline='2px solid #dc3545'; this.style.outlineOffset='2px';"
+                onmouseout="this.style.background='#dc3545'; this.style.outline='none';"
+            >
                 Quitar
             </button>
         </td>
@@ -2147,6 +2189,9 @@ function addEstadoRow() {
 
     // Agregar listener para eliminar
     row.querySelector('.remove-estado-btn').addEventListener('click', () => removeEstadoRow(rowId));
+    
+    // Anunciar a lectores de pantalla
+    announceToScreenReader(`Nueva fila de estado agregada`);
 }
 
 function removeEstadoRow(rowId) {
@@ -2154,6 +2199,7 @@ function removeEstadoRow(rowId) {
     if (row) {
         row.remove();
         manualFormState.estadoRows = manualFormState.estadoRows.filter(id => id !== rowId);
+        announceToScreenReader(`Fila de estado eliminada`);
     }
 }
 
@@ -2168,16 +2214,87 @@ function resetManualForm() {
     manualFormState.rowCounter = 0;
 }
 
+function clearValidationMessages() {
+    const validationMsg = document.getElementById('manualFormValidationMsg');
+    if (validationMsg) {
+        validationMsg.style.display = 'none';
+        validationMsg.textContent = '';
+    }
+    // Limpiar mensajes de error en campos individuales
+    document.getElementById('codigoError').style.display = 'none';
+    document.getElementById('programaError').style.display = 'none';
+    document.getElementById('totalError').style.display = 'none';
+}
+
+function showValidationError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorSpan = document.getElementById(`${fieldId}Error`);
+    
+    if (field && errorSpan) {
+        field.setAttribute('aria-invalid', 'true');
+        field.style.borderColor = '#dc3545';
+        errorSpan.textContent = message;
+        errorSpan.style.display = 'block';
+    }
+}
+
+function clearFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const errorSpan = document.getElementById(`${fieldId}Error`);
+    
+    if (field && errorSpan) {
+        field.setAttribute('aria-invalid', 'false');
+        field.style.borderColor = '#ddd';
+        errorSpan.textContent = '';
+        errorSpan.style.display = 'none';
+    }
+}
+
+function announceToScreenReader(message) {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-10000px';
+    announcement.style.width = '1px';
+    announcement.style.height = '1px';
+    announcement.style.overflow = 'hidden';
+    announcement.textContent = message;
+    
+    document.body.appendChild(announcement);
+    setTimeout(() => announcement.remove(), 3000);
+}
+
 function generateManualCharts() {
+    // Limpiar mensajes de validación previos
+    clearValidationMessages();
+    
     // Recopilar datos del formulario
     const codigo = document.getElementById('manualFichaCodigo').value.trim();
     const programa = document.getElementById('manualPrograma').value.trim();
     const totalAprendices = parseInt(document.getElementById('manualTotalAprendices').value) || 0;
 
-    // Validar campos requeridos
-    if (!codigo || !programa) {
-        alert('Por favor ingresa el código de ficha y programa');
-        return;
+    // Array para acumular errores
+    let errors = [];
+    let focusField = null;
+
+    // Validar código de ficha
+    if (!codigo) {
+        errors.push('El código de ficha es requerido');
+        showValidationError('manualFichaCodigo', 'Campo requerido');
+        if (!focusField) focusField = 'manualFichaCodigo';
+    } else {
+        clearFieldError('manualFichaCodigo');
+    }
+
+    // Validar programa
+    if (!programa) {
+        errors.push('El programa de formación es requerido');
+        showValidationError('manualPrograma', 'Campo requerido');
+        if (!focusField) focusField = 'manualPrograma';
+    } else {
+        clearFieldError('manualPrograma');
     }
 
     // Recopilar estados
@@ -2199,7 +2316,28 @@ function generateManualCharts() {
 
     // Validar que hay al menos un estado
     if (Object.keys(estadoCounts).length === 0) {
-        alert('Por favor ingresa al menos un estado con su cantidad de aprendices');
+        errors.push('Debe ingresar al menos un estado con su cantidad de aprendices');
+    }
+
+    // Si hay errores, mostrarlos y no continuar
+    if (errors.length > 0) {
+        const validationMsg = document.getElementById('manualFormValidationMsg');
+        if (validationMsg) {
+            validationMsg.innerHTML = '<strong>⚠ Errores encontrados:</strong><ul style="margin: 5px 0; padding-left: 20px;">' + 
+                errors.map(e => `<li>${e}</li>`).join('') + 
+                '</ul>';
+            validationMsg.style.display = 'block';
+            validationMsg.setAttribute('tabindex', '-1');
+            validationMsg.focus();
+        }
+        
+        // Anunciar a lectores de pantalla
+        announceToScreenReader(`Errores de validación: ${errors.join('. ')}`);
+        
+        // Focus en el primer campo con error
+        if (focusField) {
+            setTimeout(() => document.getElementById(focusField).focus(), 100);
+        }
         return;
     }
 
@@ -2222,6 +2360,10 @@ function generateManualCharts() {
 
     // Ocultar el formulario
     document.getElementById('manualDataForm').style.display = 'none';
+    document.getElementById('toggleManualFormBtn').setAttribute('aria-expanded', 'false');
+    
+    // Anunciar éxito
+    announceToScreenReader('Gráficas generadas correctamente');
 }
 
 function showManualResults(data) {
