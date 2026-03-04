@@ -98,6 +98,232 @@
                 </button>
             </div>
 
+            <!-- Formulario manual para ingresar datos (independiente de carga Excel) -->
+            <div 
+                id="manualDataFormContainer"
+                style="display: none;">
+                <div 
+                    id="manualDataForm" 
+                    role="form"
+                    aria-labelledby="manualFormTitle"
+                    style="margin-bottom: 40px; padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                    
+                    <h3 id="manualFormTitle" style="color: #333; font-size: 16px; font-weight: 700; margin-bottom: 20px;">
+                        📋 Formulario de Ingreso Manual de Datos
+                    </h3>
+
+                    <!-- Mensaje de validación accesible -->
+                    <div id="manualFormValidationMsg" role="alert" aria-live="polite" style="
+                        display: none;
+                        padding: 12px 15px;
+                        margin-bottom: 20px;
+                        border-radius: 4px;
+                        font-size: 13px;
+                        background: #f8d7da;
+                        color: #721c24;
+                        border: 1px solid #f5c6cb;
+                    "></div>
+
+                    <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 30px;">
+                        <legend style="font-weight: 700; color: #FF4444; font-size: 11px; margin-bottom: 15px; display: block;">
+                            Campos requeridos (<span style="color: #FF4444;">*</span>)
+                        </legend>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- Código de Ficha -->
+                            <div>
+                                <label for="manualFichaCodigo" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Código de Ficha: <span style="color: #FF4444; font-weight: 700;">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="manualFichaCodigo"
+                                    name="codigo_ficha"
+                                    placeholder="Ej: SOE-001"
+                                    required
+                                    aria-required="true"
+                                    aria-describedby="codigoHelp"
+                                    data-error="codigoError"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 2px solid #ddd;
+                                        border-radius: 4px;
+                                        font-size: 13px;
+                                        box-sizing: border-box;
+                                        transition: border-color 0.2s ease;
+                                    "
+                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                                >
+                                <small id="codigoHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Identifique únicamente la ficha de formación</small>
+                                <span id="codigoError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
+                            </div>
+
+                            <!-- Programa -->
+                            <div>
+                                <label for="manualPrograma" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Programa de Formación: <span style="color: #FF4444; font-weight: 700;">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="manualPrograma"
+                                    name="programa"
+                                    placeholder="Ej: Desarrollo de Software"
+                                    required
+                                    aria-required="true"
+                                    aria-describedby="programaHelp"
+                                    data-error="programaError"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 2px solid #ddd;
+                                        border-radius: 4px;
+                                        font-size: 13px;
+                                        box-sizing: border-box;
+                                        transition: border-color 0.2s ease;
+                                    "
+                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                                >
+                                <small id="programaHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Nombre del programa de formación</small>
+                                <span id="programaError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
+                            </div>
+
+                            <!-- Total Aprendices -->
+                            <div>
+                                <label for="manualTotalAprendices" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
+                                    Total de Aprendices: <span style="color: #999; font-size: 11px;">(opcional)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="manualTotalAprendices"
+                                    name="total_aprendices"
+                                    placeholder="Ej: 50" 
+                                    min="0"
+                                    aria-describedby="totalHelp"
+                                    data-error="totalError"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 2px solid #ddd;
+                                        border-radius: 4px;
+                                        font-size: 13px;
+                                        box-sizing: border-box;
+                                        transition: border-color 0.2s ease;
+                                    "
+                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                                >
+                                <small id="totalHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Cantidad total de aprendices (si se deja vacío, se sumará el total de estados)</small>
+                                <span id="totalError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
+                            </div>
+
+                            <div></div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Tabla de Estados Dinámicos -->
+                    <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #333; font-size: 14px; margin-bottom: 15px; display: block;">
+                            Estados y Cantidades de Aprendices <span style="color: #FF4444; font-weight: 700;">*</span>
+                        </legend>
+                        
+                        <table 
+                            role="table"
+                            aria-label="Tabla de Estados y Cantidades de Aprendices"
+                            aria-describedby="tableDescription"
+                            style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                            <caption id="tableDescription" style="font-size: 12px; color: #666; padding: 5px 0; text-align: left;">
+                                Ingrese el estado de los aprendices y la cantidad en cada fila. Puede agregar más estados con el botón "Agregar Estado"
+                            </caption>
+                            <thead>
+                                <tr style="background: #39a900; color: white;">
+                                    <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
+                                        Estado <span style="color: #FFD700;">*</span>
+                                    </th>
+                                    <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
+                                        Total de Aprendices <span style="color: #FFD700;">*</span>
+                                    </th>
+                                    <th style="padding: 10px; text-align: center; font-size: 12px; font-weight: 700; width: 80px;">
+                                        Acción
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="manualEstadosTableBody">
+                                <!-- Filas dinámicas se insertarán aquí -->
+                            </tbody>
+                        </table>
+
+                        <button 
+                            id="addEstadoBtn" 
+                            type="button"
+                            aria-label="Agregar nueva fila para estado de aprendices"
+                            style="
+                                padding: 8px 15px;
+                                background: #007bff;
+                                color: white;
+                                border: 2px solid transparent;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                font-size: 12px;
+                                margin-bottom: 20px;
+                                transition: all 0.2s ease;
+                            "
+                            onmouseover="this.style.background='#0056b3'; this.style.outline='2px solid #007bff'; this.style.outlineOffset='2px';"
+                            onmouseout="this.style.background='#007bff'; this.style.outline='none';"
+                        >
+                            + Agregar Estado
+                        </button>
+                    </fieldset>
+
+                    <!-- Botones de Acción -->
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button 
+                            id="generateManualChartsBtn" 
+                            type="button"
+                            aria-label="Generar gráficas y estadísticas con los datos ingresados"
+                            style="
+                                padding: 12px 24px;
+                                background: #39a900;
+                                color: white;
+                                border: 2px solid transparent;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-weight: 700;
+                                font-size: 14px;
+                                transition: all 0.2s ease;
+                            "
+                            onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
+                            onmouseout="this.style.background='#39a900'; this.style.outline='none';"
+                        >
+                            ✓ Generar Gráficas y Estadísticas
+                        </button>
+                        <button 
+                            id="cancelManualFormBtn" 
+                            type="button"
+                            aria-label="Cancelar y cerrar el formulario de ingreso manual"
+                            style="
+                                padding: 12px 24px;
+                                background: #999;
+                                color: white;
+                                border: 2px solid transparent;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                font-size: 14px;
+                                transition: all 0.2s ease;
+                            "
+                            onmouseover="this.style.background='#777'; this.style.outline='2px solid #999'; this.style.outlineOffset='2px';"
+                            onmouseout="this.style.background='#999'; this.style.outline='none';"
+                        >
+                            ✕ Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="stats-upload-zone" id="dropZone">
                 <svg class="stats-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -178,228 +404,6 @@
                 </div>
 
                 <div id="statsResultsIndividual" style="display: none;">
-                    <!-- Formulario manual para ingresar datos -->
-                    <div 
-                        id="manualDataForm" 
-                        role="form"
-                        aria-labelledby="manualFormTitle"
-                        style="display: none; margin-bottom: 40px; padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
-                        
-                        <h3 id="manualFormTitle" style="color: #333; font-size: 16px; font-weight: 700; margin-bottom: 20px;">
-                            📋 Formulario de Ingreso Manual de Datos
-                        </h3>
-
-                        <!-- Mensaje de validación accesible -->
-                        <div id="manualFormValidationMsg" role="alert" aria-live="polite" style="
-                            display: none;
-                            padding: 12px 15px;
-                            margin-bottom: 20px;
-                            border-radius: 4px;
-                            font-size: 13px;
-                            background: #f8d7da;
-                            color: #721c24;
-                            border: 1px solid #f5c6cb;
-                        "></div>
-
-                        <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 30px;">
-                            <legend style="font-weight: 700; color: #FF4444; font-size: 11px; margin-bottom: 15px; display: block;">
-                                Campos requeridos (<span style="color: #FF4444;">*</span>)
-                            </legend>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                <!-- Código de Ficha -->
-                                <div>
-                                    <label for="manualFichaCodigo" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                        Código de Ficha: <span style="color: #FF4444; font-weight: 700;">*</span>
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        id="manualFichaCodigo"
-                                        name="codigo_ficha"
-                                        placeholder="Ej: SOE-001"
-                                        required
-                                        aria-required="true"
-                                        aria-describedby="codigoHelp"
-                                        data-error="codigoError"
-                                        style="
-                                            width: 100%;
-                                            padding: 10px;
-                                            border: 2px solid #ddd;
-                                            border-radius: 4px;
-                                            font-size: 13px;
-                                            box-sizing: border-box;
-                                            transition: border-color 0.2s ease;
-                                        "
-                                        onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                        onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                    >
-                                    <small id="codigoHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Identifique únicamente la ficha de formación</small>
-                                    <span id="codigoError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                                </div>
-
-                                <!-- Programa -->
-                                <div>
-                                    <label for="manualPrograma" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                        Programa de Formación: <span style="color: #FF4444; font-weight: 700;">*</span>
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        id="manualPrograma"
-                                        name="programa"
-                                        placeholder="Ej: Desarrollo de Software"
-                                        required
-                                        aria-required="true"
-                                        aria-describedby="programaHelp"
-                                        data-error="programaError"
-                                        style="
-                                            width: 100%;
-                                            padding: 10px;
-                                            border: 2px solid #ddd;
-                                            border-radius: 4px;
-                                            font-size: 13px;
-                                            box-sizing: border-box;
-                                            transition: border-color 0.2s ease;
-                                        "
-                                        onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                        onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                    >
-                                    <small id="programaHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Nombre del programa de formación</small>
-                                    <span id="programaError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                                </div>
-
-                                <!-- Total Aprendices -->
-                                <div>
-                                    <label for="manualTotalAprendices" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                        Total de Aprendices: <span style="color: #999; font-size: 11px;">(opcional)</span>
-                                    </label>
-                                    <input 
-                                        type="number" 
-                                        id="manualTotalAprendices"
-                                        name="total_aprendices"
-                                        placeholder="Ej: 50" 
-                                        min="0"
-                                        aria-describedby="totalHelp"
-                                        data-error="totalError"
-                                        style="
-                                            width: 100%;
-                                            padding: 10px;
-                                            border: 2px solid #ddd;
-                                            border-radius: 4px;
-                                            font-size: 13px;
-                                            box-sizing: border-box;
-                                            transition: border-color 0.2s ease;
-                                        "
-                                        onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                        onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                    >
-                                    <small id="totalHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Cantidad total de aprendices (si se deja vacío, se sumará el total de estados)</small>
-                                    <span id="totalError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                                </div>
-
-                                <div></div>
-                            </div>
-                        </fieldset>
-
-                        <!-- Tabla de Estados Dinámicos -->
-                        <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 20px;">
-                            <legend style="font-weight: 700; color: #333; font-size: 14px; margin-bottom: 15px; display: block;">
-                                Estados y Cantidades de Aprendices <span style="color: #FF4444; font-weight: 700;">*</span>
-                            </legend>
-                            
-                            <table 
-                                role="table"
-                                aria-label="Tabla de Estados y Cantidades de Aprendices"
-                                aria-describedby="tableDescription"
-                                style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                                <caption id="tableDescription" style="font-size: 12px; color: #666; padding: 5px 0; text-align: left;">
-                                    Ingrese el estado de los aprendices y la cantidad en cada fila. Puede agregar más estados con el botón "Agregar Estado"
-                                </caption>
-                                <thead>
-                                    <tr style="background: #39a900; color: white;">
-                                        <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
-                                            Estado <span style="color: #FFD700;">*</span>
-                                        </th>
-                                        <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
-                                            Total de Aprendices <span style="color: #FFD700;">*</span>
-                                        </th>
-                                        <th style="padding: 10px; text-align: center; font-size: 12px; font-weight: 700; width: 80px;">
-                                            Acción
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="manualEstadosTableBody">
-                                    <!-- Filas dinámicas se insertarán aquí -->
-                                </tbody>
-                            </table>
-
-                            <button 
-                                id="addEstadoBtn" 
-                                type="button"
-                                aria-label="Agregar nueva fila para estado de aprendices"
-                                style="
-                                    padding: 8px 15px;
-                                    background: #007bff;
-                                    color: white;
-                                    border: 2px solid transparent;
-                                    border-radius: 4px;
-                                    cursor: pointer;
-                                    font-weight: 600;
-                                    font-size: 12px;
-                                    margin-bottom: 20px;
-                                    transition: all 0.2s ease;
-                                "
-                                onmouseover="this.style.background='#0056b3'; this.style.outline='2px solid #007bff'; this.style.outlineOffset='2px';"
-                                onmouseout="this.style.background='#007bff'; this.style.outline='none';"
-                            >
-                                + Agregar Estado
-                            </button>
-                        </fieldset>
-
-                        <!-- Botones de Acción -->
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button 
-                                id="generateManualChartsBtn" 
-                                type="button"
-                                aria-label="Generar gráficas y estadísticas con los datos ingresados"
-                                style="
-                                    padding: 12px 24px;
-                                    background: #39a900;
-                                    color: white;
-                                    border: 2px solid transparent;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    font-weight: 700;
-                                    font-size: 14px;
-                                    transition: all 0.2s ease;
-                                "
-                                onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
-                                onmouseout="this.style.background='#39a900'; this.style.outline='none';"
-                            >
-                                ✓ Generar Gráficas y Estadísticas
-                            </button>
-                            <button 
-                                id="cancelManualFormBtn" 
-                                type="button"
-                                aria-label="Cancelar y cerrar el formulario de ingreso manual"
-                                style="
-                                    padding: 12px 24px;
-                                    background: #999;
-                                    color: white;
-                                    border: 2px solid transparent;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    font-weight: 600;
-                                    font-size: 14px;
-                                    transition: all 0.2s ease;
-                                "
-                                onmouseover="this.style.background='#777'; this.style.outline='2px solid #999'; this.style.outlineOffset='2px';"
-                                onmouseout="this.style.background='#999'; this.style.outline='none';"
-                            >
-                                ✕ Cancelar
-                            </button>
-                        </div>
-                    </div>
-
                     <div class="stats-results-grid">
                         <div class="stats-chart-container">
                             <canvas id="individualStateChart"></canvas>

@@ -2078,24 +2078,19 @@ const manualFormState = {
 
 function initManualForm() {
     const toggleBtn = document.getElementById('toggleManualFormBtn');
-    const manualForm = document.getElementById('manualDataForm');
-    const statsResultsIndividual = document.getElementById('statsResultsIndividual');
+    const manualFormContainer = document.getElementById('manualDataFormContainer');
     const cancelBtn = document.getElementById('cancelManualFormBtn');
     const addEstadoBtn = document.getElementById('addEstadoBtn');
     const generateBtn = document.getElementById('generateManualChartsBtn');
 
-    if (!toggleBtn || !manualForm) return;
+    if (!toggleBtn || !manualFormContainer) return;
 
     // Mostrar/ocultar formulario con aria-expanded actualizado
     toggleBtn.addEventListener('click', () => {
-        const isHidden = manualForm.style.display === 'none';
+        const isHidden = manualFormContainer.style.display === 'none';
         
-        // Mostrar contenedor padre si es necesario
-        if (isHidden && statsResultsIndividual) {
-            statsResultsIndividual.style.display = 'block';
-        }
-        
-        manualForm.style.display = isHidden ? 'block' : 'none';
+        // Toggle del contenedor completo
+        manualFormContainer.style.display = isHidden ? 'block' : 'none';
         toggleBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
         
         if (isHidden) {
@@ -2111,7 +2106,7 @@ function initManualForm() {
     });
 
     cancelBtn?.addEventListener('click', () => {
-        manualForm.style.display = 'none';
+        manualFormContainer.style.display = 'none';
         toggleBtn.setAttribute('aria-expanded', 'false');
         resetManualForm();
         clearValidationMessages();
@@ -2378,8 +2373,11 @@ function generateManualCharts() {
     // Procesar los datos y mostrar gráficas
     showManualResults(manualData);
 
-    // Ocultar el formulario
-    document.getElementById('manualDataForm').style.display = 'none';
+    // Ocultar el contenedor del formulario
+    const manualFormContainer = document.getElementById('manualDataFormContainer');
+    if (manualFormContainer) {
+        manualFormContainer.style.display = 'none';
+    }
     document.getElementById('toggleManualFormBtn').setAttribute('aria-expanded', 'false');
     
     // Anunciar éxito
