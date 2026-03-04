@@ -2079,15 +2079,22 @@ const manualFormState = {
 function initManualForm() {
     const toggleBtn = document.getElementById('toggleManualFormBtn');
     const manualForm = document.getElementById('manualDataForm');
+    const statsResultsIndividual = document.getElementById('statsResultsIndividual');
     const cancelBtn = document.getElementById('cancelManualFormBtn');
     const addEstadoBtn = document.getElementById('addEstadoBtn');
     const generateBtn = document.getElementById('generateManualChartsBtn');
 
-    if (!toggleBtn) return;
+    if (!toggleBtn || !manualForm) return;
 
     // Mostrar/ocultar formulario con aria-expanded actualizado
     toggleBtn.addEventListener('click', () => {
         const isHidden = manualForm.style.display === 'none';
+        
+        // Mostrar contenedor padre si es necesario
+        if (isHidden && statsResultsIndividual) {
+            statsResultsIndividual.style.display = 'block';
+        }
+        
         manualForm.style.display = isHidden ? 'block' : 'none';
         toggleBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
         
