@@ -618,6 +618,8 @@ function setActiveReportKind(reportKind) {
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar todos los datos en un único reporte con descargas en Excel y PDF';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
+        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
+        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'none';
         
         // Permitir múltiples archivos
         inputFile.multiple = true;
@@ -629,6 +631,8 @@ function setActiveReportKind(reportKind) {
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga uno o múltiples archivos Excel para obtener estadísticas detalladas. Consolida aprendices de diferentes fichas.';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'block';
+        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
+        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'block';
         
         // Permitir múltiples archivos
         inputFile.multiple = true;
@@ -640,6 +644,8 @@ function setActiveReportKind(reportKind) {
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
         if (chartTypeControl) chartTypeControl.style.display = 'block';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
+        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
+        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'none';
         
         // Un único archivo
         inputFile.multiple = false;

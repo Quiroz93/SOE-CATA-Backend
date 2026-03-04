@@ -59,33 +59,7 @@
                         <option value="pie">🥧 Gráfica Circular</option>
                     </select>
                 </div>
-                <div id="chartTypeControlIndividual" style="display: none; flex-wrap: wrap; gap: 12px;">
-                    <!-- Botón para formulario manual en el encabezado -->
-                    <button 
-                        id="toggleManualFormBtn" 
-                        type="button" 
-                        aria-label="Mostrar o ocultar formulario de ingreso manual de datos"
-                        aria-expanded="false"
-                        aria-controls="manualDataForm"
-                        style="
-                            padding: 10px 20px;
-                            background: #39a900;
-                            color: white;
-                            border: 2px solid transparent;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 14px;
-                            transition: all 0.2s ease;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        "
-                        onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
-                        onmouseout="this.style.background='#39a900'; this.style.outline='none';"
-                    >
-                        ➕ Ingresar Datos Manualmente
-                    </button>
+                <div id="chartTypeControlIndividual" style="display: none;">
                     <select id="individualChartType" class="stats-select">
                         <option value="bar">📊 Gráfica de Barras</option>
                         <option value="line">📈 Gráfica de Líneas</option>
@@ -93,6 +67,35 @@
                         <option value="pie">🥧 Gráfica Circular</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- Botón de Ingresar Datos Manualmente antes de zona de carga -->
+            <div id="manualFormButtonContainer" style="display: none; margin-bottom: 20px; text-align: center;">
+                <button 
+                    id="toggleManualFormBtn" 
+                    type="button" 
+                    aria-label="Mostrar o ocultar formulario de ingreso manual de datos"
+                    aria-expanded="false"
+                    aria-controls="manualDataForm"
+                    style="
+                        padding: 10px 20px;
+                        background: #39a900;
+                        color: white;
+                        border: 2px solid transparent;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                    "
+                    onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
+                    onmouseout="this.style.background='#39a900'; this.style.outline='none';"
+                >
+                    ➕ Ingresar Datos Manualmente
+                </button>
             </div>
 
             <div class="stats-upload-zone" id="dropZone">
