@@ -169,6 +169,19 @@
                         </div>
                     </div>
 
+                    <!-- Sección de Gráficas Individuales por Ficha -->
+                    <div id="individualFichasChartsContainer" style="display: none; margin-top: 40px;">
+                        <h3 style="text-align: center; margin-bottom: 30px; color: #333; font-size: 18px; font-weight: 600;">
+                            Análisis Detallado por Ficha
+                        </h3>
+                        <div id="individualFichasChartsGrid" style="
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+                            gap: 30px;
+                            margin-bottom: 40px;
+                        "></div>
+                    </div>
+
                     <div class="stats-comparison">
                         <h4 class="stats-comparison-title">Detalle de Aprendices de la Ficha</h4>
                         <div class="stats-comparison-wrapper">

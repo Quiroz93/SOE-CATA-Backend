@@ -66,6 +66,8 @@ const individualTableBody = document.getElementById('individualTableBody');
 const consolidadorMetadata = document.getElementById('consolidadorMetadata');
 const consolidadorStatesTableBody = document.getElementById('consolidadorStatesTableBody');
 const consolidadorFichasTableBody = document.getElementById('consolidadorFichasTableBody');
+const individualFichasChartsContainer = document.getElementById('individualFichasChartsContainer');
+const individualFichasChartsGrid = document.getElementById('individualFichasChartsGrid');
 
 // Configuración
 const uploadUrl = '/admin/dashboard/estadisticas/upload';
@@ -961,6 +963,11 @@ function renderConsolidatedResults(data) {
 
     // Renderizar tabla de fichas con detalles
     renderFichasTable(data.fichas || {});
+
+    // Renderizar gráficas individuales por ficha (solo para individual_ficha)
+    if (!isConsolidadorTab && data.fichas) {
+        renderIndividualFichasCharts(data.fichas);
+    }
 }
 
 /**
@@ -1219,8 +1226,279 @@ function renderFichasTable(fichasData) {
 }
 
 /**
+ * Renderizar gráficas individuales para cada ficha
+ * Muestra información de ocupación y estados por ficha
+ */
+function renderIndividualFichasCharts(fichasData) {
+    if (!individualFichasChartsGrid) return;
+
+    // Convertir a array si es necesario
+    const fichasArray = Array.isArray(fichasData) 
+        ? fichasData 
+        : Object.entries(fichasData).map(([code, data]) => ({...data, ficha: code}));
+
+    // Filtrar fichas vacías
+    const fichasValidas = fichasArray.filter(ficha => 
+        ficha.totalAprendices > 0 && Object.keys(ficha.estadoCounts || {}).length > 0
+    );
+
+    if (fichasValidas.length === 0) {
+        individualFichasChartsContainer.style.display = 'none';
+        return;
+    }
+
+    // Mostrar contenedor de gráficas individuales
+    individualFichasChartsContainer.style.display = 'block';
+    individualFichasChartsGrid.innerHTML = '';
+
+    // Crear datos agregados por ficha para referencias (si están disponibles en aprendices)
+    // Por ahora usaremos los aprendices para calcular estadísticas
+    fichasValidas.forEach((fichaInfo, fichaIndex) => {
+        createIndividualFichaChart(fichaInfo, fichaIndex, fichasValidas.length);
+    });
+}
+
+/**
+ * Crear una gráfica individual para una ficha
+ */
+function createIndividualFichaChart(fichaInfo, fichaIndex, totalFichas) {
+    const codigoFicha = String(fichaInfo.ficha || 'DESCONOCIDO').trim();
+    const programa = String(fichaInfo.programa || 'Sin programa').trim();
+    const totalAprendices = fichaInfo.totalAprendices || 0;
+    const estadoCounts = fichaInfo.estadoCounts || {};
+
+    // Crear contenedor principal de la ficha
+    const fichaCard = document.createElement('div');
+    fichaCard.style.cssText = `
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    `;
+
+    fichaCard.onmouseover = () => {
+        fichaCard.style.boxShadow = '0 4px 12px rgba(57, 169, 0, 0.15)';
+    };
+    fichaCard.onmouseout = () => {
+        fichaCard.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+    };
+
+    // Encabezado con información de ficha
+    const header = document.createElement('div');
+    header.style.cssText = `
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #39a900;
+    `;
+    header.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="
+                background: #39a900;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+            ">FICHA #${escapeHtml(codigoFicha)}</span>
+            <span style="color: #666; font-size: 13px;">📊 Gráfica ${fichaIndex + 1} de ${totalFichas}</span>
+        </div>
+        <h4 style="margin: 8px 0; color: #333; font-size: 15px; font-weight: 600;">
+            ${escapeHtml(programa)}
+        </h4>
+        <p style="margin: 8px 0; color: #666; font-size: 13px;">
+            Total de aprendices: <strong>${totalAprendices}</strong>
+        </p>
+    `;
+
+    // Contenedor de gráfica y tabla lado a lado
+    const chartsWrapper = document.createElement('div');
+    chartsWrapper.style.cssText = `
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    `;
+
+    // Contenedor Canvas para gráfica de estados
+    const canvasWrapper = document.createElement('div');
+    canvasWrapper.style.cssText = `
+        height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+        border-radius: 6px;
+        padding: 10px;
+    `;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = `fichaChart-${codigoFicha}`;
+    canvas.style.cssText = `
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100%;
+        display: block;
+    `;
+    canvasWrapper.appendChild(canvas);
+
+    // Tabla de detalles por estado
+    const tableWrapper = document.createElement('div');
+    tableWrapper.style.cssText = `
+        background: #f9f9f9;
+        border-radius: 6px;
+        overflow: hidden;
+    `;
+
+    const table = document.createElement('table');
+    table.style.cssText = `
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    `;
+
+    // Encabezados de tabla
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr style="background: #39a900; color: white;">
+            <th style="padding: 10px; text-align: left; font-weight: 600;">Estado</th>
+            <th style="padding: 10px; text-align: center; font-weight: 600;">Cantidad</th>
+            <th style="padding: 10px; text-align: right; font-weight: 600;">%</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // Cuerpo de tabla con datos
+    const tbody = document.createElement('tbody');
+    const sortedStates = Object.entries(estadoCounts)
+        .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+    sortedStates.forEach(([ estado, count ], idx) => {
+        const countNum = Number(count || 0);
+        const percentage = totalAprendices > 0 ? ((countNum / totalAprendices) * 100).toFixed(1) : 0;
+        const isEven = idx % 2 === 0;
+
+        const row = document.createElement('tr');
+        row.style.cssText = `
+            background: ${isEven ? '#ffffff' : '#f5f5f5'};
+            border-bottom: 1px solid #e0e0e0;
+        `;
+        row.innerHTML = `
+            <td style="padding: 10px; color: #333;">${escapeHtml(String(estado))}</td>
+            <td style="padding: 10px; text-align: center; font-weight: 600; color: #39a900;">${countNum}</td>
+            <td style="padding: 10px; text-align: right; font-weight: 500; color: #666;">${percentage}%</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    tableWrapper.appendChild(table);
+
+    chartsWrapper.appendChild(canvasWrapper);
+    chartsWrapper.appendChild(tableWrapper);
+
+    // Información de ocupación (si está disponible en metadata)
+    const metadataInfo = document.createElement('div');
+    metadataInfo.style.cssText = `
+        background: #e8f5e9;
+        border: 1px solid #81c784;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 12px;
+        color: #2e7d32;
+    `;
+    
+    // Calcular ocupación basada en el máximo esperado (puede extrapolarse del programa)
+    // Por ahora mostraremos la composición de estados
+    const estadoSummary = sortedStates
+        .slice(0, 3)
+        .map(([estado, count]) => `${escapeHtml(String(estado))}: ${count}`)
+        .join(' | ');
+
+    metadataInfo.innerHTML = `
+        <strong>Composición principal:</strong> ${estadoSummary}
+    `;
+
+    // Agregar todos los elementos a la tarjeta
+    fichaCard.appendChild(header);
+    fichaCard.appendChild(chartsWrapper);
+    fichaCard.appendChild(metadataInfo);
+
+    // Agregar la tarjeta al grid
+    individualFichasChartsGrid.appendChild(fichaCard);
+
+    // Crear la gráfica
+    createFichaChartInstance(canvas, estadoCounts, totalAprendices);
+}
+
+/**
+ * Crear instancia de gráfica Chart.js para una ficha
+ */
+function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const labels = Object.keys(estadoCounts);
+    const values = Object.values(estadoCounts).map(v => Number(v || 0));
+
+    // Colores para gráfica
+    const colors = [
+        'rgba(57, 169, 0, 0.8)',
+        'rgba(0, 123, 255, 0.8)',
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(220, 53, 69, 0.8)',
+        'rgba(108, 117, 125, 0.8)',
+        'rgba(0, 200, 83, 0.8)',
+    ];
+
+    const backgroundColors = labels.map((_, idx) => colors[idx % colors.length]);
+    const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
+
+    try {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Aprendices por Estado',
+                    data: values,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12 },
+                            usePointStyle: true,
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.parsed;
+                                const percentage = totalAprendices > 0 ? ((value / totalAprendices) * 100).toFixed(1) : 0;
+                                return `${context.label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error creating ficha chart:', error);
+    }
+}
+
+/**
  * 
- * Renderizar resultados completos
  */
 function renderResults(data) {
     statsResults.style.display = 'block';
