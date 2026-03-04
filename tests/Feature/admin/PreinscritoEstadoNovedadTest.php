@@ -76,23 +76,23 @@ class PreinscritoEstadoNovedadTest extends TestCase
         $response->assertSessionHas('success', 'Preinscrito creado correctamente');
     }
 
-    public function test_preinscrito_con_estado_novedad_sin_checkbox_no_redirige(): void
+    public function test_preinscrito_con_cualquier_estado_sin_checkbox_no_redirige(): void
     {
         $user = User::factory()->create();
         $oferta = Oferta::factory()->create(['estado' => 'activa']);
         $programa = OfertaPrograma::factory()->create(['oferta_id' => $oferta->id]);
 
         $response = $this->actingAs($user)->post(route('admin.preinscritos.store'),
-            $this->createValidPayload($oferta->id, $programa->id, 'Novedad', false)
+            $this->createValidPayload($oferta->id, $programa->id, 'Pendiente', false)
         );
 
         // Debe redirigir a la lista, NO a novedades (porque el checkbox no está marcado)
         $response->assertRedirect(route('admin.preinscritos.index'));
         
-        // Verificar que se creó con estado Novedad
+        // Verificar que se creó con el estado especificado
         $this->assertDatabaseHas('preinscritos', [
             'documento' => '1234567890',
-            'estado' => EstadoPreinscrito::NOVEDAD->value,
+            'estado' => EstadoPreinscrito::PENDIENTE->value,
         ]);
     }
 

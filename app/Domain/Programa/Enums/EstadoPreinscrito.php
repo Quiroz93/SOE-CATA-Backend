@@ -7,7 +7,6 @@ namespace App\Domain\Programa\Enums;
 enum EstadoPreinscrito: string
 {
     case PENDIENTE = 'Pendiente';
-    case NOVEDAD = 'Novedad';
     case PREINSCRITO = 'Preinscrito';
     case INSCRITO = 'Inscrito';
     case CANCELADO = 'Cancelado';

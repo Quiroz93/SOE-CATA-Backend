@@ -27,7 +27,6 @@ class PreinscritoFactory extends Factory
             'correo' => $this->faker->unique()->safeEmail(),
             'estado' => $this->faker->randomElement([
                 EstadoPreinscrito::PENDIENTE->value,
-                EstadoPreinscrito::NOVEDAD->value,
                 EstadoPreinscrito::PREINSCRITO->value,
                 EstadoPreinscrito::INSCRITO->value,
                 EstadoPreinscrito::RECHAZADO->value,

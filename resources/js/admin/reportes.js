@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const colores = [];
 
             // Ordenar estados: primero pendiente, luego por transición, luego otros
-            const ordenEstados = ['PENDIENTE', 'NOVEDAD', 'PREINSCRITO', 'INSCRITO', 'CONVOCADO_MATRICULA', 'MATRICULADO', 'NO_ADMITIDO', 'RECHAZADO', 'CANCELADO'];
+            const ordenEstados = ['PENDIENTE', 'PREINSCRITO', 'INSCRITO', 'CONVOCADO_MATRICULA', 'MATRICULADO', 'NO_ADMITIDO', 'RECHAZADO', 'CANCELADO'];
             
             ordenEstados.forEach(estadoKey => {
                 if (estadosDetallado[estadoKey]) {
