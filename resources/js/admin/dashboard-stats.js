@@ -74,6 +74,67 @@ const uploadUrl = '/admin/dashboard/estadisticas/upload';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
 /**
+ * Mapeo de colores por estado de aprendiz
+ * Escala cromática: Rojo (negativo) → Verde (positivo)
+ * Intermedios: Amarillo y Naranja
+ */
+const ESTADO_COLORES = {
+    // VERDE - Estados Positivos (Matriculados)
+    'Matriculado': { bg: 'rgba(46, 204, 113, 0.85)', border: '#27ae60', name: 'Verde - Matriculado' },
+    'Inscrito': { bg: 'rgba(46, 204, 113, 0.85)', border: '#27ae60', name: 'Verde - Inscrito' },
+    
+    // NARANJA - Estados de Convocatoria
+    'Convocado Matrícula': { bg: 'rgba(243, 156, 18, 0.85)', border: '#d68910', name: 'Naranja - Convocado' },
+    'Convocado_matricula': { bg: 'rgba(243, 156, 18, 0.85)', border: '#d68910', name: 'Naranja - Convocado' },
+    'Preinscrito': { bg: 'rgba(241, 196, 15, 0.85)', border: '#d4af37', name: 'Amarillo - Preinscrito' },
+    
+    // AMARILLO - Estados Intermedios/Pendientes
+    'No Seleccionado': { bg: 'rgba(249, 213, 110, 0.85)', border: '#f39c12', name: 'Amarillo - No Seleccionado' },
+    'Pendiente': { bg: 'rgba(189, 195, 199, 0.75)', border: '#95a5a6', name: 'Gris - Pendiente' },
+    
+    // ROJO - Estados Negativos (Cancelados, No Admitidos, Rechazados)
+    'Cancelado': { bg: 'rgba(231, 76, 60, 0.85)', border: '#c0392b', name: 'Rojo - Cancelado' },
+    'No Admitido': { bg: 'rgba(230, 126, 34, 0.85)', border: '#d35400', name: 'Rojo-Naranja - No Admitido' },
+    'No_admitido': { bg: 'rgba(230, 126, 34, 0.85)', border: '#d35400', name: 'Rojo-Naranja - No Admitido' },
+    'Rechazado': { bg: 'rgba(192, 57, 43, 0.85)', border: '#a93226', name: 'Rojo Oscuro - Rechazado' },
+    'Anulado Matrícula': { bg: 'rgba(231, 76, 60, 0.85)', border: '#c0392b', name: 'Rojo - Anulado' },
+    'Anulado': { bg: 'rgba(231, 76, 60, 0.85)', border: '#c0392b', name: 'Rojo - Anulado' },
+    
+    // GRIS - Estados Sin Información
+    'Sin estado': { bg: 'rgba(149, 165, 166, 0.75)', border: '#7f8c8d', name: 'Gris - Sin Información' },
+};
+
+/**
+ * Obtener color para un estado específico
+ * @param {string} estado - Nombre del estado
+ * @param {number} index - Índice para colores no mapeados
+ * @returns {Object} Objeto con bg (rgba), border (hex) y name
+ */
+function getColorForEstado(estado, index = 0) {
+    // Buscar match exacto
+    if (ESTADO_COLORES[estado]) {
+        return ESTADO_COLORES[estado];
+    }
+    
+    // Buscar match parcial (case-insensitive)
+    const estadoNormalized = String(estado).toLowerCase().trim();
+    for (const [key, color] of Object.entries(ESTADO_COLORES)) {
+        if (key.toLowerCase() === estadoNormalized) {
+            return color;
+        }
+    }
+    
+    // Fallback: colores por defecto si no está mapeado
+    const fallbackColors = [
+        { bg: 'rgba(52, 152, 219, 0.85)', border: '#2980b9', name: 'Azul - Otro' },
+        { bg: 'rgba(155, 89, 182, 0.85)', border: '#8e44ad', name: 'Púrpura - Otro' },
+        { bg: 'rgba(26, 188, 156, 0.85)', border: '#16a085', name: 'Turquesa - Otro' },
+    ];
+    
+    return fallbackColors[index % fallbackColors.length];
+}
+
+/**
  * Inicializar eventos
  */
 function init() {
@@ -725,21 +786,20 @@ function renderIndividualChart(estadoTotales) {
         chartType = 'bar';
     }
     
-    // PASO 7: Colores
-    const circularColors = [
-        'rgba(57, 169, 0, 0.8)',
-        'rgba(0, 123, 255, 0.8)',
-        'rgba(255, 193, 7, 0.8)',
-        'rgba(220, 53, 69, 0.8)',
-        'rgba(108, 117, 125, 0.8)',
-        'rgba(0, 200, 83, 0.8)',
-        'rgba(156, 39, 176, 0.8)',
-        'rgba(255, 152, 0, 0.8)',
-    ];
+    // PASO 7: Mapear colores por estado (escala rojo-verde)
+    const backgroundColors = labels.map((label, index) => {
+        const colorObj = getColorForEstado(label, index);
+        return colorObj.bg;
+    });
+    
+    const borderColors = labels.map((label, index) => {
+        const colorObj = getColorForEstado(label, index);
+        return colorObj.border;
+    });
     
     const isCircularChart = chartType === 'doughnut' || chartType === 'pie';
-    const backgroundColor = isCircularChart ? circularColors : 'rgba(57, 169, 0, 0.80)';
-    const borderColor = isCircularChart ? '#ffffff' : '#39A900';
+    const backgroundColor = isCircularChart ? backgroundColors : backgroundColors[0];
+    const borderColor = isCircularChart ? borderColors : borderColors[0];
     
     // PASO 8: Configuración de gráfica (igual a renderChart)
     const chartConfig = {
@@ -1006,6 +1066,13 @@ function renderConsolidatedStatesChart(estadosGlobales) {
     const labels = Object.keys(estadosGlobales);
     const values = Object.values(estadosGlobales).map(value => Number(value || 0));
 
+    // Generar colores semánticos basados en el tipo de estado
+    const backgroundColors = labels.map((label, idx) => {
+        const colorObj = getColorForEstado(label, idx);
+        return colorObj.bg;
+    });
+    const borderColors = labels.map((label) => '#ffffff');
+
     state.individualChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -1014,17 +1081,8 @@ function renderConsolidatedStatesChart(estadosGlobales) {
                 {
                     label: 'Aprendices Consolidados',
                     data: values,
-                    backgroundColor: [
-                        'rgba(57, 169, 0, 0.8)',      // Verde SENA
-                        'rgba(0, 123, 255, 0.8)',     // Azul
-                        'rgba(255, 193, 7, 0.8)',     // Amarillo
-                        'rgba(220, 53, 69, 0.8)',     // Rojo
-                        'rgba(108, 117, 125, 0.8)',   // Gris
-                        'rgba(0, 200, 83, 0.8)',      // Verde esmeralda
-                        'rgba(156, 39, 176, 0.8)',    // Púrpura
-                        'rgba(255, 152, 0, 0.8)',     // Naranja
-                    ],
-                    borderColor: '#ffffff',
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
                     borderWidth: 2,
                 }
             ]
@@ -1442,18 +1500,16 @@ function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
     const labels = Object.keys(estadoCounts);
     const values = Object.values(estadoCounts).map(v => Number(v || 0));
 
-    // Colores para gráfica
-    const colors = [
-        'rgba(57, 169, 0, 0.8)',
-        'rgba(0, 123, 255, 0.8)',
-        'rgba(255, 193, 7, 0.8)',
-        'rgba(220, 53, 69, 0.8)',
-        'rgba(108, 117, 125, 0.8)',
-        'rgba(0, 200, 83, 0.8)',
-    ];
+    // Mapear colores por estado (escala rojo-verde)
+    const backgroundColors = labels.map((label, idx) => {
+        const colorObj = getColorForEstado(label, idx);
+        return colorObj.bg;
+    });
 
-    const backgroundColors = labels.map((_, idx) => colors[idx % colors.length]);
-    const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
+    const borderColors = labels.map((label, idx) => {
+        const colorObj = getColorForEstado(label, idx);
+        return colorObj.border;
+    });
 
     try {
         new Chart(ctx, {
