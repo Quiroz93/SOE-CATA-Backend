@@ -34,6 +34,14 @@ class Oferta extends Model
 	];
 
 	/**
+	 * Relación con Centro
+	 */
+	public function centro()
+	{
+		return $this->belongsTo(Centro::class);
+	}
+
+	/**
 	 * Relación con OfertaPrograma
 	 */
 	public function ofertaProgramas()
@@ -41,14 +49,35 @@ class Oferta extends Model
 		return $this->hasMany(OfertaPrograma::class);
 	}
 
-	// Scope para ofertas activas
-	public function scopeActivo($query)
-	{
-		return $query->where('estado', true);
-	}
-
+	/**
+	 * Relación con Preinscritos
+	 */
 	public function preinscritos()
 	{
 		return $this->hasMany(Preinscrito::class);
+	}
+
+	/**
+	 * Scope para ofertas activas
+	 */
+	public function scopeActivo($query)
+	{
+		return $query->where('estado', 'activa');
+	}
+
+	/**
+	 * Obtener conteo de programas asociados
+	 */
+	public function getProgramasCountAttribute()
+	{
+		return $this->ofertaProgramas()->count();
+	}
+
+	/**
+	 * Obtener conteo de preinscritos
+	 */
+	public function getPreinscritosCountAttribute()
+	{
+		return $this->preinscritos()->count();
 	}
 }

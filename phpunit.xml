@@ -16,6 +16,16 @@
         <include>
             <directory>app</directory>
         </include>
+        <exclude>
+            <directory>app/Console</directory>
+            <directory>app/Exceptions</directory>
+            <directory>app/Providers</directory>
+            <directory>database</directory>
+            <directory>routes</directory>
+            <directory>bootstrap</directory>
+            <directory>vendor</directory>
+            <directory>tests</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
@@ -32,20 +42,4 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory>app/Domain</directory>
-            <directory>app/Http</directory>
-        </include>
-        <exclude>
-            <directory>app/Console</directory>
-            <directory>app/Exceptions</directory>
-            <directory>app/Providers</directory>
-            <directory>database</directory>
-            <directory>routes</directory>
-            <directory>bootstrap</directory>
-            <directory>vendor</directory>
-            <directory>tests</directory>
-        </exclude>
-    </coverage>
 </phpunit>

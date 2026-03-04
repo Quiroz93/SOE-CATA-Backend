@@ -4,43 +4,55 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Models\Oferta;
+use App\Models\Programa;
 
 class OfertaProgramaSeeder extends Seeder
 {
     public function run()
     {
-        // Asegurar que existan ofertas, programas e instructores
-        if (\App\Models\Oferta::count() < 5) {
-            \App\Models\Oferta::factory()->count(5)->create(['estado' => 'activo']);
-        }
-        if (\App\Models\Programa::count() < 5) {
-            \App\Models\Programa::factory()->count(5)->create();
-        }
-        if (\App\Models\Instructor::count() < 5) {
-            \App\Models\Instructor::factory()->count(5)->create();
-        }
-
-        $ofertas = \App\Models\Oferta::where('estado', true)->pluck('id');
-        $programas = \App\Models\Programa::pluck('id');
-        $instructores = \App\Models\Instructor::pluck('id');
-        $centros = \App\Models\Centro::pluck('id');
-
-        // Asegurar que cada oferta activa tenga al menos un programa relacionado
         $faker = \Faker\Factory::create('es_ES');
-        foreach ($ofertas as $ofertaId) {
-            \Illuminate\Support\Facades\DB::table('oferta_programa')->insert([
-                'oferta_id' => $ofertaId,
-                'programa_id' => $programas->random(),
-                'instructor_id' => $instructores->random(),
-                'centro_id' => $centros->random(),
-                'cupos' => rand(10, 100),
+        
+        // Obtener la oferta principal "Primera Oferta 2026-1" (id=1)
+        $oferta = Oferta::where('nombre', 'Primera Oferta 2026-1')->first();
+        
+        if (!$oferta) {
+            $this->command->warn('Oferta "Primera Oferta 2026-1" no encontrada. Verificar OfertaSeeder.');
+            return;
+        }
+
+        // Obtener todos los programas (11 del ProgramaSeeder)
+        $programas = Programa::all();
+        
+        if ($programas->count() === 0) {
+            $this->command->warn('No hay programas disponibles. Verificar ProgramaSeeder.');
+            return;
+        }
+
+        // Centro SENA CATA (id=1)
+        $centro = \App\Models\Centro::find(1);
+        
+        if (!$centro) {
+            $this->command->warn('Centro SENA CATA (id=1) no encontrado.');
+            return;
+        }
+
+        // Relacionar cada programa con la oferta
+        foreach ($programas as $programa) {
+            DB::table('oferta_programa')->insert([
+                'oferta_id' => $oferta->id,
+                'programa_id' => $programa->id,
+                'instructor_id' => null, // Sin instructor por defecto
+                'centro_id' => $centro->id,
+                'cupos' => rand(20, 60),
                 'modalidad' => $faker->randomElement(['Presencial', 'Virtual', 'Mixta']),
-                'estado' => true, // Relación activa
+                'estado' => true,
                 'version' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
+
+        $this->command->info("Se relacionaron {$programas->count()} programas con la oferta '{$oferta->nombre}'");
     }
 }

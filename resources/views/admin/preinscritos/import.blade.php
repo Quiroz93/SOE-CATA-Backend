@@ -23,6 +23,24 @@
             
             <form action="{{ route('admin.preinscritos.handleImport') }}" method="POST" enctype="multipart/form-data" class="import-form">
                 @csrf
+
+                <div class="form-group">
+                    <label for="oferta_id" class="form-label">Oferta destino para la importación:</label>
+                    <select id="oferta_id" name="oferta_id" class="form-input" required>
+                        <option value="">-- Seleccionar oferta --</option>
+                        @foreach($ofertas as $oferta)
+                            <option value="{{ $oferta->id }}" {{ old('oferta_id') == $oferta->id ? 'selected' : '' }}>
+                                Oferta #{{ $oferta->id }} - {{ $oferta->nombre ?? 'Sin nombre' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('oferta_id')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                    <p class="form-helper">
+                        La relación final se resolverá con la oferta seleccionada + Número Ficha de cada fila.
+                    </p>
+                </div>
                 
                 <div class="form-group">
                     <label for="excel_file" class="form-label">Selecciona archivo Excel:</label>
@@ -82,13 +100,22 @@
                 <p><strong>¡IMPORTANTE!</strong> Las columnas <strong>Programa</strong> y <strong>Estado</strong> tienen listas desplegables:</p>
                 <ul>
                     <li><strong>Programa:</strong> Click en la celda → flecha desplegable → seleccionar programa vigente de la lista actualizada desde la base de datos</li>
-                    <li><strong>Estado:</strong> Click en la celda → flecha desplegable → seleccionar entre: <em>pendiente</em>, <em>aceptado</em> o <em>rechazado</em></li>
+                    <li><strong>Estado:</strong> Click en la celda → flecha desplegable → seleccionar estado válido de la lista</li>
                     <li>⚠️ <strong>No escribir manualmente</strong>, usar solo las listas desplegables para evitar errores</li>
+                </ul>
+            </div>
+
+            <div class="instruction-item">
+                <h4>4. Seleccionar Oferta Destino</h4>
+                <ul>
+                    <li>Antes de importar, selecciona la <strong>oferta destino</strong> en el formulario</li>
+                    <li>El sistema usará el <strong>Número Ficha</strong> de cada fila para encontrar el programa dentro de esa oferta</li>
+                    <li>La columna Programa del Excel se mantiene como referencia visual</li>
                 </ul>
             </div>
             
             <div class="instruction-item">
-                <h4>4. Validar y Guardar</h4>
+                <h4>5. Validar y Guardar</h4>
                 <ul>
                     <li>Revisa que todos los campos obligatorios estén completos</li>
                     <li>Verifica que los correos sean válidos (Excel no validará el formato)</li>
@@ -98,9 +125,10 @@
             </div>
             
             <div class="instruction-item">
-                <h4>5. Cargar y Procesar</h4>
+                <h4>6. Cargar y Procesar</h4>
                 <p>En esta página:</p>
                 <ul>
+                    <li>Selecciona la oferta destino de la importación</li>
                     <li>Haz clic en el botón de selección de archivo</li>
                     <li>Selecciona tu archivo Excel completado</li>
                     <li>Haz clic en <strong>"📤 Importar Preinscritos"</strong></li>
@@ -109,12 +137,12 @@
             </div>
             
             <div class="instruction-item">
-                <h4>6. Revisar Resultados</h4>
+                <h4>7. Revisar Resultados</h4>
                 <p>Al finalizar verás:</p>
                 <ul>
-                    <li>✅ Número de registros importados exitosamente</li>
-                    <li>⚠️ Listado de errores por fila (si los hay)</li>
-                    <li>Razones de rechazo: duplicados, correos inválidos, programas no encontrados, etc.</li>
+                    <li>✅ Descarga automática de un Excel de fiscalización con el resultado fila por fila</li>
+                    <li>🟩 Celda verde: importación exitosa</li>
+                    <li>🟥 Celda roja: importación fallida con la razón específica del rechazo</li>
                 </ul>
             </div>
         </div>
@@ -123,6 +151,8 @@
             <h3 class="import-notes__title">⚠️ Notas Importantes</h3>
             <ul>
                 <li><strong>Campos obligatorios:</strong> Nombre, Cédula y Correo (sin estos no se importará el registro)</li>
+                <li><strong>Oferta obligatoria:</strong> Debes seleccionar la oferta destino antes de importar</li>
+                <li><strong>Número Ficha obligatorio:</strong> Se usa para relacionar cada fila con el programa correcto dentro de la oferta seleccionada</li>
                 <li><strong>Correos únicos:</strong> Los correos deben ser válidos y no duplicados en el sistema</li>
                 <li><strong>Programas actualizados:</strong> La lista de programas en la plantilla refleja solo los programas publicados y vigentes</li>
                 <li><strong>Listas desplegables:</strong> Usa SIEMPRE las listas desplegables en las columnas Programa y Estado</li>
@@ -131,6 +161,7 @@
                 <li><strong>Límite de archivo:</strong> Máximo 5 MB por archivo Excel</li>
                 <li><strong>Capacidad:</strong> La plantilla soporta hasta 100 registros con validación automática</li>
                 <li><strong>Fecha de plantilla:</strong> Verifica la fecha en el encabezado para asegurar que uses la versión más reciente</li>
+                <li><strong>Fiscalización:</strong> Conserva el archivo de resultados generado como soporte de auditoría del proceso</li>
             </ul>
         </div>
     </div>

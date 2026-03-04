@@ -15,9 +15,12 @@ class StorePreinscripcionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
             'email' => 'required|email|max:255',
             'telefono' => 'required|string|max:20',
+            'tipo_documento' => 'required|in:CC,TI,CE,PAS,PPT',
+            'documento' => 'required|string|max:255',
             'oferta_programa_id' => [
                 'required',
                 'integer',

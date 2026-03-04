@@ -9,4 +9,5 @@ enum EstadoPrograma: string
     case BORRADOR = 'borrador';
     case PUBLICADO = 'publicado';
     case ARCHIVADO = 'archivado';
+    case CANCELADO = 'cancelado';
 }

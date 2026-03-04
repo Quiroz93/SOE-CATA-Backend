@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Programa;
 use App\Http\Resources\Publico\ProgramaListResource;
 use App\Http\Resources\Publico\ProgramaDetailResource;
+use App\Domain\Programa\Enums\EstadoPrograma;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +26,7 @@ class ProgramaController extends Controller
         // $cacheKey .= '_filtros_' . md5(json_encode($request->only(['filtro1', 'filtro2'])));
         $ttl = config('cache.programas_publico_ttl', 60 * 60); // 60 minutos por defecto
         $programas = Cache::remember($cacheKey, $ttl, function () use ($perPage) {
-            return Programa::scopePublicado()
+            return Programa::publicado()
                 ->select(['id', 'nombre', 'slug', 'estado'])
                 ->with(['redesFormacionRelaciones' => function($q) {
                     $q->select(['id', 'programa_id', 'red_formacion_id', 'estado'])
@@ -43,7 +44,7 @@ class ProgramaController extends Controller
         $cacheKey = 'programa_publico_' . $slug;
         $ttl = config('cache.programas_publico_ttl', 60 * 60); // 60 minutos por defecto
         $programa = Cache::remember($cacheKey, $ttl, function () use ($slug) {
-            return Programa::scopePublicado()
+            return Programa::publicado()
                 ->select(['id', 'nombre', 'slug', 'descripcion', 'estado'])
                 ->with([
                     'redesFormacionRelaciones' => function($q) {

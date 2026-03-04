@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +13,18 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('oferta_id');
             $table->unsignedBigInteger('oferta_programa_id');
-            $table->string('nombre');
+            $table->unsignedBigInteger('programa_id')->nullable();
+            $table->string('nombres');
+            $table->string('apellidos');
             $table->string('tipo_documento', 10);
             $table->string('documento');
             $table->string('correo');
-            $table->string('estado')->default('pendiente');
+            $table->enum('estado', EstadoPreinscrito::values())
+                ->default(EstadoPreinscrito::tryFromInput('pendiente')?->value ?? EstadoPreinscrito::cases()[0]->value);
             $table->timestamps();
             $table->foreign('oferta_id')->references('id')->on('ofertas')->onDelete('cascade');
             $table->foreign('oferta_programa_id')->references('id')->on('oferta_programa')->onDelete('cascade');
+            $table->foreign('programa_id')->references('id')->on('programas')->nullOnDelete();
         });
     }
 

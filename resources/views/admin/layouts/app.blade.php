@@ -45,6 +45,10 @@
                            class="admin-nav__link {{ request()->routeIs('admin.programas.*') ? 'admin-nav__link--active' : '' }}">
                             {{ __('Programas') }}
                         </a>
+                        <a href="{{ route('admin.ofertas.index') }}" 
+                           class="admin-nav__link {{ request()->routeIs('admin.ofertas.*') ? 'admin-nav__link--active' : '' }}">
+                            {{ __('Ofertas') }}
+                        </a>
                         <a href="{{ route('admin.preinscritos.index') }}" 
                            class="admin-nav__link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__link--active' : '' }}">
                             {{ __('Preinscritos') }}
@@ -128,6 +132,10 @@
                 <a href="{{ route('admin.programas.index') }}" 
                    class="admin-nav__mobile-link {{ request()->routeIs('admin.programas.*') ? 'admin-nav__mobile-link--active' : '' }}">
                     {{ __('Programas') }}
+                </a>
+                <a href="{{ route('admin.ofertas.index') }}" 
+                   class="admin-nav__mobile-link {{ request()->routeIs('admin.ofertas.*') ? 'admin-nav__mobile-link--active' : '' }}">
+                    {{ __('Ofertas') }}
                 </a>
                 <a href="{{ route('admin.preinscritos.index') }}" 
                    class="admin-nav__mobile-link {{ request()->routeIs('admin.preinscritos.*') ? 'admin-nav__mobile-link--active' : '' }}">

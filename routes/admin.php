@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\WelcomeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardStatsController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\NoticiaController;
 use App\Http\Controllers\Admin\InstructorController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\PreinscritoController;
 use App\Http\Controllers\Admin\PreinscritorImportExportController;
 use App\Http\Controllers\Admin\InscritoController;
 use App\Http\Controllers\Admin\NovedadController;
+use App\Http\Controllers\Admin\TipoNovedadController;
 use App\Http\Controllers\Admin\ReporteController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,9 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
     ->group(function () {
         Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/dashboard/estadisticas/upload', [DashboardStatsController::class, 'upload'])->name('dashboard.stats.upload');
+        Route::get('/dashboard/estadisticas/download-excel', [DashboardStatsController::class, 'downloadExcel'])->name('dashboard.stats.downloadExcel');
+        Route::get('/dashboard/estadisticas/download-pdf', [DashboardStatsController::class, 'downloadPDF'])->name('dashboard.stats.downloadPDF');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);
@@ -39,4 +44,5 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::resource('preinscritos', PreinscritoController::class);
         Route::resource('inscritos', InscritoController::class);
         Route::resource('novedades', NovedadController::class);
+        Route::resource('tipo-novedad', TipoNovedadController::class);
     });

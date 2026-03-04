@@ -37,9 +37,9 @@
         <form method="GET" action="{{ route('admin.preinscritos.index') }}" class="filter-form" id="filterForm">
             <div class="filter-form__grid">
                 <div class="filter-form__group">
-                    <label for="nombre" class="filter-form__label">Nombre</label>
+                    <label for="nombre" class="filter-form__label">Nombres o Apellidos</label>
                     <input type="text" name="nombre" id="nombre" class="filter-form__input" 
-                           placeholder="Buscar por nombre..." value="{{ request('nombre') }}">
+                           placeholder="Buscar por nombres o apellidos..." value="{{ request('nombre') }}">
                 </div>
 
                 <div class="filter-form__group">
@@ -71,15 +71,11 @@
                     <label for="estado" class="filter-form__label">Estado</label>
                     <select name="estado" id="estado" class="filter-form__select">
                         <option value="">-- Todos los Estados --</option>
-                        <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>
-                            Pendiente
-                        </option>
-                        <option value="aceptado" {{ request('estado') === 'aceptado' ? 'selected' : '' }}>
-                            Aceptado
-                        </option>
-                        <option value="rechazado" {{ request('estado') === 'rechazado' ? 'selected' : '' }}>
-                            Rechazado
-                        </option>
+                        @foreach($estados as $estado)
+                            <option value="{{ $estado->value }}" {{ request('estado') === $estado->value ? 'selected' : '' }}>
+                                {{ $estado->label() }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -99,25 +95,36 @@
         <table class="admin-table">
             <thead class="admin-table__head">
                 <tr class="admin-table__head-row">
-                    <th class="admin-table__th">Nombre</th>
+                    <th class="admin-table__th">Nombres y Apellidos</th>
                     <th class="admin-table__th">Documento</th>
                     <th class="admin-table__th">Correo</th>
                     <th class="admin-table__th">Programa</th>
                     <th class="admin-table__th">Estado</th>
+                    <th class="admin-table__th">Novedades</th>
                     <th class="admin-table__th admin-table__th--right">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($preinscritos as $preinscrito)
                 <tr class="admin-table__body-row">
-                    <td class="admin-table__td">{{ $preinscrito->nombre }}</td>
+                    <td class="admin-table__td">{{ $preinscrito->nombre_completo }}</td>
                     <td class="admin-table__td">{{ $preinscrito->documento }}</td>
                     <td class="admin-table__td">{{ $preinscrito->correo }}</td>
                     <td class="admin-table__td">{{ $preinscrito->ofertaPrograma->programa->nombre ?? 'N/A' }}</td>
                     <td class="admin-table__td">
-                        <span class="badge {{ $preinscrito->estado === 'aceptado' ? 'badge--success' : '' }} {{ $preinscrito->estado === 'pendiente' ? 'badge--warning' : '' }} {{ $preinscrito->estado === 'rechazado' ? 'badge--danger' : '' }}">
-                            {{ ucfirst($preinscrito->estado) }}
+                        @php($estadoCss = $preinscrito->estado_css_class)
+                        <span class="badge {{ in_array($estadoCss, ['preinscrito', 'inscrito', 'convocado_matricula', 'matriculado'], true) ? 'badge--success' : '' }} {{ $estadoCss === 'pendiente' ? 'badge--warning' : '' }} {{ in_array($estadoCss, ['rechazado', 'no_admitido', 'cancelado'], true) ? 'badge--danger' : '' }}">
+                            {{ $preinscrito->estado_label }}
                         </span>
+                    </td>
+                    <td class="admin-table__td">
+                        @if($preinscrito->novedades_count > 0)
+                            <span class="badge badge--info" title="{{ $preinscrito->novedades_count }} novedad(es)">
+                                📋 {{ $preinscrito->novedades_count }}
+                            </span>
+                        @else
+                            <span style="color: #999; font-size: 0.9em;">Sin novedades</span>
+                        @endif
                     </td>
                     <td class="admin-table__td admin-table__td--right">
                         <div class="admin-table__actions">

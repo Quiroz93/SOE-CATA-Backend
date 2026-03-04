@@ -3,7 +3,7 @@
    ======================================== */
 
 .reportes-container {
-    padding: 24px 0;
+    padding: 2rem 6rem 2rem 6rem;
     background: #f5f5f5;
     min-height: calc(100vh - 200px);
 }
@@ -374,6 +374,11 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* Padding adicional para el gráfico de trimestres (evitar superposición de etiquetas rotadas) */
+.chart-card-trimestre {
+    padding-bottom: 40px;
+}
+
 .chart-header,
 .table-header {
     margin-bottom: 20px;
@@ -501,12 +506,26 @@
     color: #FFC107;
 }
 
-.status-aceptado {
+.status-preinscrito,
+.status-inscrito,
+.status-convocado_matricula,
+.status-matriculado {
     background-color: rgba(57, 169, 0, 0.15);
     color: #39A900;
 }
 
+.status-novedad {
+    background-color: rgba(13, 148, 136, 0.15);
+    color: #0D9488;
+}
+
 .status-rechazado {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #DC2626;
+}
+
+.status-no_admitido,
+.status-cancelado {
     background-color: rgba(220, 38, 38, 0.15);
     color: #DC2626;
 }

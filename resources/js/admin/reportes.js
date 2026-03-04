@@ -186,16 +186,47 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Preinscritos por Estado Chart
+        // Preinscritos por Estado Chart - Todos los 9 estados
         const ctxPreinscritosEstado = document.getElementById('preinscritosEstadoChart');
         if (ctxPreinscritosEstado) {
+            const estadosDetallado = JSON.parse(dashboardData.getAttribute('data-preinscritos-por-estado-detallado') || '{}');
+            
+            // Colores consistentes para cada estado
+            const coloresEstados = {
+                'PENDIENTE': '#FFC107',          // Amarillo
+                'NOVEDAD': '#FF6B6B',            // Rojo suave
+                'PREINSCRITO': '#4ECDC4',        // Turquesa
+                'INSCRITO': '#45B7D1',           // Azul claro
+                'CANCELADO': '#95A5A6',          // Gris
+                'CONVOCADO_MATRICULA': '#3498DB', // Azul
+                'MATRICULADO': '#27AE60',        // Verde
+                'NO_ADMITIDO': '#E67E22',        // Naranja
+                'RECHAZADO': '#E74C3C'           // Rojo
+            };
+
+            const labels = [];
+            const data = [];
+            const colores = [];
+
+            // Ordenar estados: primero pendiente, luego por transición, luego otros
+            const ordenEstados = ['PENDIENTE', 'PREINSCRITO', 'INSCRITO', 'CONVOCADO_MATRICULA', 'MATRICULADO', 'NO_ADMITIDO', 'RECHAZADO', 'CANCELADO'];
+            
+            ordenEstados.forEach(estadoKey => {
+                if (estadosDetallado[estadoKey]) {
+                    const estado = estadosDetallado[estadoKey];
+                    labels.push(estado.label);
+                    data.push(estado.count);
+                    colores.push(coloresEstados[estadoKey] || '#999999');
+                }
+            });
+
             window.reportesCharts.preinscritosEstado = new Chart(ctxPreinscritosEstado.getContext('2d'), {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: ['Pendientes', 'Aceptados', 'Rechazados'],
+                    labels: labels,
                     datasets: [{
-                        data: [preinscritosPendientes, preinscritosAceptados, preinscritosRechazados],
-                        backgroundColor: ['#FFC107', '#39A900', '#DC3545'],
+                        data: data,
+                        backgroundColor: colores,
                         borderColor: '#fff',
                         borderWidth: 2
                     }]
@@ -364,12 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    layout: {
+                        padding: {
+                            bottom: 10
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
                             labels: {
                                 font: { size: 12 },
-                                color: '#333'
+                                color: '#333',
+                                padding: 15
                             }
                         },
                         tooltip: {
@@ -389,7 +426,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             beginAtZero: true,
                             ticks: { 
                                 color: '#666',
-                                stepSize: 1
+                                stepSize: 1,
+                                padding: 8
                             },
                             title: {
                                 display: true,
@@ -398,14 +436,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 font: {
                                     size: 12,
                                     weight: 'bold'
-                                }
+                                },
+                                padding: { top: 0, bottom: 10 }
                             }
                         },
                         x: {
                             ticks: { 
                                 color: '#666',
                                 maxRotation: 45,
-                                minRotation: 45
+                                minRotation: 0,
+                                autoSkip: false,
+                                padding: 10
                             },
                             title: {
                                 display: true,
@@ -414,7 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 font: {
                                     size: 12,
                                     weight: 'bold'
-                                }
+                                },
+                                padding: { top: 10, bottom: 0 }
                             }
                         }
                     }

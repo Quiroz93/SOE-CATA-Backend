@@ -1,2 +1,3 @@
 <?php
-// Archivo de rutas API vacío para evitar errores en el registro de rutas.
+
+require __DIR__.'/api_v1_public.php';

@@ -36,9 +36,9 @@
                 <label for="estado">Estado:</label>
                 <select id="estado" name="estado" class="filtro-input">
                     <option value="">Todos los estados</option>
-                    <option value="pendiente" {{ $estadoFilter == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="aceptado" {{ $estadoFilter == 'aceptado' ? 'selected' : '' }}>Aceptado</option>
-                    <option value="rechazado" {{ $estadoFilter == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                    @foreach($estados as $estado)
+                        <option value="{{ $estado->value }}" {{ $estadoFilter == $estado->value ? 'selected' : '' }}>{{ $estado->label() }}</option>
+                    @endforeach
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -58,6 +58,7 @@
         data-preinscritos-pendientes="{{ $preinscritosPendientes }}"
         data-preinscritos-aceptados="{{ $preinscritosAceptados }}"
         data-preinscritos-rechazados="{{ $preinscritosRechazados }}"
+        data-preinscritos-por-estado-detallado='@json($preinscritosPorEstadoDetallado)'
         data-años='@json($años)'
         data-preinscritos-año='@json($preinscritosAño)'
         data-programas-nombres='@json($programasNombres)'
@@ -256,11 +257,11 @@
             <canvas id="programasComparativaChart" height="80"></canvas>
         </div>
 
-        <div class="chart-card">
+        <div class="chart-card chart-card-trimestre">
             <div class="chart-header">
                 <h3>Evolución de Preinscritos por Trimestre</h3>
             </div>
-            <canvas id="preinscritosTrimestreChart" height="80"></canvas>
+            <canvas id="preinscritosTrimestreChart" height="100"></canvas>
         </div>
     </div>
 
@@ -268,20 +269,20 @@
     <div class="tables-section">
         <div class="table-card">
             <div class="table-header">
-                <h3>Centros con Más Ofertas</h3>
+                <h3>Centros con Más Preinscritos</h3>
             </div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Centro</th>
-                        <th>Ofertas</th>
+                        <th>Preinscritos</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($centrosMasOfertas as $centro)
+                    @foreach($centrosMasPreinscritos as $centro)
                         <tr>
                             <td>{{ $centro->nombre }}</td>
-                            <td><span class="badge badge-primary">{{ $centro->ofertas_count }}</span></td>
+                            <td><span class="badge badge-primary">{{ $centro->preinscritos_count }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -388,8 +389,8 @@
                             <td>{{ $preinscrito->ofertaPrograma?->programa?->nombre ?? 'N/A' }}</td>
                             <td>{{ $preinscrito->ofertaPrograma?->oferta?->nombre ?? 'N/A' }}</td>
                             <td>
-                                <span class="status-badge status-{{ $preinscrito->estado }}">
-                                    {{ ucfirst($preinscrito->estado) }}
+                                <span class="status-badge status-{{ $preinscrito->estado_css_class }}">
+                                    {{ $preinscrito->estado_label }}
                                 </span>
                             </td>
                             <td>{{ $preinscrito->created_at->format('d/m/Y H:i') }}</td>

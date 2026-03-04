@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Programa\Enums\EstadoPreinscrito;
 use App\Http\Controllers\Controller;
 use App\Models\Oferta;
 use App\Models\Preinscrito;
@@ -37,7 +38,8 @@ class ReporteController extends Controller
 
         // Additional filters
         $programaFilter = $request->input('programa_id');
-        $estadoFilter = $request->input('estado');
+        $estadoFilter = EstadoPreinscrito::tryFromInput($request->input('estado'))?->value;
+        $estados = EstadoPreinscrito::cases();
 
         // Get all programs for filter dropdown
         $programas = Programa::orderBy('nombre')->get(['id', 'nombre']);
@@ -62,9 +64,16 @@ class ReporteController extends Controller
         }
         
         $totalPreinscritos = (clone $basePreinscritosQuery)->count();
-        $preinscritosPendientes = (clone $basePreinscritosQuery)->where('estado', 'pendiente')->count();
-        $preinscritosAceptados = (clone $basePreinscritosQuery)->where('estado', 'aceptado')->count();
-        $preinscritosRechazados = (clone $basePreinscritosQuery)->where('estado', 'rechazado')->count();
+
+        // Contar preinscritos por cada uno de los 9 estados disponibles
+        $preinscritosPorEstado = [];
+        foreach (EstadoPreinscrito::cases() as $estado) {
+            $preinscritosPorEstado[$estado->name] = [
+                'label' => $estado->label(),
+                'valor' => $estado->value,
+                'count' => (clone $basePreinscritosQuery)->where('estado', $estado->value)->count(),
+            ];
+        }
 
         // Ofertas por estado
         $ofertasPorEstado = [
@@ -73,12 +82,13 @@ class ReporteController extends Controller
             'inactiva' => Oferta::where('estado', 'inactiva')->count(),
         ];
 
-        // Preinscritos por estado
-        $preinscritosPorEstado = [
-            'pendiente' => $preinscritosPendientes,
-            'aceptado' => $preinscritosAceptados,
-            'rechazado' => $preinscritosRechazados,
-        ];
+        // Legacy simplificado (para compatibilidad)
+        $preinscritosPendientes = $preinscritosPorEstado['PENDIENTE']['count'] ?? 0;
+        $preinscritosAceptados = ($preinscritosPorEstado['PREINSCRITO']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['INSCRITO']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['CONVOCADO_MATRICULA']['count'] ?? 0) + 
+                                 ($preinscritosPorEstado['MATRICULADO']['count'] ?? 0);
+        $preinscritosRechazados = $preinscritosPorEstado['RECHAZADO']['count'] ?? 0;
 
         // Usuarios por rol (Spatie Permission)
         $rolesTable = config('permission.table_names.roles', 'roles');
@@ -95,12 +105,13 @@ class ReporteController extends Controller
             ->pluck('total', 'role')
             ->toArray();
 
-        // Centro con más ofertas
-        $centrosMasOfertas = DB::table('centros as c')
-            ->leftJoin('ofertas as o', 'o.centro_id', '=', 'c.id')
-            ->selectRaw('c.nombre, COUNT(o.id) as ofertas_count')
+        // Centro con más preinscritos
+        $centrosMasPreinscritos = DB::table('centros as c')
+            ->leftJoin('oferta_programa as op', 'op.centro_id', '=', 'c.id')
+            ->leftJoin('preinscritos as pr', 'pr.oferta_programa_id', '=', 'op.id')
+            ->selectRaw('c.nombre, COUNT(pr.id) as preinscritos_count')
             ->groupBy('c.id', 'c.nombre')
-            ->orderByDesc('ofertas_count')
+            ->orderByDesc('preinscritos_count')
             ->limit(5)
             ->get();
 
@@ -291,7 +302,7 @@ class ReporteController extends Controller
             'totalUsuarios' => $totalUsuarios,
             'ofertasPorEstado' => $ofertasPorEstado,
             'usuariosPorRol' => $usuariosPorRol,
-            'centrosMasOfertas' => $centrosMasOfertas,
+            'centrosMasPreinscritos' => $centrosMasPreinscritos,
             'programasMasDemandados' => $programasMasDemandados,
             'ofertasRecientes' => $ofertasRecientes,
             'meses' => $meses,
@@ -303,6 +314,7 @@ class ReporteController extends Controller
             'preinscritosPendientes' => $preinscritosPendientes,
             'preinscritosAceptados' => $preinscritosAceptados,
             'preinscritosRechazados' => $preinscritosRechazados,
+            'preinscritosPorEstadoDetallado' => $preinscritosPorEstado,
             'preinscritosPorEstado' => $preinscritosPorEstado,
             'preinscritosPorMes' => $dataPreinscritosMes,
             'programasMasPreinscritos' => $programasMasPreinscritos,
@@ -326,6 +338,7 @@ class ReporteController extends Controller
             'programas' => $programas,
             'programaFilter' => $programaFilter,
             'estadoFilter' => $estadoFilter,
+            'estados' => $estados,
             // Programa líder
             'programaLiderNombre' => $programaLiderNombre,
             'programaLiderCount' => $programaLiderCount,
