@@ -38,7 +38,9 @@ const state = {
     currentData: null,
     activeReportKind: 'general_inscripciones',
     uploadedFiles: [],  // Almacenar archivos cargados para consolidación
-    individualChartType: 'bar'  // Tipo de gráfica para pestaña individual
+    individualChartType: 'bar',  // Tipo de gráfica para pestaña individual
+    fichaChartType: 'doughnut',  // Tipo de gráfica para gráficos individuales de fichas
+    fichaChartsData: null  // Almacenar datos de fichas para re-renderizar
 };
 
 // Elementos del DOM
@@ -66,6 +68,7 @@ const individualTableBody = document.getElementById('individualTableBody');
 const consolidadorMetadata = document.getElementById('consolidadorMetadata');
 const consolidadorStatesTableBody = document.getElementById('consolidadorStatesTableBody');
 const consolidadorFichasTableBody = document.getElementById('consolidadorFichasTableBody');
+const fichaChartType = document.getElementById('fichaChartType');
 const individualFichasChartsContainer = document.getElementById('individualFichasChartsContainer');
 const individualFichasChartsGrid = document.getElementById('individualFichasChartsGrid');
 
@@ -185,6 +188,14 @@ function init() {
         if (state.currentData && state.activeReportKind === 'individual_ficha') {
             const statesData = getIndividualStatesData(state.currentData);
             renderIndividualChart(statesData);
+        }
+    });
+
+    // Cambio de tipo de gráfica para gráficos individuales de fichas
+    fichaChartType?.addEventListener('change', (e) => {
+        state.fichaChartType = e.target.value;
+        if (state.fichaChartsData && state.activeReportKind === 'individual_ficha') {
+            re_renderAllFichasCharts();
         }
     });
 
@@ -1300,6 +1311,9 @@ function renderIndividualFichasCharts(fichasData) {
         ficha.totalAprendices > 0 && Object.keys(ficha.estadoCounts || {}).length > 0
     );
 
+    // Guardar datos de fichas en el estado para poder re-renderizar
+    state.fichaChartsData = fichasValidas;
+
     if (fichasValidas.length === 0) {
         individualFichasChartsContainer.style.display = 'none';
         return;
@@ -1486,17 +1500,18 @@ function createIndividualFichaChart(fichaInfo, fichaIndex, totalFichas) {
     // Agregar la tarjeta al grid
     individualFichasChartsGrid.appendChild(fichaCard);
 
-    // Crear la gráfica
-    createFichaChartInstance(canvas, estadoCounts, totalAprendices);
+    // Crear la gráfica con el tipo actualmente seleccionado
+    createFichaChartInstance(canvas, estadoCounts, totalAprendices, state.fichaChartType);
 }
 
 /**
  * Crear instancia de gráfica Chart.js para una ficha
  */
-function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
+function createFichaChartInstance(canvas, estadoCounts, totalAprendices, chartType = null) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const type = chartType || state.fichaChartType || 'doughnut';
     const labels = Object.keys(estadoCounts);
     const values = Object.values(estadoCounts).map(v => Number(v || 0));
 
@@ -1511,17 +1526,23 @@ function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
         return colorObj.border;
     });
 
+    const isCircularChart = type === 'doughnut' || type === 'pie';
+    const backgroundColor = isCircularChart ? backgroundColors : backgroundColors[0];
+    const borderColor = isCircularChart ? borderColors : borderColors[0];
+
     try {
         new Chart(ctx, {
-            type: 'doughnut',
+            type: type,
             data: {
                 labels,
                 datasets: [{
                     label: 'Aprendices por Estado',
                     data: values,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
                     borderWidth: 2,
+                    fill: type === 'line' ? false : true,
+                    tension: type === 'line' ? 0.3 : undefined,
                 }]
             },
             options: {
@@ -1529,7 +1550,7 @@ function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
+                        position: isCircularChart ? 'bottom' : 'top',
                         labels: {
                             padding: 15,
                             font: { size: 12 },
@@ -1540,9 +1561,28 @@ function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
                         callbacks: {
                             label: (context) => {
                                 const value = context.parsed;
-                                const percentage = totalAprendices > 0 ? ((value / totalAprendices) * 100).toFixed(1) : 0;
-                                return `${context.label}: ${value} (${percentage}%)`;
+                                if (isCircularChart) {
+                                    const percentage = totalAprendices > 0 ? ((value / totalAprendices) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                                return `${context.label}: ${value}`;
                             }
+                        }
+                    }
+                },
+                scales: isCircularChart ? {} : {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { beginAtZero: true },
+                        title: {
+                            display: true,
+                            text: 'Cantidad de aprendices'
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Estados'
                         }
                     }
                 }
@@ -1551,6 +1591,21 @@ function createFichaChartInstance(canvas, estadoCounts, totalAprendices) {
     } catch (error) {
         console.error('Error creating ficha chart:', error);
     }
+}
+
+/**
+ * Re-renderizar todos los gráficos de fichas con el nuevo tipo
+ */
+function re_renderAllFichasCharts() {
+    if (!state.fichaChartsData || !individualFichasChartsGrid) return;
+
+    // Limpiar grid
+    individualFichasChartsGrid.innerHTML = '';
+
+    // Re-renderizar cada ficha
+    state.fichaChartsData.forEach((fichaInfo, fichaIndex) => {
+        createIndividualFichaChart(fichaInfo, fichaIndex, state.fichaChartsData.length);
+    });
 }
 
 /**

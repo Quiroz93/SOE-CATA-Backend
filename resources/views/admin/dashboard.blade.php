@@ -171,9 +171,17 @@
 
                     <!-- Sección de Gráficas Individuales por Ficha -->
                     <div id="individualFichasChartsContainer" style="display: none; margin-top: 40px;">
-                        <h3 style="text-align: center; margin-bottom: 30px; color: #333; font-size: 18px; font-weight: 600;">
-                            Análisis Detallado por Ficha
-                        </h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 600; margin: 0;">
+                                Análisis Detallado por Ficha
+                            </h3>
+                            <select id="fichaChartType" class="stats-select">
+                                <option value="doughnut">🍩 Gráfica Donut</option>
+                                <option value="pie">🥧 Gráfica Circular</option>
+                                <option value="bar">📊 Gráfica de Barras</option>
+                                <option value="line">📈 Gráfica de Líneas</option>
+                            </select>
+                        </div>
                         <div id="individualFichasChartsGrid" style="
                             display: grid;
                             grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
