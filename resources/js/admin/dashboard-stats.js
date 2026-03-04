@@ -2111,6 +2111,8 @@ function initManualForm() {
 
 function addEstadoRow() {
     const rowId = `estado_row_${manualFormState.rowCounter++}`;
+    const estadoInputId = `estado_input_${manualFormState.rowCounter}`;
+    const cantidadInputId = `cantidad_input_${manualFormState.rowCounter}`;
     const tbody = document.getElementById('manualEstadosTableBody');
     
     const row = document.createElement('tr');
@@ -2119,10 +2121,13 @@ function addEstadoRow() {
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
             <input 
                 type="text" 
+                id="${estadoInputId}"
+                name="estado_${manualFormState.rowCounter}"
                 class="estado-input" 
                 placeholder="Ej: Matriculado"
                 aria-label="Estado de aprendices fila ${manualFormState.rowCounter}"
                 data-field-type="estado"
+                autocomplete="off"
                 style="
                     width: 100%;
                     padding: 8px;
@@ -2140,6 +2145,8 @@ function addEstadoRow() {
         <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
             <input 
                 type="number" 
+                id="${cantidadInputId}"
+                name="cantidad_${manualFormState.rowCounter}"
                 class="cantidad-input" 
                 placeholder="0" 
                 min="0"

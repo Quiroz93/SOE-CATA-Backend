@@ -211,7 +211,8 @@
                                     </label>
                                     <input 
                                         type="text" 
-                                        id="manualFichaCodigo" 
+                                        id="manualFichaCodigo"
+                                        name="codigo_ficha"
                                         placeholder="Ej: SOE-001"
                                         required
                                         aria-required="true"
@@ -240,7 +241,8 @@
                                     </label>
                                     <input 
                                         type="text" 
-                                        id="manualPrograma" 
+                                        id="manualPrograma"
+                                        name="programa"
                                         placeholder="Ej: Desarrollo de Software"
                                         required
                                         aria-required="true"
@@ -269,7 +271,8 @@
                                     </label>
                                     <input 
                                         type="number" 
-                                        id="manualTotalAprendices" 
+                                        id="manualTotalAprendices"
+                                        name="total_aprendices"
                                         placeholder="Ej: 50" 
                                         min="0"
                                         aria-describedby="totalHelp"
