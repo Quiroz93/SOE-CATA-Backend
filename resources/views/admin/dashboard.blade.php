@@ -1006,7 +1006,7 @@
 }
 
 .stats-table-wrapper {
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
 }
 
