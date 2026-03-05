@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ProgramaController;
 use App\Http\Controllers\Admin\WelcomeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DashboardStatsController;
+use App\Http\Controllers\Admin\DynamicChartController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\NoticiaController;
 use App\Http\Controllers\Admin\InstructorController;
@@ -27,6 +28,12 @@ Route::middleware(['auth', /* 'role:admin' o 'permission:manage-admin' */])
         Route::post('/dashboard/estadisticas/upload', [DashboardStatsController::class, 'upload'])->name('dashboard.stats.upload');
         Route::get('/dashboard/estadisticas/download-excel', [DashboardStatsController::class, 'downloadExcel'])->name('dashboard.stats.downloadExcel');
         Route::get('/dashboard/estadisticas/download-pdf', [DashboardStatsController::class, 'downloadPDF'])->name('dashboard.stats.downloadPDF');
+        
+        // Rutas para gráficas dinámicas
+        Route::post('/dashboard/dynamic-chart/analyze', [DynamicChartController::class, 'analyzeFile'])->name('dashboard.dynamicChart.analyze');
+        Route::post('/dashboard/dynamic-chart/extract', [DynamicChartController::class, 'extractData'])->name('dashboard.dynamicChart.extract');
+        Route::post('/dashboard/dynamic-chart/cleanup', [DynamicChartController::class, 'cleanupTempFiles'])->name('dashboard.dynamicChart.cleanup');
+        
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::resource('programas', ProgramaController::class);
         Route::resource('ofertas', OfertaController::class);

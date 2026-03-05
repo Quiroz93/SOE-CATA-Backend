@@ -15,9 +15,11 @@ export default defineConfig({
                 'resources/css/profile.css',
                 'resources/css/public.css',
                 'resources/css/reportes.css',
+                'resources/css/dashboard.css',
                 'resources/js/app.js',
                 'resources/js/admin/dashboard.js',
                 'resources/js/admin/dashboard-stats.js',
+                'resources/js/admin/dynamic-chart-wizard.js',
                 'resources/js/admin/reportes.js'
             ],
             refresh: true,

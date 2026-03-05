@@ -204,10 +204,12 @@ function init() {
             const kind = tab.dataset.reportKind || 'general_inscripciones';
             // Solo resetear si realmente se cambia de pestaña
             const isChangingTab = state.activeReportKind !== kind;
-            setActiveReportKind(kind);
+            // Primero haz resetView ANTES de cambiar de pestaña
             if (isChangingTab) {
-                resetView();
+                resetView(kind);
             }
+            // Luego cambia la pestaña
+            setActiveReportKind(kind);
         });
     });
 }
@@ -475,28 +477,11 @@ async function consolidateFiles() {
  * Renderizar botones de descarga
  */
 function renderDownloadButtons() {
-    let downloadContainer = document.getElementById('downloadButtonsContainer');
-    
-    if (!downloadContainer) {
-        downloadContainer = document.createElement('div');
-        downloadContainer.id = 'downloadButtonsContainer';
-        downloadContainer.style.marginTop = '20px';
-        downloadContainer.style.padding = '15px';
-        downloadContainer.style.backgroundColor = '#f0f9ff';
-        downloadContainer.style.borderRadius = '8px';
-        downloadContainer.style.borderLeft = '4px solid #1976d2';
-        downloadContainer.style.display = 'flex';
-        downloadContainer.style.gap = '10px';
-        downloadContainer.style.flexWrap = 'wrap';
-        
-        const insertPoint = document.querySelector('.stats-results');
-        if (insertPoint) {
-            insertPoint.parentNode.insertBefore(downloadContainer, insertPoint.nextSibling);
-        }
-    }
+    const downloadContainer = document.getElementById('downloadButtonsContainer');
+    if (!downloadContainer) return;
 
     downloadContainer.innerHTML = `
-        <div style="flex: 1; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <span style="font-weight: 600; color: #333;">Descargar consolidado:</span>
             <button type="button" id="downloadExcelBtn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                 📊 Excel
@@ -506,6 +491,8 @@ function renderDownloadButtons() {
             </button>
         </div>
     `;
+    
+    downloadContainer.style.display = 'flex';
 
     document.getElementById('downloadExcelBtn')?.addEventListener('click', downloadExcel);
     document.getElementById('downloadPDFBtn')?.addEventListener('click', downloadPDF);
@@ -621,13 +608,68 @@ function setActiveReportKind(reportKind) {
         tab.classList.toggle('active', tab.dataset.reportKind === reportKind);
     });
 
-    if (reportKind === 'consolidador') {
-        if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidador de Fichas Excel';
+    // Elementos específicos de cada pestaña
+    const chartTypeControl = document.getElementById('chartTypeControl');
+    const chartTypeControlIndividual = document.getElementById('chartTypeControlIndividual');
+    const dropZone = document.getElementById('dropZone');
+    const statsLiveTitle = document.getElementById('statsLiveTitle');
+    const statsLiveSubtitle = document.getElementById('statsLiveSubtitle');
+    const genericChartFormContainer = document.getElementById('genericChartFormContainer');
+    const statsResults = document.getElementById('statsResults');
+    const statsResultsGeneral = document.getElementById('statsResultsGeneral');
+    const statsResultsIndividual = document.getElementById('statsResultsIndividual');
+
+    // Mostrar/ocultar elementos por pestaña
+    if (reportKind === 'generar_graficas_manual') {
+        // Nueva pestaña genérica
+        if (statsLiveTitle) statsLiveTitle.textContent = '📊 Generador de Gráficas Personalizado';
+        if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Crea gráficas personalizadas con tus propios datos. Define títulos, colores y etiquetas.';
+        if (chartTypeControl) chartTypeControl.style.display = 'none';
+        if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
+        if (dropZone) dropZone.style.display = 'none';
+        if (statsResults) {
+            statsResults.style.setProperty('display', 'block', 'important');
+            statsResults.style.setProperty('visibility', 'visible', 'important');
+            statsResults.style.setProperty('opacity', '1', 'important');
+        }
+        if (statsResultsGeneral) {
+            statsResultsGeneral.style.setProperty('display', 'none', 'important');
+        }
+        if (statsResultsIndividual) {
+            statsResultsIndividual.style.setProperty('display', 'none', 'important');
+        }
+        if (genericChartFormContainer) {
+            genericChartFormContainer.style.setProperty('display', 'block', 'important');
+            genericChartFormContainer.style.setProperty('visibility', 'visible', 'important');
+            genericChartFormContainer.style.setProperty('opacity', '1', 'important');
+            genericChartFormContainer.style.setProperty('position', 'relative', 'important');
+            genericChartFormContainer.style.setProperty('z-index', '1000', 'important');
+            
+            // Usar requestAnimationFrame + setTimeout para asegurar renderizado
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    genericChartFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+            });
+        }
+        
+        // Resetear formulario genérico al cambiar de pestaña
+        if (isChangingTab) {
+            resetGenericForm();
+        }
+        
+        inputFile.multiple = false;
+    } else if (reportKind === 'consolidador') {
+        if (statsLiveTitle) statsLiveTitle.textContent = 'Consolidar informes Excel';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga múltiples archivos para consolidar todos los datos en un único reporte con descargas en Excel y PDF';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
-        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
-        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'none';
+        if (dropZone) dropZone.style.setProperty('display', 'block', 'important');
+        if (genericChartFormContainer) genericChartFormContainer.style.setProperty('display', 'none', 'important');
+        
+        // Mostrar botones de descarga en el encabezado
+        const downloadButtonsContainer = document.getElementById('downloadButtonsContainer');
+        if (downloadButtonsContainer) downloadButtonsContainer.style.display = 'flex';
         
         // Permitir múltiples archivos
         inputFile.multiple = true;
@@ -639,8 +681,12 @@ function setActiveReportKind(reportKind) {
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Carga uno o múltiples archivos Excel para obtener estadísticas detalladas. Consolida aprendices de diferentes fichas.';
         if (chartTypeControl) chartTypeControl.style.display = 'none';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'block';
-        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
-        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'block';
+        if (dropZone) dropZone.style.setProperty('display', 'block', 'important');
+        if (genericChartFormContainer) genericChartFormContainer.style.setProperty('display', 'none', 'important');
+        
+        // Ocultar botones de descarga (solo para consolidador)
+        const downloadButtonsContainerIndividual = document.getElementById('downloadButtonsContainer');
+        if (downloadButtonsContainerIndividual) downloadButtonsContainerIndividual.style.display = 'none';
         
         // Permitir múltiples archivos
         inputFile.multiple = true;
@@ -648,12 +694,19 @@ function setActiveReportKind(reportKind) {
         // Mostrar zona de carga múltiple
         updateDropZoneForMultiple();
     } else {
-        if (statsLiveTitle) statsLiveTitle.textContent = 'Estadísticas en Tiempo Real por COD_FICHA';
+        if (statsLiveTitle) statsLiveTitle.textContent = 'Genera graficas de inscripciones por ficha';
         if (statsLiveSubtitle) statsLiveSubtitle.textContent = 'Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo';
         if (chartTypeControl) chartTypeControl.style.display = 'block';
         if (chartTypeControlIndividual) chartTypeControlIndividual.style.display = 'none';
-        const manualFormButtonContainer = document.getElementById('manualFormButtonContainer');
-        if (manualFormButtonContainer) manualFormButtonContainer.style.display = 'none';
+        if (dropZone) dropZone.style.setProperty('display', 'block', 'important');
+        if (genericChartFormContainer) genericChartFormContainer.style.setProperty('display', 'none', 'important');
+        if (statsResults) statsResults.style.setProperty('display', 'none', 'important');
+        if (statsResultsGeneral) statsResultsGeneral.style.setProperty('display', 'none', 'important');
+        if (statsResultsIndividual) statsResultsIndividual.style.setProperty('display', 'none', 'important');
+        
+        // Ocultar botones de descarga (solo para consolidador)
+        const downloadButtonsContainerGeneral = document.getElementById('downloadButtonsContainer');
+        if (downloadButtonsContainerGeneral) downloadButtonsContainerGeneral.style.display = 'none';
         
         // Un único archivo
         inputFile.multiple = false;
@@ -700,11 +753,14 @@ function destroyCharts() {
     }
 }
 
-function resetView() {
+function resetView(nextTabKind = null) {
     destroyCharts();
     state.currentData = null;
 
-    if (statsResults) statsResults.style.display = 'none';
+    // No ocultar statsResults si vamos a la pestaña genérica
+    const isGoingToGeneric = nextTabKind === 'generar_graficas_manual';
+    
+    if (!isGoingToGeneric && statsResults) statsResults.style.display = 'none';
     if (statsMetadata) statsMetadata.style.display = 'none';
     if (consolidadorMetadata) consolidadorMetadata.style.display = 'none';
     if (statusText) showStatus('', '');
@@ -2490,14 +2546,316 @@ function renderMetadataIndividual(data) {
     }
 }
 
+// ============================================================
+// NUEVA FUNCIONALIDAD: GENERADOR GENÉRICO DE GRÁFICAS
+// ============================================================
+
+const genericChartState = {
+    dataRows: [],
+    rowCounter: 0,
+    currentChart: null
+};
+
+function initGenericChartForm() {
+    const addRowBtn = document.getElementById('addDataRowBtn');
+    const generateBtn = document.getElementById('generateGenericChartBtn');
+    const resetBtn = document.getElementById('resetGenericFormBtn');
+
+    addRowBtn?.addEventListener('click', addDataRow);
+    generateBtn?.addEventListener('click', generateGenericChart);
+    resetBtn?.addEventListener('click', resetGenericForm);
+
+    // Agregar una fila inicial vacía
+    addDataRow();
+}
+
+function addDataRow() {
+    const rowId = `data_row_${genericChartState.rowCounter++}`;
+    const labelInputId = `label_input_${genericChartState.rowCounter}`;
+    const valueInputId = `value_input_${genericChartState.rowCounter}`;
+    const tbody = document.getElementById('genericDataTableBody');
+    
+    const row = document.createElement('tr');
+    row.id = rowId;
+    row.innerHTML = `
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+            <input 
+                type="text" 
+                id="${labelInputId}"
+                class="label-input" 
+                placeholder="Ej: Categoría A"
+                style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 4px; font-size: 12px; box-sizing: border-box;"
+                onfocus="this.style.borderColor='#39a900'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+            >
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+            <input 
+                type="number" 
+                id="${valueInputId}"
+                class="value-input" 
+                placeholder="0" 
+                min="0"
+                style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 4px; font-size: 12px; box-sizing: border-box;"
+                onfocus="this.style.borderColor='#39a900'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
+                onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
+                value="0"
+            >
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            <button 
+                type="button" 
+                class="remove-row-btn" 
+                data-row-id="${rowId}"
+                style="padding: 5px 10px; background: #dc3545; color: white; border: 2px solid transparent; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600;"
+                onmouseover="this.style.background='#c82333';"
+                onmouseout="this.style.background='#dc3545';"
+            >
+                Quitar
+            </button>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+    genericChartState.dataRows.push(rowId);
+
+    row.querySelector('.remove-row-btn').addEventListener('click', () => removeDataRow(rowId));
+}
+
+function removeDataRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) {
+        row.remove();
+        genericChartState.dataRows = genericChartState.dataRows.filter(id => id !== rowId);
+    }
+}
+
+function resetGenericForm() {
+    // Limpiar todos los campos
+    document.getElementById('genericChartTitle').value = '';
+    document.getElementById('genericAxisXLabel').value = '';
+    document.getElementById('genericAxisYLabel').value = '';
+    document.getElementById('genericTableTitle').value = '';
+    document.getElementById('genericChartType').value = 'bar';
+    document.getElementById('genericChartColor').value = '#39a900';
+
+    // Limpiar tabla de datos
+    const tbody = document.getElementById('genericDataTableBody');
+    tbody.innerHTML = '';
+    genericChartState.dataRows = [];
+    genericChartState.rowCounter = 0;
+
+    // Ocultar resultados
+    document.getElementById('genericChartResults').style.display = 'none';
+
+    // Agregar una fila nueva vacía
+    addDataRow();
+}
+
+function generateGenericChart() {
+    // Validar campos requeridos
+    const chartTitle = document.getElementById('genericChartTitle').value.trim();
+    const axiasXLabel = document.getElementById('genericAxisXLabel').value.trim();
+    const axisYLabel = document.getElementById('genericAxisYLabel').value.trim();
+    const tableTitle = document.getElementById('genericTableTitle').value.trim();
+    const chartType = document.getElementById('genericChartType').value;
+    const chartColor = document.getElementById('genericChartColor').value;
+
+    let errors = [];
+
+    if (!chartTitle) errors.push('Título principal es requerido');
+    if (!axiasXLabel) errors.push('Nombre Eje X es requerido');
+    if (!axisYLabel) errors.push('Nombre Eje Y es requerido');
+    if (!tableTitle) errors.push('Título de tabla es requerido');
+
+    // Recopilar datos
+    const dataPoints = [];
+    const rows = document.querySelectorAll('#genericDataTableBody tr');
+    
+    rows.forEach(row => {
+        const labelInput = row.querySelector('.label-input');
+        const valueInput = row.querySelector('.value-input');
+        
+        if (labelInput && valueInput) {
+            const label = labelInput.value.trim();
+            const value = parseInt(valueInput.value) || 0;
+
+            if (label && value > 0) {
+                dataPoints.push({ label, value });
+            }
+        }
+    });
+
+    if (dataPoints.length === 0) {
+        errors.push('Debe ingresar al menos un dato con etiqueta y valor mayor a 0');
+    }
+
+    // Mostrar errores si hay
+    if (errors.length > 0) {
+        const validationMsg = document.getElementById('genericFormValidationMsg');
+        validationMsg.innerHTML = '<strong>⚠ Errores encontrados:</strong><ul style="margin: 5px 0; padding-left: 20px;">' + 
+            errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+        validationMsg.style.display = 'block';
+        return;
+    }
+
+    // Limpiar mensaje de validación
+    document.getElementById('genericFormValidationMsg').style.display = 'none';
+
+    // Preparar datos para gráfica
+    const labels = dataPoints.map(d => d.label);
+    const values = dataPoints.map(d => d.value);
+    const totalValue = values.reduce((a, b) => a + b, 0);
+
+    // Crear gráfica
+    createGenericChart(labels, values, chartTitle, axiasXLabel, axisYLabel, chartType, chartColor);
+
+    // Renderizar tabla de resultados
+    renderGenericResultsTable(labels, values, totalValue, tableTitle);
+
+    // Mostrar resultados
+    document.getElementById('genericChartResults').style.display = 'block';
+}
+
+function createGenericChart(labels, values, title, xLabel, yLabel, chartType, chartColor) {
+    const canvasElement = document.getElementById('genericChart');
+    if (!canvasElement) return;
+
+    const container = canvasElement.parentNode;
+    if (!container) return;
+
+    // Destruir gráfica anterior
+    if (genericChartState.currentChart) {
+        genericChartState.currentChart.destroy();
+        genericChartState.currentChart = null;
+    }
+
+    const ctx = canvasElement.getContext('2d');
+    if (!ctx) return;
+
+    const isCircular = chartType === 'pie' || chartType === 'doughnut';
+    const backgroundColor = isCircular 
+        ? generateColors(labels.length)
+        : chartColor;
+    const borderColor = isCircular
+        ? labels.map(() => '#ffffff')
+        : chartColor;
+
+    const config = {
+        type: chartType,
+        data: {
+            labels,
+            datasets: [{
+                label: title,
+                data: values,
+                backgroundColor,
+                borderColor,
+                borderWidth: isCircular ? 2 : 2,
+                fill: chartType === 'line' ? false : true,
+                tension: chartType === 'line' ? 0.3 : undefined,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: isCircular ? 'bottom' : 'top'
+                },
+                title: {
+                    display: true,
+                    text: title,
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: isCircular ? {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
+                    } : undefined
+                }
+            },
+            scales: isCircular ? {} : {
+                y: {
+                    beginAtZero: true,
+                    ticks: { beginAtZero: true },
+                    title: {
+                        display: true,
+                        text: yLabel
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: xLabel
+                    }
+                }
+            }
+        }
+    };
+
+    try {
+        genericChartState.currentChart = new Chart(ctx, config);
+    } catch (error) {
+        console.error('Error creating generic chart:', error);
+    }
+}
+
+function renderGenericResultsTable(labels, values, totalValue, tableTitle) {
+    // Actualizar nombres de columnas
+    document.getElementById('genericResultTableTitle').textContent = tableTitle;
+    document.getElementById('genericTableHeaderLabel').textContent = 'Etiqueta';
+    document.getElementById('genericTableHeaderValue').textContent = 'Valor';
+
+    // Renderizar filas
+    const tbody = document.getElementById('genericResultTableBody');
+    tbody.innerHTML = labels.map((label, idx) => {
+        const value = values[idx];
+        const percentage = ((value / totalValue) * 100).toFixed(1);
+
+        return `
+            <tr>
+                <td style="font-weight: 500;">${escapeHtml(label)}</td>
+                <td><strong>${value}</strong></td>
+                <td style="text-align: right; font-weight: 500;">${percentage}%</td>
+            </tr>
+        `;
+    }).join('');
+}
+
 // Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        // Inicializar visibilidad de elementos
+        const statsResults = document.getElementById('statsResults');
+        const statsResultsGeneral = document.getElementById('statsResultsGeneral');
+        const statsResultsIndividual = document.getElementById('statsResultsIndividual');
+        const genericChartFormContainer = document.getElementById('genericChartFormContainer');
+        
+        if (statsResults) {
+            statsResults.style.setProperty('display', 'none', 'important');
+        }
+        if (statsResultsGeneral) {
+            statsResultsGeneral.style.setProperty('display', 'none', 'important');
+        }
+        if (statsResultsIndividual) {
+            statsResultsIndividual.style.setProperty('display', 'none', 'important');
+        }
+        if (genericChartFormContainer) {
+            genericChartFormContainer.style.setProperty('display', 'none', 'important');
+        }
+        
         init();
         initManualForm();
+        initGenericChartForm();
     });
 } else {
     init();
     initManualForm();
+    initGenericChartForm();
 }
 

@@ -37,19 +37,22 @@
         <div class="stats-live-card">
             <div class="stats-report-tabs" id="statsReportTabs">
                 <button type="button" class="stats-tab active" data-report-kind="general_inscripciones">
-                    REPORTE_DE_INSCRIPCIONES GENERALES
+                    📊 GRAFICAR REPORTE GENERAL DE INSCRIPCIONES
                 </button>
                 <button type="button" class="stats-tab" data-report-kind="individual_ficha">
-                    REPORTE_DE_INSCRIPCIONES INDIVIDUAL POR FICHA
+                    📊 GRAFICAR REPORTE DE INSCRIPCIONES POR FICHA
                 </button>
                 <button type="button" class="stats-tab" data-report-kind="consolidador">
-                    CONSOLIDADOR DE FICHAS EXCEL
+                    CONSOLIDAR INFORMES EXCEL
+                </button>
+                <button type="button" class="stats-tab" data-report-kind="generar_graficas_manual">
+                    📊 GENERAR GRÁFICAS MANUALMENTE
                 </button>
             </div>
 
             <div class="stats-live-header">
                 <div>
-                    <h2 class="stats-live-title" id="statsLiveTitle">Estadísticas en Tiempo Real por COD_FICHA</h2>
+                    <h2 class="stats-live-title" id="statsLiveTitle">Estadistica general</h2>
                     <p class="stats-live-subtitle" id="statsLiveSubtitle">Compara por ficha el CUPO contra INSCRITOS PRIMERA y SEGUNDA OPCIÓN, con porcentaje de demanda y sobrecupo</p>
                 </div>
                 <div id="chartTypeControl">
@@ -67,262 +70,10 @@
                         <option value="pie">🥧 Gráfica Circular</option>
                     </select>
                 </div>
+                <div id="downloadButtonsContainer" style="display: none;"></div>
             </div>
 
-            <!-- Botón de Ingresar Datos Manualmente antes de zona de carga -->
-            <div id="manualFormButtonContainer" style="display: none; margin-bottom: 20px; text-align: center;">
-                <button 
-                    id="toggleManualFormBtn" 
-                    type="button" 
-                    aria-label="Mostrar o ocultar formulario de ingreso manual de datos"
-                    aria-expanded="false"
-                    aria-controls="manualDataForm"
-                    style="
-                        padding: 10px 20px;
-                        background: #39a900;
-                        color: white;
-                        border: 2px solid transparent;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-weight: 600;
-                        font-size: 14px;
-                        transition: all 0.2s ease;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 8px;
-                    "
-                    onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
-                    onmouseout="this.style.background='#39a900'; this.style.outline='none';"
-                >
-                    ➕ Ingresar Datos Manualmente
-                </button>
-            </div>
 
-            <!-- Formulario manual para ingresar datos (independiente de carga Excel) -->
-            <div 
-                id="manualDataFormContainer"
-                style="display: none;">
-                <div 
-                    id="manualDataForm" 
-                    role="form"
-                    aria-labelledby="manualFormTitle"
-                    style="margin-bottom: 40px; padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
-                    
-                    <h3 id="manualFormTitle" style="color: #333; font-size: 16px; font-weight: 700; margin-bottom: 20px;">
-                        📋 Formulario de Ingreso Manual de Datos
-                    </h3>
-
-                    <!-- Mensaje de validación accesible -->
-                    <div id="manualFormValidationMsg" role="alert" aria-live="polite" style="
-                        display: none;
-                        padding: 12px 15px;
-                        margin-bottom: 20px;
-                        border-radius: 4px;
-                        font-size: 13px;
-                        background: #f8d7da;
-                        color: #721c24;
-                        border: 1px solid #f5c6cb;
-                    "></div>
-
-                    <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 30px;">
-                        <legend style="font-weight: 700; color: #FF4444; font-size: 11px; margin-bottom: 15px; display: block;">
-                            Campos requeridos (<span style="color: #FF4444;">*</span>)
-                        </legend>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <!-- Código de Ficha -->
-                            <div>
-                                <label for="manualFichaCodigo" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                    Código de Ficha: <span style="color: #FF4444; font-weight: 700;">*</span>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    id="manualFichaCodigo"
-                                    name="codigo_ficha"
-                                    placeholder="Ej: SOE-001"
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="codigoHelp"
-                                    data-error="codigoError"
-                                    style="
-                                        width: 100%;
-                                        padding: 10px;
-                                        border: 2px solid #ddd;
-                                        border-radius: 4px;
-                                        font-size: 13px;
-                                        box-sizing: border-box;
-                                        transition: border-color 0.2s ease;
-                                    "
-                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                >
-                                <small id="codigoHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Identifique únicamente la ficha de formación</small>
-                                <span id="codigoError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                            </div>
-
-                            <!-- Programa -->
-                            <div>
-                                <label for="manualPrograma" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                    Programa de Formación: <span style="color: #FF4444; font-weight: 700;">*</span>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    id="manualPrograma"
-                                    name="programa"
-                                    placeholder="Ej: Desarrollo de Software"
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="programaHelp"
-                                    data-error="programaError"
-                                    style="
-                                        width: 100%;
-                                        padding: 10px;
-                                        border: 2px solid #ddd;
-                                        border-radius: 4px;
-                                        font-size: 13px;
-                                        box-sizing: border-box;
-                                        transition: border-color 0.2s ease;
-                                    "
-                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                >
-                                <small id="programaHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Nombre del programa de formación</small>
-                                <span id="programaError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                            </div>
-
-                            <!-- Total Aprendices -->
-                            <div>
-                                <label for="manualTotalAprendices" style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 13px;">
-                                    Total de Aprendices: <span style="color: #999; font-size: 11px;">(opcional)</span>
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="manualTotalAprendices"
-                                    name="total_aprendices"
-                                    placeholder="Ej: 50" 
-                                    min="0"
-                                    aria-describedby="totalHelp"
-                                    data-error="totalError"
-                                    style="
-                                        width: 100%;
-                                        padding: 10px;
-                                        border: 2px solid #ddd;
-                                        border-radius: 4px;
-                                        font-size: 13px;
-                                        box-sizing: border-box;
-                                        transition: border-color 0.2s ease;
-                                    "
-                                    onfocus="this.style.borderColor='#39a900'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(57,169,0,0.1)';"
-                                    onblur="this.style.borderColor='#ddd'; this.style.boxShadow='none';"
-                                >
-                                <small id="totalHelp" style="display: block; color: #666; font-size: 11px; margin-top: 4px;">Cantidad total de aprendices (si se deja vacío, se sumará el total de estados)</small>
-                                <span id="totalError" role="alert" style="display: none; color: #dc3545; font-size: 11px; margin-top: 4px;"></span>
-                            </div>
-
-                            <div></div>
-                        </div>
-                    </fieldset>
-
-                    <!-- Tabla de Estados Dinámicos -->
-                    <fieldset style="border: none; padding: 0; margin: 0; margin-bottom: 20px;">
-                        <legend style="font-weight: 700; color: #333; font-size: 14px; margin-bottom: 15px; display: block;">
-                            Estados y Cantidades de Aprendices <span style="color: #FF4444; font-weight: 700;">*</span>
-                        </legend>
-                        
-                        <table 
-                            role="table"
-                            aria-label="Tabla de Estados y Cantidades de Aprendices"
-                            aria-describedby="tableDescription"
-                            style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                            <caption id="tableDescription" style="font-size: 12px; color: #666; padding: 5px 0; text-align: left;">
-                                Ingrese el estado de los aprendices y la cantidad en cada fila. Puede agregar más estados con el botón "Agregar Estado"
-                            </caption>
-                            <thead>
-                                <tr style="background: #39a900; color: white;">
-                                    <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
-                                        Estado <span style="color: #FFD700;">*</span>
-                                    </th>
-                                    <th style="padding: 10px; text-align: left; font-size: 12px; font-weight: 700;">
-                                        Total de Aprendices <span style="color: #FFD700;">*</span>
-                                    </th>
-                                    <th style="padding: 10px; text-align: center; font-size: 12px; font-weight: 700; width: 80px;">
-                                        Acción
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="manualEstadosTableBody">
-                                <!-- Filas dinámicas se insertarán aquí -->
-                            </tbody>
-                        </table>
-
-                        <button 
-                            id="addEstadoBtn" 
-                            type="button"
-                            aria-label="Agregar nueva fila para estado de aprendices"
-                            style="
-                                padding: 8px 15px;
-                                background: #007bff;
-                                color: white;
-                                border: 2px solid transparent;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                font-weight: 600;
-                                font-size: 12px;
-                                margin-bottom: 20px;
-                                transition: all 0.2s ease;
-                            "
-                            onmouseover="this.style.background='#0056b3'; this.style.outline='2px solid #007bff'; this.style.outlineOffset='2px';"
-                            onmouseout="this.style.background='#007bff'; this.style.outline='none';"
-                        >
-                            + Agregar Estado
-                        </button>
-                    </fieldset>
-
-                    <!-- Botones de Acción -->
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button 
-                            id="generateManualChartsBtn" 
-                            type="button"
-                            aria-label="Generar gráficas y estadísticas con los datos ingresados"
-                            style="
-                                padding: 12px 24px;
-                                background: #39a900;
-                                color: white;
-                                border: 2px solid transparent;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                font-weight: 700;
-                                font-size: 14px;
-                                transition: all 0.2s ease;
-                            "
-                            onmouseover="this.style.background='#328a00'; this.style.outline='2px solid #39a900'; this.style.outlineOffset='2px';"
-                            onmouseout="this.style.background='#39a900'; this.style.outline='none';"
-                        >
-                            ✓ Generar Gráficas y Estadísticas
-                        </button>
-                        <button 
-                            id="cancelManualFormBtn" 
-                            type="button"
-                            aria-label="Cancelar y cerrar el formulario de ingreso manual"
-                            style="
-                                padding: 12px 24px;
-                                background: #999;
-                                color: white;
-                                border: 2px solid transparent;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                font-weight: 600;
-                                font-size: 14px;
-                                transition: all 0.2s ease;
-                            "
-                            onmouseover="this.style.background='#777'; this.style.outline='2px solid #999'; this.style.outlineOffset='2px';"
-                            onmouseout="this.style.background='#999'; this.style.outline='none';"
-                        >
-                            ✕ Cancelar
-                        </button>
-                    </div>
-                </div>
-            </div>
 
             <div class="stats-upload-zone" id="dropZone">
                 <svg class="stats-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -516,6 +267,191 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- NUEVA PESTAÑA: Generar Gráficas Manualmente con Análisis Dinámico de Excel -->
+                <div id="genericChartFormContainer" style="display: block; background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    
+                    <!-- Indicador de Progreso -->
+                    <div id="dynamicChartProgress" style="display: flex; justify-content: space-between; margin-bottom: 30px; padding: 0 10%;">
+                        <div class="progress-step active" data-step="1">
+                            <div class="progress-circle">1</div>
+                            <div class="progress-label">Cargar Archivo</div>
+                        </div>
+                        <div class="progress-step" data-step="2">
+                            <div class="progress-circle">2</div>
+                            <div class="progress-label">Análisis de Datos</div>
+                        </div>
+                        <div class="progress-step" data-step="3">
+                            <div class="progress-circle">3</div>
+                            <div class="progress-label">Selección</div>
+                        </div>
+                        <div class="progress-step" data-step="4">
+                            <div class="progress-circle">4</div>
+                            <div class="progress-label">Configuración</div>
+                        </div>
+                        <div class="progress-step" data-step="5">
+                            <div class="progress-circle">5</div>
+                            <div class="progress-label">Vista Previa</div>
+                        </div>
+                        <div class="progress-step" data-step="6">
+                            <div class="progress-circle">6</div>
+                            <div class="progress-label">Resultados</div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 1: Zona de Carga de Archivo -->
+                    <div id="dynamicStep1" class="dynamic-step" style="display: block;">
+                        <div style="padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 15px; text-align: center;">
+                                📤 Paso 1: Cargar Archivo Excel
+                            </h3>
+                            <p style="text-align: center; color: #666; margin-bottom: 25px;">
+                                Carga cualquier archivo Excel. El sistema analizará automáticamente su estructura y contenido.
+                            </p>
+                            
+                            <div class="stats-upload-zone" id="dynamicDropZone" style="cursor: pointer;">
+                                <svg class="stats-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <h3 class="stats-upload-title">Arrastra aquí tu archivo Excel</h3>
+                                <p class="stats-upload-text">o haz clic para seleccionar</p>
+                                <p class="stats-upload-hint">Formatos: .xls, .xlsx (máx. 10MB)</p>
+                                <input type="file" id="dynamicExcelFile" accept=".xls,.xlsx" hidden>
+                            </div>
+
+                            <div id="dynamicUploadStatus" style="margin-top: 20px; text-align: center;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Análisis y Resumen de Datos -->
+                    <div id="dynamicStep2" class="dynamic-step" style="display: none;">
+                        <div style="padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 15px;">
+                                🔍 Paso 2: Análisis de Datos del Archivo
+                            </h3>
+                            
+                            <div id="fileAnalysisSummary" style="margin-bottom: 25px;"></div>
+                            
+                            <div style="display: flex; justify-content: center; gap: 10px;">
+                                <button id="btnPrevStep2" class="btn-secondary">← Anterior</button>
+                                <button id="btnNextStep2" class="btn-primary">Continuar →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Selección de Datos -->
+                    <div id="dynamicStep3" class="dynamic-step" style="display: none;">
+                        <div style="padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 15px;">
+                                ✓ Paso 3: Selecciona los Datos para la Gráfica
+                            </h3>
+                            
+                            <div id="dataSelectionForm" style="margin-bottom: 25px;"></div>
+                            
+                            <div style="display: flex; justify-content: center; gap: 10px;">
+                                <button id="btnPrevStep3" class="btn-secondary">← Anterior</button>
+                                <button id="btnNextStep3" class="btn-primary">Continuar →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 4: Configuración de Gráfica -->
+                    <div id="dynamicStep4" class="dynamic-step" style="display: none;">
+                        <div style="padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 15px;">
+                                ⚙️ Paso 4: Configura tu Gráfica
+                            </h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                        Título de la Gráfica <span style="color: #FF4444;">*</span>
+                                    </label>
+                                    <input type="text" id="dynamicChartTitle" placeholder="Ej: Reporte de Inscripciones por Ficha" 
+                                        style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                        Tipo de Gráfica <span style="color: #FF4444;">*</span>
+                                    </label>
+                                    <select id="dynamicChartType" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 4px;">
+                                        <option value="bar">📊 Barras</option>
+                                        <option value="line">📈 Líneas</option>
+                                        <option value="pie">🥧 Circular</option>
+                                        <option value="doughnut">🍩 Donut</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                        Título de Tabla <span style="color: #FF4444;">*</span>
+                                    </label>
+                                    <input type="text" id="dynamicTableTitle" placeholder="Ej: Resumen de Datos" 
+                                        style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                        Color Principal
+                                    </label>
+                                    <input type="color" id="dynamicChartColor" value="#39a900" 
+                                        style="width: 100%; height: 44px; border: 2px solid #ddd; border-radius: 4px; cursor: pointer;">
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: center; gap: 10px;">
+                                <button id="btnPrevStep4" class="btn-secondary">← Anterior</button>
+                                <button id="btnNextStep4" class="btn-primary">Continuar →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 5: Vista Previa -->
+                    <div id="dynamicStep5" class="dynamic-step" style="display: none;">
+                        <div style="padding: 25px; background: #f9f9f9; border-radius: 8px; border: 2px solid #39a900;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 15px;">
+                                👁️ Paso 5: Vista Previa de Datos Seleccionados
+                            </h3>
+                            
+                            <div id="dataPreviewContainer" style="margin-bottom: 25px;"></div>
+                            
+                            <div style="display: flex; justify-content: center; gap: 10px;">
+                                <button id="btnPrevStep5" class="btn-secondary">← Ajustar</button>
+                                <button id="btnGenerateChart" class="btn-success">✓ Generar Gráfica</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 6: Resultados -->
+                    <div id="dynamicStep6" class="dynamic-step" style="display: none;">
+                        <div style="padding: 25px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <h3 style="color: #333; font-size: 18px; font-weight: 700; margin-bottom: 20px; text-align: center;">
+                                📊 Resultados
+                            </h3>
+                            
+                            <div style="height: 400px; margin-bottom: 30px;">
+                                <canvas id="dynamicChart"></canvas>
+                            </div>
+                            
+                            <div class="stats-table-container">
+                                <h4 id="dynamicResultTableTitle" class="stats-table-title">Resumen de Datos</h4>
+                                <div class="stats-table-wrapper">
+                                    <table class="stats-table">
+                                        <thead id="dynamicResultTableHead">
+                                        </thead>
+                                        <tbody id="dynamicResultTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 25px;">
+                                <button id="btnNewChart" class="btn-primary">🔄 Nueva Gráfica</button>
+                                <button id="btnDownloadChart" class="btn-success">💾 Descargar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -540,7 +476,7 @@
                             <ul>
                                 <li><strong>Reporte General:</strong> Análisis comparativo de cupos vs inscritos por ficha</li>
                                 <li><strong>Reporte Individual por Ficha:</strong> Estadísticas detalladas de aprendices por ficha</li>
-                                <li><strong>Consolidador de Fichas:</strong> Unificación de múltiples archivos con descargas Excel/PDF</li>
+                                <li><strong>Consolidador de Informes:</strong> Unificación de múltiples archivos con descargas Excel/PDF</li>
                             </ul>
                         </div>
                     </div>
@@ -586,13 +522,13 @@
                     <div class="manual-item">
                         <button class="manual-item-header" data-section="4">
                             <span class="manual-item-icon">▶</span>
-                            <span class="manual-item-title">4. Consolidador de Fichas Excel</span>
+                            <span class="manual-item-title">4. Consolidar Informes Excel</span>
                         </button>
                         <div class="manual-item-content" id="section-4" style="display: none;">
                             <p><strong>Funcionalidad:</strong> Módulo exclusivo para unir múltiples archivos y generar reportes descargables.</p>
                             <h4>Pasos:</h4>
                             <ol>
-                                <li>Selecciona la pestaña "Consolidador de Fichas Excel"</li>
+                                <li>Selecciona la pestaña "Consolidar informes Excel"</li>
                                 <li>Carga múltiples archivos Excel</li>
                                 <li>Haz clic en "Consolidar archivos"</li>
                                 <li>Revisa los resultados: tabla de estados + listado de fichas</li>
@@ -646,7 +582,7 @@
                             <span class="manual-item-title">7. Descargas y Exportación</span>
                         </button>
                         <div class="manual-item-content" id="section-7" style="display: none;">
-                            <h4>Módulo: Consolidador de Fichas</h4>
+                            <h4>Módulo: Consolidador de Informes</h4>
                             <p>Después de consolidar archivos, están disponibles dos opciones de descarga:</p>
                             <ul>
                                 <li><strong>Excel (📊):</strong> Descarga un archivo .xlsx con:
@@ -694,742 +630,10 @@
 
 @endsection
 
-@section('styles')
-<style>
-/* Botón Manual de Usuario */
-.user-manual-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #39A900 0%, #2d8400 100%);
-    color: white;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 998;
-}
-
-.user-manual-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(57, 169, 0, 0.4);
-}
-
-.user-manual-btn:active {
-    transform: scale(0.95);
-}
-
-.manual-icon {
-    width: 28px;
-    height: 28px;
-    stroke-width: 2;
-}
-
-/* Modal Overlay */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.modal-overlay.active {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 40px;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    max-width: 800px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px;
-    border-bottom: 2px solid #f0f0f0;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    border-radius: 12px 12px 0 0;
-}
-
-.modal-title {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0;
-    color: #333;
-}
-
-.modal-close-btn {
-    background: none;
-    border: none;
-    font-size: 32px;
-    cursor: pointer;
-    color: #999;
-    padding: 0;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.modal-close-btn:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.modal-body {
-    padding: 24px;
-}
-
-/* Manual Sections */
-.manual-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.manual-item {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fafafa;
-    transition: all 0.2s ease;
-}
-
-.manual-item:hover {
-    border-color: #39A900;
-    box-shadow: 0 2px 8px rgba(57, 169, 0, 0.1);
-}
-
-.manual-item-header {
-    width: 100%;
-    padding: 16px;
-    background: white;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.2s ease;
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-}
-
-.manual-item-header:hover {
-    background: #f8f9fa;
-    color: #39A900;
-}
-
-.manual-item-header.expanded {
-    background: linear-gradient(135deg, #f0fdf4 0%, #f8f9fa 100%);
-    color: #2d8400;
-    border-bottom: 2px solid #39A900;
-}
-
-.manual-item-icon {
-    display: inline-block;
-    transition: transform 0.3s ease;
-    font-size: 12px;
-    color: #39A900;
-}
-
-.manual-item-header.expanded .manual-item-icon {
-    transform: rotate(90deg);
-}
-
-.manual-item-title {
-    flex: 1;
-}
-
-.manual-item-content {
-    padding: 16px;
-    background: white;
-    border-top: 1px solid #e0e0e0;
-    animation: slideOpen 0.3s ease;
-}
-
-@keyframes slideOpen {
-    from {
-        opacity: 0;
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 1000px;
-    }
-}
-
-.manual-item-content p {
-    margin: 0 0 12px 0;
-    line-height: 1.6;
-    color: #555;
-}
-
-.manual-item-content h4 {
-    margin: 16px 0 8px 0;
-    color: #39A900;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.manual-item-content ul,
-.manual-item-content ol {
-    margin: 8px 0;
-    padding-left: 24px;
-}
-
-.manual-item-content li {
-    margin: 6px 0;
-    line-height: 1.5;
-    color: #555;
-}
-
-.manual-item-content strong {
-    color: #2d8400;
-}
-
-/* Encabezado Institucional */
-.institutional-header {
-    background: linear-gradient(135deg, #39A900 0%, #2d8400 100%);
-    color: white;
-    padding: 40px 20px;
-    margin-bottom: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.2);
-}
-
-.institutional-header__content {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.institutional-header__logo {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.institutional-logo {
-    width: 100px;
-    height: 100px;
-    opacity: 0.95;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-.institutional-header__info {
-    flex: 1;
-}
-
-.institutional-header__title {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.institutional-header__subtitle {
-    font-size: 14px;
-    margin: 0;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-@media (max-width: 768px) {
-    .institutional-header {
-        padding: 30px 15px;
-    }
-
-    .institutional-header__content {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-    }
-
-    .institutional-header__title {
-        font-size: 22px;
-    }
-
-    .institutional-logo {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-/* Dashboard KPIs - Deprecated but kept for reference */
-.dashboard-kpis {
-    display: none;
-}
-
-.kpi-card {
-    display: none;
-}
-
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.kpi-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.kpi-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-}
-
-.kpi-icon {
-    width: 24px;
-    height: 24px;
-    stroke-width: 2;
-    opacity: 0.6;
-}
-
-.kpi-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: #333;
-}
-
-.kpi-primary { border-left: 4px solid #39A900; }
-.kpi-success { border-left: 4px solid #10b981; }
-.kpi-warning { border-left: 4px solid #f59e0b; }
-.kpi-secondary { border-left: 4px solid #6b7280; }
-
-/* Stats Metadata */
-.stats-metadata {
-    margin: 20px 0;
-    padding: 16px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-radius: 8px;
-    border-left: 4px solid #39A900;
-}
-
-.metadata-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-}
-
-.metadata-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.metadata-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.metadata-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #00304D;
-}
-
-/* Stats Live Section */
-.stats-live-section {
-    margin-bottom: 24px;
-}
-
-.stats-live-card {
-    background: white;
-    border-radius: 12px;
-    padding: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.stats-report-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.stats-tab {
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
-    color: #374151;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.stats-tab.active {
-    border-color: #39A900;
-    background: #ecfdf5;
-    color: #14532d;
-}
-
-.stats-live-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.stats-live-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #00304D;
-    margin: 0 0 4px 0;
-}
-
-.stats-live-subtitle {
-    font-size: 14px;
-    color: #666;
-    margin: 0;
-}
-
-.stats-select {
-    padding: 8px 16px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    font-size: 14px;
-    background: white;
-    cursor: pointer;
-}
-
-.stats-upload-zone {
-    border: 2px dashed #39A900;
-    border-radius: 12px;
-    padding: 48px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: #f9fafb;
-}
-
-.stats-upload-zone:hover,
-.stats-upload-zone.dragover {
-    background: #f0fdf4;
-    border-color: #16a34a;
-}
-
-.stats-upload-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 16px;
-    stroke: #39A900;
-    stroke-width: 2;
-}
-
-.stats-upload-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 8px 0;
-}
-
-.stats-upload-text {
-    font-size: 14px;
-    color: #666;
-    margin: 0 0 4px 0;
-}
-
-.stats-upload-hint {
-    font-size: 12px;
-    color: #999;
-    margin: 0;
-}
-
-.stats-status {
-    margin: 16px 0;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    text-align: center;
-}
-
-.stats-status.loading {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.stats-status.success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.stats-status.error {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.stats-results {
-    margin-top: 32px;
-}
-
-.stats-results-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-@media (max-width: 1024px) {
-    .stats-results-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.stats-chart-container {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 20px;
-    height: 420px;
-    overflow: hidden;
-}
-
-.stats-chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100%;
-    display: block;
-}
-
-.stats-table-container {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.stats-table-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
-}
-
-.stats-table-wrapper {
-    max-height: 450px;
-    overflow-y: auto;
-}
-
-.stats-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.stats-table th,
-.stats-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.stats-table th {
-    background: white;
-    font-weight: 600;
-    font-size: 13px;
-    color: #666;
-    position: sticky;
-    top: 0;
-}
-
-.stats-table td {
-    font-size: 13px;
-    color: #333;
-}
-
-.badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.badge-success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.badge-warning {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge-danger {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.stats-comparison {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.stats-demand-chart {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 24px;
-}
-
-.stats-demand-chart-wrapper {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    height: 360px;
-    overflow: hidden;
-}
-
-.stats-demand-chart-wrapper canvas {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100%;
-    display: block;
-}
-
-.stats-comparison-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
-}
-
-.stats-comparison-wrapper {
-    overflow-x: auto;
-}
-
-.stats-comparison-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.stats-comparison-table th,
-.stats-comparison-table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #e5e7eb;
-}
-
-.stats-comparison-table th {
-    background: white;
-    font-weight: 600;
-    color: #666;
-}
-
-.stats-comparison-table td {
-    background: white;
-    color: #333;
-}
-
-/* Activity */
-.dashboard-activity {
-    margin-bottom: 32px;
-}
-
-.activity-card {
-    background: white;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.activity-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
-}
-
-.activity-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.activity-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.activity-item:last-child {
-    border-bottom: none;
-}
-
-.activity-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #39A900;
-    margin-right: 12px;
-}
-
-.activity-text {
-    font-size: 14px;
-    color: #666;
-}
-</style>
-@endsection
-
 @section('scripts')
+@vite(['resources/css/dashboard.css'])
 @vite(['resources/js/admin/dashboard-stats.js'])
+@vite(['resources/js/admin/dynamic-chart-wizard.js'])
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
