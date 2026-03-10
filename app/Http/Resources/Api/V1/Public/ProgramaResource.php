@@ -19,13 +19,15 @@ class ProgramaResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $ofertaActiva = $this->ofertaProgramas?->firstWhere('estado', true);
+
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
             'nivel' => $this->nivel,
-            'municipio' => $this->municipio,
+            'municipio' => $ofertaActiva?->municipio,
             'estado' => $this->estado,
         ];
     }

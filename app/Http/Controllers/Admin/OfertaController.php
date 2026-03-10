@@ -62,7 +62,7 @@ class OfertaController extends Controller
         $centros = Centro::orderBy('nombre')->get(['id', 'nombre']);
         $programas = Programa::where('estado', 'publicado')
             ->orderBy('nombre')
-            ->get(['id', 'nombre', 'modalidad']);
+            ->get(['id', 'nombre']);
         $instructores = Instructor::orderBy('nombre')->get(['id', 'nombre']);
 
         return view('admin.ofertas.create', compact('centros', 'programas', 'instructores'));
@@ -99,7 +99,9 @@ class OfertaController extends Controller
                     'programa_id' => $programaData['programa_id'],
                     'centro_id' => $programaData['centro_id'],
                     'cupos' => $programaData['cupos'],
-                    'modalidad' => $programaData['modalidad'] ?? null,
+                    'modalidad' => $programaData['modalidad'],
+                    'jornada' => $programaData['jornada'],
+                    'municipio' => $programaData['municipio'],
                     'instructor_id' => $programaData['instructor_id'],
                     'estado' => true,
                     'version' => 1,
@@ -161,7 +163,9 @@ class OfertaController extends Controller
                             'programa_id' => $programaData['programa_id'],
                             'centro_id' => $programaData['centro_id'],
                             'cupos' => $programaData['cupos'],
-                            'modalidad' => $programaData['modalidad'] ?? null,
+                            'modalidad' => $programaData['modalidad'],
+                            'jornada' => $programaData['jornada'],
+                            'municipio' => $programaData['municipio'],
                             'instructor_id' => $programaData['instructor_id'],
                         ]);
                     }
@@ -171,7 +175,9 @@ class OfertaController extends Controller
                         'programa_id' => $programaData['programa_id'],
                         'centro_id' => $programaData['centro_id'],
                         'cupos' => $programaData['cupos'],
-                        'modalidad' => $programaData['modalidad'] ?? null,
+                        'modalidad' => $programaData['modalidad'],
+                        'jornada' => $programaData['jornada'],
+                        'municipio' => $programaData['municipio'],
                         'instructor_id' => $programaData['instructor_id'],
                         'estado' => true,
                         'version' => 1,

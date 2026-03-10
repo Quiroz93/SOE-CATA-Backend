@@ -24,9 +24,10 @@ class ProgramaController extends Controller
 
         $programas = Cache::remember($cacheKey, $ttl, function () use ($perPage) {
             return Programa::publicado()
-                ->select(['id', 'nombre', 'slug', 'estado', 'modalidad', 'duracion', 'nivel_formacion_id'])
+                ->select(['id', 'nombre', 'slug', 'estado', 'duracion', 'nivel_formacion_id'])
                 ->with([
                     'nivelFormacion:id,nombre',
+                    'ofertaProgramas:id,programa_id,modalidad,jornada,municipio,estado',
                     'multimedia:id,programa_id,tipo,url',
                     'redesFormacionRelaciones' => function ($q) {
                         $q->select(['id', 'programa_id', 'red_formacion_id', 'estado'])

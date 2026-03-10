@@ -65,37 +65,7 @@
         @enderror
     </div>
 
-    <div class="form-group">
-        <label for="modalidad" class="form-label">
-            Modalidad
-        </label>
-        <select name="modalidad" 
-                id="modalidad" 
-                class="form-select @error('modalidad') form-select--error @enderror">
-            <option value="">-- Selecciona una modalidad --</option>
-            <option value="Presencial" {{ old('modalidad', $programa->modalidad ?? '') === 'Presencial' ? 'selected' : '' }}>Presencial</option>
-            <option value="Virtual" {{ old('modalidad', $programa->modalidad ?? '') === 'Virtual' ? 'selected' : '' }}>Virtual</option>
-            <option value="Mixta" {{ old('modalidad', $programa->modalidad ?? '') === 'Mixta' ? 'selected' : '' }}>Mixta</option>
-        </select>
-        @error('modalidad')
-            <span class="form-error">{{ $message }}</span>
-        @enderror
-    </div>
 
-    <div class="form-group">
-        <label for="municipio" class="form-label">
-            Municipio
-        </label>
-        <input type="text" 
-               name="municipio" 
-               id="municipio" 
-               class="form-input @error('municipio') form-input--error @enderror" 
-               value="{{ old('municipio', $programa->municipio ?? '') }}"
-               placeholder="Ej: Málaga">
-        @error('municipio')
-            <span class="form-error">{{ $message }}</span>
-        @enderror
-    </div>
 
     <div class="form-actions">
         <button type="submit" class="btn btn--primary">

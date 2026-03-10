@@ -49,20 +49,15 @@
             </div>
 
             <div class="detail-row">
-                <div class="detail-label">Modalidad:</div>
-                <div class="detail-value">{{ $programa->modalidad ?? 'N/A' }}</div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Municipio:</div>
-                <div class="detail-value">{{ $programa->municipio ?? 'N/A' }}</div>
-            </div>
-
-            <div class="detail-row">
                 <div class="detail-label">Descripción:</div>
                 <div class="detail-value" style="white-space: pre-wrap;">
                     {{ $programa->descripcion ?? 'Sin descripción' }}
                 </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Atributos por oferta:</div>
+                <div class="detail-value">La modalidad, jornada y municipio se definen al asociar este programa a una oferta.</div>
             </div>
 
             <div class="detail-row">

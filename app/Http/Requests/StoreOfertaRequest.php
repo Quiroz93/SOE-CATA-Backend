@@ -24,11 +24,13 @@ class StoreOfertaRequest extends FormRequest
 
             'programas' => 'required|array|min:1',
 
-            'programas.*.id' => 'nullable|exists:oferta_programas,id', // para update
+            'programas.*.id' => 'nullable|exists:oferta_programa,id', // para update
             'programas.*.programa_id' => 'required|exists:programas,id',
             'programas.*.centro_id' => 'required|exists:centros,id',
             'programas.*.cupos' => 'required|integer|min:1',
-            'programas.*.modalidad' => 'nullable|string|max:100',
+            'programas.*.modalidad' => 'required|string|max:100',
+            'programas.*.jornada' => 'required|in:diurna,nocturna,mixta',
+            'programas.*.municipio' => 'required|string|max:255',
             'programas.*.instructor_id' => 'required|exists:instructores,id',
         ];
     }

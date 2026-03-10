@@ -83,8 +83,6 @@
                     <th class="admin-table__th">Nombre</th>
                     <th class="admin-table__th">Ficha</th>
                     <th class="admin-table__th">Estado</th>
-                    <th class="admin-table__th">Modalidad</th>
-                    <th class="admin-table__th">Municipio</th>
                     <th class="admin-table__th admin-table__th--right">Acciones</th>
                 </tr>
             </thead>
@@ -108,12 +106,6 @@
                             <span class="badge badge--secondary">Sin estado</span>
                         @endif
                     </td>
-                    <td class="admin-table__td">
-                        {{ $programa->modalidad ?? 'N/A' }}
-                    </td>
-                    <td class="admin-table__td">
-                        {{ $programa->municipio ?? 'N/A' }}
-                    </td>
                     <td class="admin-table__td admin-table__td--right">
                         <a href="{{ route('admin.programas.show', $programa) }}" class="btn btn--sm btn--secondary" title="Ver detalles">
                             👁️
@@ -132,7 +124,7 @@
                 </tr>
                 @empty
                 <tr class="admin-table__body-row">
-                    <td colspan="6" class="admin-table__td admin-table__td--center">
+                    <td colspan="4" class="admin-table__td admin-table__td--center">
                         <p style="margin: 1.5rem 0; color: #666;">No hay programas registrados</p>
                     </td>
                 </tr>

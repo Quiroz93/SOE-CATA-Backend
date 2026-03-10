@@ -27,10 +27,15 @@ class ProgramaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Programa::query()->where('estado', EstadoPrograma::PUBLICADO->value);
+        $query = Programa::query()
+            ->where('estado', EstadoPrograma::PUBLICADO->value)
+            ->with(['ofertaProgramas:id,programa_id,municipio,estado']);
 
         if ($municipio = $request->input('municipio')) {
-            $query->where('municipio', $municipio);
+            $query->whereHas('ofertaProgramas', function (Builder $q) use ($municipio) {
+                $q->where('municipio', $municipio)
+                  ->where('estado', true);
+            });
         }
         if ($nivel = $request->input('nivel')) {
             $query->where('nivel', $nivel);
@@ -57,7 +62,9 @@ class ProgramaController extends Controller
      */
     public function show(int $id)
     {
-        $programa = Programa::where('estado', EstadoPrograma::PUBLICADO->value)->find($id);
+        $programa = Programa::where('estado', EstadoPrograma::PUBLICADO->value)
+            ->with(['ofertaProgramas:id,programa_id,municipio,estado'])
+            ->find($id);
 
         if (!$programa) {
             return $this->errorResponse('Programa no encontrado', 404);

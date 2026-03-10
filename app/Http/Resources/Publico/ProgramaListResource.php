@@ -13,12 +13,14 @@ class ProgramaListResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $ofertaActiva = $this->ofertaProgramas?->firstWhere('estado', true);
+
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'nivel_formacion' => $this->nivelFormacion->nombre ?? null,
-            'modalidad' => $this->modalidad ?? null,
+            'modalidad' => $ofertaActiva?->modalidad,
             'duracion' => $this->duracion ?? null,
             'imagen_portada' => $this->multimedia->firstWhere('tipo', 'portada')->url ?? null,
             'redes_formacion' => $this->redesFormacionRelaciones

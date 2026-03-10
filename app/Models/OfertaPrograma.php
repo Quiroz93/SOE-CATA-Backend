@@ -20,6 +20,8 @@ class OfertaPrograma extends Model
         'centro_id',
         'cupos',
         'modalidad',
+        'jornada',
+        'municipio',
         'estado',
         'version',
     ];

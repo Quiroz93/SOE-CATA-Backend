@@ -85,6 +85,8 @@
                             <th class="admin-table__th">Instructor</th>
                             <th class="admin-table__th">Cupos</th>
                             <th class="admin-table__th">Modalidad</th>
+                            <th class="admin-table__th">Jornada</th>
+                            <th class="admin-table__th">Municipio</th>
                             <th class="admin-table__th">Estado</th>
                         </tr>
                     </thead>
@@ -105,6 +107,12 @@
                             </td>
                             <td class="admin-table__td">
                                 {{ $ofertaPrograma->modalidad ?? 'N/A' }}
+                            </td>
+                            <td class="admin-table__td">
+                                {{ $ofertaPrograma->jornada ?? 'N/A' }}
+                            </td>
+                            <td class="admin-table__td">
+                                {{ $ofertaPrograma->municipio ?? 'N/A' }}
                             </td>
                             <td class="admin-table__td">
                                 <span class="badge badge--{{ $ofertaPrograma->estado ? 'success' : 'secondary' }}">

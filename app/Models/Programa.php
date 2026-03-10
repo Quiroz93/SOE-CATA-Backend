@@ -38,8 +38,6 @@ class Programa extends Model
         'nivel',
         'descripcion',
         'estado',
-        'modalidad',
-        'municipio',
         'duracion',
         'imagen_portada',
         'nivel_formacion_id',

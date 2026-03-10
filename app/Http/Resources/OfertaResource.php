@@ -13,8 +13,9 @@ class OfertaResource extends JsonResource
                 $programa = $ofertaPrograma->programa;
                 return [
                     'cupos' => $ofertaPrograma->cupos,
-                    'modalidad' => $ofertaPrograma->modalidad ?? $programa->modalidad ?? null,
-                    'municipio' => $programa->municipio ?? null,
+                    'modalidad' => $ofertaPrograma->modalidad,
+                    'jornada' => $ofertaPrograma->jornada,
+                    'municipio' => $ofertaPrograma->municipio,
                     'programa' => new \App\Http\Resources\ProgramaResource($programa),
                     'instructor' => new \App\Http\Resources\InstructorResource($ofertaPrograma->instructor),
                 ];

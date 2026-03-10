@@ -36,12 +36,16 @@ class ProgramaController extends Controller
 
         // Filtro por modalidad
         if ($request->filled('modalidad')) {
-            $query->where('modalidad', $request->modalidad);
+            $query->whereHas('ofertaProgramas', function ($q) use ($request) {
+                $q->where('modalidad', $request->modalidad);
+            });
         }
 
         // Filtro por municipio
         if ($request->filled('municipio')) {
-            $query->where('municipio', 'like', '%' . $request->municipio . '%');
+            $query->whereHas('ofertaProgramas', function ($q) use ($request) {
+                $q->where('municipio', 'like', '%' . $request->municipio . '%');
+            });
         }
 
         $programas = $query->latest()->paginate(15);

@@ -1,25 +1,35 @@
 openapi: 3.1.0
 
 info:
-  title: Ofertas Educativas API
+  title: SOE-CATA API v1
   version: 1.0.0
-  description: API oficial versionada v1
+  description: |
+    API pública versionada v1 del Sistema de Ofertas Educativas.
+
+    **Diseño clave:**
+    - `modalidad`, `jornada` y `municipio` pertenecen a cada entrada `oferta_programa`,
+      no al programa base. Un mismo programa puede ofrecerse con distinta modalidad,
+      jornada o municipio dependiendo de la oferta.
   license:
     name: Proprietary
     url: https://example.com/license
 
 servers:
-  - url: http://localhost/api/v1
-    description: Local development server
+  - url: http://localhost:8000/api/v1/public
+    description: Servidor de desarrollo local
 
 security:
   - bearerAuth: []
 
 tags:
   - name: Health
-    description: Endpoints de verificación del servicio
+    description: Verificación del servicio
   - name: Programas
-    description: Gestión de programas académicos
+    description: Consulta pública de programas académicos
+  - name: Ofertas
+    description: Consulta pública de ofertas educativas
+  - name: Preinscripciones
+    description: Registro de preinscripciones
 
 paths:
   /health:
@@ -37,20 +47,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
         '500':
-          description: Error interno del servidor
+          description: Error interno
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /admin/programas:
+  # ─── Programas ───────────────────────────────────────────────────────────────
+
+  /programas:
     get:
       tags:
         - Programas
-      summary: Listar programas
-      operationId: listProgramas
-      security:
-        - bearerAuth: []
+      summary: Listar programas publicados
+      operationId: listProgramasPublicos
+      security: []
+      parameters:
+        - name: municipio
+          in: query
+          description: Filtra programas que tienen al menos una oferta activa en ese municipio.
+          schema:
+            type: string
+        - name: nivel
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Búsqueda por nombre, descripción o ficha.
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
       responses:
         '200':
           description: Listado paginado de programas
@@ -67,46 +98,14 @@ paths:
                           $ref: '#/components/schemas/Programa'
                       meta:
                         $ref: '#/components/schemas/PaginatedMeta'
-    post:
-      tags:
-        - Programas
-      summary: Crear un programa
-      operationId: createPrograma
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProgramaCreateRequest'
-      responses:
-        '201':
-          description: Programa creado exitosamente
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/SuccessResponse'
-                  - type: object
-                    properties:
-                      data:
-                        $ref: '#/components/schemas/Programa'
-        '422':
-          description: Error de validación
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
-  /admin/programas/{id}:
+  /programas/{id}:
     get:
       tags:
         - Programas
-      summary: Obtener un programa por ID
-      operationId: getProgramaById
-      security:
-        - bearerAuth: []
+      summary: Obtener detalle de un programa
+      operationId: getProgramaPublico
+      security: []
       parameters:
         - name: id
           in: path
@@ -115,7 +114,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: Detalle de un programa
+          description: Detalle del programa
           content:
             application/json:
               schema:
@@ -127,6 +126,131 @@ paths:
                         $ref: '#/components/schemas/Programa'
         '404':
           description: Programa no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─── Ofertas ─────────────────────────────────────────────────────────────────
+
+  /ofertas:
+    get:
+      tags:
+        - Ofertas
+      summary: Listar ofertas activas
+      operationId: listOfertas
+      security: []
+      responses:
+        '200':
+          description: Lista de ofertas educativas activas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Oferta'
+
+  /ofertas/{slug}:
+    get:
+      tags:
+        - Ofertas
+      summary: Obtener detalle de una oferta
+      operationId: getOferta
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalle de la oferta
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Oferta'
+        '404':
+          description: Oferta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ofertas/{slug}/programas:
+    get:
+      tags:
+        - Ofertas
+      summary: Programas de una oferta
+      operationId: getOfertaProgramas
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de programas con atributos propios de la oferta
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/OfertaPrograma'
+        '404':
+          description: Oferta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─── Preinscripciones ────────────────────────────────────────────────────────
+
+  /preinscripciones:
+    post:
+      tags:
+        - Preinscripciones
+      summary: Registrar preinscripción
+      operationId: storePreinscripcion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreinscripcionRequest'
+      responses:
+        '201':
+          description: Preinscripción registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '409':
+          description: Ya existe una preinscripción para este documento y oferta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Datos inválidos
           content:
             application/json:
               schema:
@@ -168,12 +292,13 @@ components:
 
     Programa:
       type: object
+      description: |
+        Programa académico base. Los atributos `modalidad`, `jornada` y `municipio`
+        NO están aquí; pertenecen a `OfertaPrograma` porque pueden variar por oferta.
       required:
         - id
         - nombre
         - estado
-        - created_at
-        - updated_at
       properties:
         id:
           type: integer
@@ -181,13 +306,29 @@ components:
         nombre:
           type: string
           maxLength: 255
+        slug:
+          type: string
+          readOnly: true
         descripcion:
           oneOf:
             - type: string
             - type: "null"
+        nivel:
+          oneOf:
+            - type: string
+            - type: "null"
+        duracion:
+          oneOf:
+            - type: string
+            - type: "null"
+        municipio:
+          type: string
+          nullable: true
+          description: Municipio de la oferta activa asociada al programa (derivado de oferta_programa).
+          readOnly: true
         estado:
           type: string
-          enum: [draft, published]
+          enum: [borrador, publicado, archivado, cancelado]
         created_at:
           type: string
           format: date-time
@@ -197,22 +338,109 @@ components:
           format: date-time
           readOnly: true
 
-    ProgramaCreateRequest:
+    OfertaPrograma:
+      type: object
+      description: |
+        Relación programa-oferta. Contiene los atributos que pueden variar
+        por cada instancia de un programa dentro de una oferta: `modalidad`,
+        `jornada` y `municipio`.
+      required:
+        - id
+        - programa_id
+        - cupos
+        - modalidad
+        - jornada
+        - municipio
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        programa_id:
+          type: integer
+        cupos:
+          type: integer
+          minimum: 1
+        modalidad:
+          type: string
+          description: Modalidad de la sesión en esta oferta específica.
+          example: Presencial
+        jornada:
+          type: string
+          enum: [diurna, nocturna, mixta]
+          description: Jornada de la sesión en esta oferta específica.
+        municipio:
+          type: string
+          description: Municipio donde se dictará el programa en esta oferta.
+          example: Málaga
+        estado:
+          type: boolean
+          description: true = activo, false = inactivo.
+
+    Oferta:
       type: object
       required:
+        - id
         - nombre
         - estado
+        - fecha_inicio
+        - fecha_fin
       properties:
+        id:
+          type: integer
+          readOnly: true
         nombre:
           type: string
-          maxLength: 255
         descripcion:
           oneOf:
             - type: string
             - type: "null"
         estado:
           type: string
-          enum: [draft, published]
+          enum: [activa, inactiva, vencida]
+        fecha_inicio:
+          type: string
+          format: date
+        fecha_fin:
+          type: string
+          format: date
+        programas:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfertaPrograma'
+
+    PreinscripcionRequest:
+      type: object
+      required:
+        - documento
+        - nombres
+        - apellidos
+        - email
+      properties:
+        documento:
+          type: string
+          maxLength: 255
+        tipo_documento:
+          type: string
+          enum: [CC, TI, CE, PAS, PPT]
+          default: CC
+        nombres:
+          type: string
+          maxLength: 100
+        apellidos:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        oferta_programa_id:
+          type: integer
+          nullable: true
+          description: ID de la relación oferta-programa (preferido).
+        programa_id:
+          type: integer
+          nullable: true
+          description: ID del programa (compatibilidad legado; usar oferta_programa_id cuando sea posible).
 
     PaginatedMeta:
       type: object

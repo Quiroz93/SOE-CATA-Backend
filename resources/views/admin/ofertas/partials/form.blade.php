@@ -170,13 +170,28 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Modalidad</label>
-                                <select name="programas[{{ $index }}][modalidad]" class="form-select">
+                                <label class="form-label required">Modalidad</label>
+                                <select name="programas[{{ $index }}][modalidad]" class="form-select" required>
                                     <option value="">-- Seleccione --</option>
                                     <option value="Presencial" {{ $ofertaPrograma->modalidad === 'Presencial' ? 'selected' : '' }}>Presencial</option>
                                     <option value="Virtual" {{ $ofertaPrograma->modalidad === 'Virtual' ? 'selected' : '' }}>Virtual</option>
                                     <option value="Mixta" {{ $ofertaPrograma->modalidad === 'Mixta' ? 'selected' : '' }}>Mixta</option>
                                 </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Jornada</label>
+                                <select name="programas[{{ $index }}][jornada]" class="form-select" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="diurna" {{ $ofertaPrograma->jornada === 'diurna' ? 'selected' : '' }}>Diurna</option>
+                                    <option value="nocturna" {{ $ofertaPrograma->jornada === 'nocturna' ? 'selected' : '' }}>Nocturna</option>
+                                    <option value="mixta" {{ $ofertaPrograma->jornada === 'mixta' ? 'selected' : '' }}>Mixta</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Municipio</label>
+                                <input type="text" name="programas[{{ $index }}][municipio]" class="form-input" value="{{ $ofertaPrograma->municipio }}" required>
                             </div>
 
                             <div class="form-group" style="display: flex; align-items: flex-end;">
@@ -277,13 +292,28 @@ function addPrograma() {
             </div>
 
             <div class="form-group">
-                <label class="form-label">Modalidad</label>
-                <select name="programas[${programaIndex}][modalidad]" class="form-select">
+                <label class="form-label required">Modalidad</label>
+                <select name="programas[${programaIndex}][modalidad]" class="form-select" required>
                     <option value="">-- Seleccione --</option>
                     <option value="Presencial">Presencial</option>
                     <option value="Virtual">Virtual</option>
                     <option value="Mixta">Mixta</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Jornada</label>
+                <select name="programas[${programaIndex}][jornada]" class="form-select" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="diurna">Diurna</option>
+                    <option value="nocturna">Nocturna</option>
+                    <option value="mixta">Mixta</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Municipio</label>
+                <input type="text" name="programas[${programaIndex}][municipio]" class="form-input" required>
             </div>
 
             <div class="form-group" style="display: flex; align-items: flex-end;">
